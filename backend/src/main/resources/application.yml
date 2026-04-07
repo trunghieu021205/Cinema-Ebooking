@@ -1,0 +1,36 @@
+spring:
+  config:
+    import: optional:file:.env[.properties]
+
+  application:
+    name: cinema-ebooking
+
+  datasource:
+    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/cinema_ebooking_db?sslMode=REQUIRED&requireSSL=true&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+    # ================== HIKARI CONNECTION POOL ==================
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 600000
+      connection-timeout: 30000
+      max-lifetime: 1800000
+
+  jpa:
+    hibernate:
+      ddl-auto: update               # an toàn cho giai ?o?n phát tri?n
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
+
+# Logging - giúp d? debug
+logging:
+  level:
+    com.zaxxer.hikari: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
