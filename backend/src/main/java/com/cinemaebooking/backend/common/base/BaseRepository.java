@@ -1,4 +1,4 @@
-package com.example.backend.common;
+package com.cinemaebooking.backend.common.base;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
