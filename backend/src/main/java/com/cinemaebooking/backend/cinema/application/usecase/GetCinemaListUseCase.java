@@ -3,6 +3,7 @@ package com.cinemaebooking.backend.cinema.application.usecase;
 import com.cinemaebooking.backend.cinema.domain.model.Cinema;
 import com.cinemaebooking.backend.cinema.application.port.CinemaRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -35,7 +36,7 @@ public class GetCinemaListUseCase {
      *
      * @return danh sách domain object Cinema
      */
-    public List<Cinema> execute() {
-        return cinemaRepository.findAll();
+    public Page<Cinema> execute(int page, int size) {
+        return cinemaRepository.findAll(page, size);
     }
 }

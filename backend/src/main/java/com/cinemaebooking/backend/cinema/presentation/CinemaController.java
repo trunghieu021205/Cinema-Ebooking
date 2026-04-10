@@ -6,10 +6,9 @@ import com.cinemaebooking.backend.cinema.application.usecase.*;
 import com.cinemaebooking.backend.cinema.domain.model.Cinema;
 import com.cinemaebooking.backend.cinema.domain.valueobject.CinemaId;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * CinemaController: Presentation layer, chịu trách nhiệm expose API cho Cinema.
@@ -96,11 +95,13 @@ public class CinemaController {
      *
      * <p>Endpoint lấy danh sách tất cả Cinema.
      *
-     * @return List<Cinema> danh sách Cinema
+     * @return Page<Cinema> danh sách Cinema
      */
     @GetMapping
-    public ResponseEntity<List<Cinema>> getCinemaList() {
-        List<Cinema> cinemas = getCinemaListUseCase.execute();
-        return ResponseEntity.ok(cinemas);
+    public ResponseEntity<Page<Cinema>> getCinemaList(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "8") int size
+    ) {
+        return ResponseEntity.ok(getCinemaListUseCase.execute(page, size));
     }
 }
