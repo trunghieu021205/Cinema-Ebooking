@@ -2,7 +2,7 @@ package com.cinemaebooking.backend.cinema.infrastructure.mapper;
 
 import com.cinemaebooking.backend.cinema.domain.model.Cinema;
 import com.cinemaebooking.backend.cinema.infrastructure.persistence.entity.CinemaJpaEntity;
-import com.cinemaebooking.backend.common.mapper.BaseMapper;
+import com.cinemaebooking.backend.infrastructure.persistence.mapper.BaseMapper;
 
 
 /**
