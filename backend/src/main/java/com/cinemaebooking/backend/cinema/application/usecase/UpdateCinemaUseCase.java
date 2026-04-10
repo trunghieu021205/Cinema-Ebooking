@@ -1,6 +1,8 @@
 package com.cinemaebooking.backend.cinema.application.usecase;
 
+import com.cinemaebooking.backend.cinema.application.dto.CinemaResponse;
 import com.cinemaebooking.backend.cinema.application.dto.UpdateCinemaRequest;
+import com.cinemaebooking.backend.cinema.application.mapper.CinemaResponseMapper;
 import com.cinemaebooking.backend.cinema.application.port.CinemaRepository;
 import com.cinemaebooking.backend.cinema.domain.model.Cinema;
 import com.cinemaebooking.backend.cinema.domain.valueobject.CinemaId;
@@ -29,6 +31,7 @@ import org.springframework.stereotype.Service;
 public class UpdateCinemaUseCase {
 
     private final CinemaRepository cinemaRepository;
+    private final CinemaResponseMapper mapper;
 
     /**
      * Thực hiện cập nhật Cinema theo id.
@@ -38,7 +41,7 @@ public class UpdateCinemaUseCase {
      * @return Cinema đã được cập nhật
      */
 
-    public Cinema execute(CinemaId id,UpdateCinemaRequest request) {
+    public CinemaResponse execute(CinemaId id, UpdateCinemaRequest request) {
         Cinema cinema = cinemaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cinema with id: " + id + " not found!"));
         // Update các field
@@ -48,6 +51,10 @@ public class UpdateCinemaUseCase {
         cinema.setStatus(request.getStatus());
 
         // Gọi repository để lưu
-        return cinemaRepository.save(cinema);
+        Cinema savedCinema = cinemaRepository.save(cinema);
+
+
+        // Convert Domain -> DTO Response
+        return mapper.toResponse(savedCinema);
     }
 }

@@ -1,9 +1,9 @@
 package com.cinemaebooking.backend.cinema.presentation;
 
+import com.cinemaebooking.backend.cinema.application.dto.CinemaResponse;
 import com.cinemaebooking.backend.cinema.application.dto.CreateCinemaRequest;
 import com.cinemaebooking.backend.cinema.application.dto.UpdateCinemaRequest;
 import com.cinemaebooking.backend.cinema.application.usecase.*;
-import com.cinemaebooking.backend.cinema.domain.model.Cinema;
 import com.cinemaebooking.backend.cinema.domain.valueobject.CinemaId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -40,9 +40,8 @@ public class CinemaController {
      * @return Cinema vừa được tạo
      */
     @PostMapping
-    public ResponseEntity<Cinema> createCinema(@RequestBody CreateCinemaRequest request) {
-        Cinema created = createCinemaUseCase.execute(request);
-        return ResponseEntity.ok(created);
+    public ResponseEntity<CinemaResponse> createCinema(@RequestBody CreateCinemaRequest request) {
+        return ResponseEntity.ok(createCinemaUseCase.execute(request));
     }
 
     /**
@@ -55,11 +54,10 @@ public class CinemaController {
      * @return Cinema đã được cập nhật
      */
     @PutMapping("/{id}")
-    public ResponseEntity<Cinema> updateCinema(
+    public ResponseEntity<CinemaResponse> updateCinema(
             @PathVariable("id") Long id,
             @RequestBody UpdateCinemaRequest request) {
-        Cinema updated = updateCinemaUseCase.execute(new CinemaId(id), request);
-        return ResponseEntity.ok(updated);
+        return ResponseEntity.ok(updateCinemaUseCase.execute(new CinemaId(id), request));
     }
 
     /**
@@ -85,9 +83,8 @@ public class CinemaController {
      * @return Cinema chi tiết
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Cinema> getCinemaDetail(@PathVariable("id") Long id) {
-        Cinema cinema = getCinemaDetailUseCase.execute(new CinemaId(id));
-        return ResponseEntity.ok(cinema);
+    public ResponseEntity<CinemaResponse> getCinemaDetail(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(getCinemaDetailUseCase.execute(new CinemaId(id)));
     }
 
     /**
@@ -98,7 +95,7 @@ public class CinemaController {
      * @return Page<Cinema> danh sách Cinema
      */
     @GetMapping
-    public ResponseEntity<Page<Cinema>> getCinemaList(
+    public ResponseEntity<Page<CinemaResponse>> getCinemaList(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "8") int size
     ) {
