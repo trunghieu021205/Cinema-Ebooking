@@ -6,6 +6,9 @@ import com.cinemaebooking.backend.cinema.domain.valueobject.CinemaId;
 import com.cinemaebooking.backend.cinema.infrastructure.mapper.CinemaMapper;
 import com.cinemaebooking.backend.cinema.infrastructure.persistence.repository.CinemaJpaRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -65,11 +68,11 @@ public class CinemaRepositoryImpl implements CinemaRepository {
      * Lấy toàn bộ danh sách Cinema từ database
      */
     @Override
-    public List<Cinema> findAll() {
-        return jpaRepository.findAll()
-                .stream()
-                .map(mapper::toDomain)
-                .toList();
+    public Page<Cinema> findAll(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        return jpaRepository.findAll(pageable)
+                .map(mapper::toDomain);
     }
     /**
      * Xóa Cinema theo ID (soft delete)

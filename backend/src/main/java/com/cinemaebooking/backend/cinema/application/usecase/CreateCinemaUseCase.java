@@ -1,6 +1,8 @@
 package com.cinemaebooking.backend.cinema.application.usecase;
 
+import com.cinemaebooking.backend.cinema.application.dto.CinemaResponse;
 import com.cinemaebooking.backend.cinema.application.dto.CreateCinemaRequest;
+import com.cinemaebooking.backend.cinema.application.mapper.CinemaResponseMapper;
 import com.cinemaebooking.backend.cinema.domain.model.Cinema;
 import com.cinemaebooking.backend.cinema.domain.valueobject.CinemaId;
 import com.cinemaebooking.backend.cinema.domain.enums.CinemaStatus;
@@ -32,6 +34,7 @@ import java.util.UUID;
 public class CreateCinemaUseCase {
 
     private final CinemaRepository cinemaRepository;
+    private final CinemaResponseMapper mapper;
 
     /**
      * Thực hiện tạo Cinema mới.
@@ -39,7 +42,7 @@ public class CreateCinemaUseCase {
      * @param request dữ liệu tạo Cinema từ client
      * @return Cinema đã được lưu trong database
      */
-    public Cinema execute(CreateCinemaRequest request) {
+    public CinemaResponse execute(CreateCinemaRequest request) {
 
         // Tạo domain object Cinema
         Cinema cinema = Cinema.builder()
@@ -51,6 +54,10 @@ public class CreateCinemaUseCase {
                 .build();
 
         // Gọi repository để lưu
-        return cinemaRepository.save(cinema);
+        Cinema savedCinema = cinemaRepository.save(cinema);
+
+
+        // Convert Domain -> DTO Response
+        return mapper.toResponse(savedCinema);
     }
 }
