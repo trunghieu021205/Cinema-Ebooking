@@ -1,6 +1,7 @@
 package com.cinemaebooking.backend.cinema.application.usecase;
 
-import com.cinemaebooking.backend.cinema.domain.model.Cinema;
+import com.cinemaebooking.backend.cinema.application.dto.CinemaResponse;
+import com.cinemaebooking.backend.cinema.application.mapper.CinemaResponseMapper;
 import com.cinemaebooking.backend.cinema.domain.valueobject.CinemaId;
 import com.cinemaebooking.backend.cinema.application.port.CinemaRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,7 @@ import java.util.Optional;
 public class GetCinemaDetailUseCase {
 
     private final CinemaRepository cinemaRepository;
+    private final CinemaResponseMapper mapper;
 
     /**
      * Thực hiện lấy chi tiết Cinema theo ID.
@@ -38,8 +40,9 @@ public class GetCinemaDetailUseCase {
      * @param id ID của Cinema cần lấy
      * @return Cinema domain object nếu tồn tại, null nếu chưa xử lý exception
      */
-    public Cinema execute(CinemaId id) {
+    public CinemaResponse execute(CinemaId id) {
         return cinemaRepository.findById(id)
+                .map(mapper::toResponse)
                 .orElseThrow(() -> new RuntimeException("Cinema with id: " + id + " not found!"));
     }
 }

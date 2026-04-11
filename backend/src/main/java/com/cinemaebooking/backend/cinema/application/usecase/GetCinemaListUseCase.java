@@ -1,8 +1,10 @@
 package com.cinemaebooking.backend.cinema.application.usecase;
 
-import com.cinemaebooking.backend.cinema.domain.model.Cinema;
+import com.cinemaebooking.backend.cinema.application.dto.CinemaResponse;
+import com.cinemaebooking.backend.cinema.application.mapper.CinemaResponseMapper;
 import com.cinemaebooking.backend.cinema.application.port.CinemaRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,13 +31,15 @@ import java.util.List;
 public class GetCinemaListUseCase {
 
     private final CinemaRepository cinemaRepository;
+    private final CinemaResponseMapper mapper;
 
     /**
      * Thực hiện lấy danh sách tất cả Cinema.
      *
      * @return danh sách domain object Cinema
      */
-    public List<Cinema> execute() {
-        return cinemaRepository.findAll();
+    public Page<CinemaResponse> execute(int page, int size) {
+        return cinemaRepository.findAll(page, size)
+                .map(mapper::toResponse);
     }
 }
