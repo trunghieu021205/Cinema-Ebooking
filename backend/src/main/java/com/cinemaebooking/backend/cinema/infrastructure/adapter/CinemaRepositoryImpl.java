@@ -117,4 +117,12 @@ public class CinemaRepositoryImpl implements CinemaRepository {
     public boolean existsById(CinemaId id) {
         return jpaRepository.existsById(id.getValue());
     }
+
+    /**
+     * Kiểm tra sự tồn tại của Cinema theo name
+     */
+    @Override
+    public boolean existsByName(String name) {
+        return jpaRepository.existsByName(name);
+    }
 }

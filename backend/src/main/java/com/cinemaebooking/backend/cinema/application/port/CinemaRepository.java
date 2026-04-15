@@ -39,4 +39,6 @@ public interface CinemaRepository {
     void deleteById(CinemaId id);
 
     boolean existsById(CinemaId id);
+
+    boolean existsByName(String name);
 }
