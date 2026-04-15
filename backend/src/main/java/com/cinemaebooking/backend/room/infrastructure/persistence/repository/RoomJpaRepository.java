@@ -10,4 +10,6 @@ import org.springframework.stereotype.Repository;
 public interface RoomJpaRepository extends JpaRepository<RoomJpaEntity, Long> {
     boolean existsByName(String name);
     Page<RoomJpaEntity> findByCinema_Id(Long cinemaId, Pageable pageable);
+
+    boolean existsByNameAndCinemaId(String name, Long cinemaId);
 }

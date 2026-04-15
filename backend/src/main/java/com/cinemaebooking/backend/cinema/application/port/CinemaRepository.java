@@ -42,4 +42,6 @@ public interface CinemaRepository {
     boolean existsById(CinemaId id);
 
     boolean existsByName(String name);
+
+    Cinema findByName(String name);
 }

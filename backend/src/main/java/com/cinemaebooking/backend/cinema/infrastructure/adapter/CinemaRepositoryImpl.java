@@ -124,5 +124,6 @@ public class CinemaRepositoryImpl implements CinemaRepository {
         return jpaRepository.existsByName(name);
     }
 
-
+    @Override
+    public Cinema findByName(String name) { return jpaRepository.findByName(name);}
 }
