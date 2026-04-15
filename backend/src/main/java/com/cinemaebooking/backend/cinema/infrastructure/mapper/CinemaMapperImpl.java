@@ -96,4 +96,13 @@ public class CinemaMapperImpl implements CinemaMapper {
                 // NOTE: chưa xử lý rooms ở mapper này
                 .build();
     }
+    @Override
+    public void updateEntity(CinemaJpaEntity entity, Cinema domain) {
+        if (entity == null || domain == null) return;
+
+        entity.setName(domain.getName());
+        entity.setAddress(domain.getAddress());
+        entity.setCity(domain.getCity());
+        entity.setStatus(domain.getStatus());
+    }
 }

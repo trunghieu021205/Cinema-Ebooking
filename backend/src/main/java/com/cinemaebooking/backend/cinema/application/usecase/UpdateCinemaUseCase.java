@@ -51,7 +51,7 @@ public class UpdateCinemaUseCase {
         cinema.setStatus(request.getStatus());
 
         // Gọi repository để lưu
-        Cinema savedCinema = cinemaRepository.save(cinema);
+        Cinema savedCinema = cinemaRepository.update(cinema);
 
 
         // Convert Domain -> DTO Response
