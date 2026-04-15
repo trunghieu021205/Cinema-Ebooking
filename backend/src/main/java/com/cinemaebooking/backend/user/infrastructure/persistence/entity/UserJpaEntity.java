@@ -75,6 +75,12 @@ public class UserJpaEntity extends BaseJpaEntity {
     private LocalDate dateOfBirth;
 
     /**
+     * Đường dẫn ảnh đại diện
+     */
+    @Column(name = "avatar_url", length = 500)
+    private String avatarUrl;
+    
+    /**
      * Vai trò người dùng (CUSTOMER, ADMIN, ...)
      */
     @Enumerated(EnumType.STRING)
