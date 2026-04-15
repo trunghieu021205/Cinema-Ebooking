@@ -63,10 +63,9 @@ public class RoomController {
      */
     @GetMapping
     public ResponseEntity<Page<RoomResponse>> getRoomList(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "8") int size
+            @PageableDefault(size = 8, page = 0) Pageable pageable
     ) {
-        return ResponseEntity.ok(getRoomUseCase.execute(page, size));
+        return ResponseEntity.ok(getRoomUseCase.execute(pageable));
     }
 
     /**

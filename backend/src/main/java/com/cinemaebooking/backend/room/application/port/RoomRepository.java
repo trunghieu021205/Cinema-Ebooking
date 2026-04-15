@@ -15,7 +15,7 @@ public interface RoomRepository {
 
     Optional<Room> findById(RoomId id);
 
-    Page<Room> findAll(int page, int size);
+    Page<Room> findAll(Pageable pageable);
 
     void deleteById(RoomId id);
 

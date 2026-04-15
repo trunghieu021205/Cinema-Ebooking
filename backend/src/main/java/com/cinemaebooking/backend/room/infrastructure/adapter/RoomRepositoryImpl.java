@@ -59,9 +59,7 @@ public class RoomRepositoryImpl implements RoomRepository {
     }
 
     @Override
-    public Page<Room> findAll(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-
+    public Page<Room> findAll(Pageable pageable) {
         return roomJpaRepository.findAll(pageable)
                 .map(roomMapper::toDomain);
     }
