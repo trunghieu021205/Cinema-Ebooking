@@ -79,7 +79,7 @@ public class UserJpaEntity extends BaseJpaEntity {
      */
     @Column(name = "avatar_url", length = 500)
     private String avatarUrl;
-    
+
     /**
      * Vai trò người dùng (CUSTOMER, ADMIN, ...)
      */
