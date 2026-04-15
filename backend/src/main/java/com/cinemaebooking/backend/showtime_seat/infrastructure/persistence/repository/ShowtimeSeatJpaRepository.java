@@ -1,0 +1,48 @@
+package com.cinemaebooking.backend.showtime_seat.infrastructure.persistence.repository;
+
+import com.cinemaebooking.backend.showtime_seat.infrastructure.persistence.entity.ShowtimeSeatJpaEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
+
+/**
+ * ShowtimeSeatJpaRepository: Repository làm việc trực tiếp với bảng showtime_seats.
+ *
+ * <p>
+ * Chịu trách nhiệm:
+ * <ul>
+ *     <li>Thực hiện CRUD với bảng "showtime_seats"</li>
+ *     <li>Cung cấp các query thường dùng liên quan đến ghế theo suất chiếu</li>
+ * </ul>
+ *
+ * <p>
+ * Lưu ý:
+ * <ul>
+ *     <li>Chỉ làm việc với JpaEntity, không sử dụng Domain</li>
+ *     <li>Không chứa business logic</li>
+ * </ul>
+ *
+ * @author Hieu Nguyen
+ * @since 2026
+ */
+@Repository
+public interface ShowtimeSeatJpaRepository extends JpaRepository<ShowtimeSeatJpaEntity, Long> {
+
+    /**
+     * Tìm ShowtimeSeat theo suất chiếu và ghế
+     */
+    Optional<ShowtimeSeatJpaEntity> findByShowtimeIdAndSeatId(Long showtimeId, Long seatId);
+
+    /**
+     * Lấy tất cả ghế thuộc một suất chiếu
+     */
+    List<ShowtimeSeatJpaEntity> findByShowtimeId(Long showtimeId);
+
+    /**
+     * Kiểm tra ghế có tồn tại trong suất chiếu không
+     */
+    boolean existsByShowtimeIdAndSeatId(Long showtimeId, Long seatId);
+
+}

@@ -28,7 +28,9 @@ import java.util.Optional;
  */
 public interface CinemaRepository {
 
-    Cinema save(Cinema cinema);
+    Cinema create(Cinema cinema);
+
+    Cinema update(Cinema cinema);
 
     Optional<Cinema> findById(CinemaId id);
 

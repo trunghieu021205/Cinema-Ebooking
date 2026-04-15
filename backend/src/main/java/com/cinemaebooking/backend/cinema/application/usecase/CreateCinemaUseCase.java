@@ -53,8 +53,8 @@ public class CreateCinemaUseCase {
                 .status(CinemaStatus.ACTIVE) // mặc định active khi tạo mới
                 .build();
 
-        // Gọi repository để lưu
-        Cinema savedCinema = cinemaRepository.save(cinema);
+        // Gọi repository để lưu cinema mới
+        Cinema savedCinema = cinemaRepository.create(cinema);
 
 
         // Convert Domain -> DTO Response
