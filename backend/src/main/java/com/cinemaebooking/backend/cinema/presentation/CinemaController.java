@@ -7,6 +7,8 @@ import com.cinemaebooking.backend.cinema.application.usecase.*;
 import com.cinemaebooking.backend.cinema.domain.valueobject.CinemaId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -96,9 +98,8 @@ public class CinemaController {
      */
     @GetMapping
     public ResponseEntity<Page<CinemaResponse>> getCinemaList(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "8") int size
+            @PageableDefault(size = 8, page = 0) Pageable pageable
     ) {
-        return ResponseEntity.ok(getCinemaListUseCase.execute(page, size));
+        return ResponseEntity.ok(getCinemaListUseCase.execute(pageable));
     }
 }

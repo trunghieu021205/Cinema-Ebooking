@@ -46,7 +46,6 @@ public class CreateCinemaUseCase {
 
         // Tạo domain object Cinema
         Cinema cinema = Cinema.builder()
-                .id(new CinemaId(null)) // id sẽ được DB auto-generate
                 .name(request.getName())
                 .address(request.getAddress())
                 .city(request.getCity())

@@ -1,5 +1,6 @@
 package com.cinemaebooking.backend.cinema.infrastructure.persistence.repository;
 
+import com.cinemaebooking.backend.cinema.domain.model.Cinema;
 import com.cinemaebooking.backend.cinema.domain.valueobject.CinemaId;
 import com.cinemaebooking.backend.cinema.infrastructure.persistence.entity.CinemaJpaEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -27,4 +28,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CinemaJpaRepository extends JpaRepository<CinemaJpaEntity, Long> {
     boolean existsByName(String name);
+
+    Cinema findByName(String name);
 }
