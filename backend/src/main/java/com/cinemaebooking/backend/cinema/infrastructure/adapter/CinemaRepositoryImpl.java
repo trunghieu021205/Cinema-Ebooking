@@ -79,9 +79,7 @@ public class CinemaRepositoryImpl implements CinemaRepository {
      * Lấy toàn bộ danh sách Cinema từ database
      */
     @Override
-    public Page<Cinema> findAll(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-
+    public Page<Cinema> findAll(Pageable pageable) {
         return jpaRepository.findAll(pageable)
                 .map(mapper::toDomain);
     }
