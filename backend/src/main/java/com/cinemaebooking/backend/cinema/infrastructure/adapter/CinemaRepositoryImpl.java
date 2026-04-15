@@ -4,6 +4,7 @@ import com.cinemaebooking.backend.cinema.application.port.CinemaRepository;
 import com.cinemaebooking.backend.cinema.domain.model.Cinema;
 import com.cinemaebooking.backend.cinema.domain.valueobject.CinemaId;
 import com.cinemaebooking.backend.cinema.infrastructure.mapper.CinemaMapper;
+import com.cinemaebooking.backend.cinema.infrastructure.persistence.entity.CinemaJpaEntity;
 import com.cinemaebooking.backend.cinema.infrastructure.persistence.repository.CinemaJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -44,15 +45,25 @@ public class CinemaRepositoryImpl implements CinemaRepository {
     private final CinemaMapper mapper;
 
     /**
-     * Lưu Cinema vào database
+     * Lưu Cinema mới vào database
      */
     @Override
-    public Cinema save(Cinema cinema) {
+    public Cinema create(Cinema cinema) {
         return mapper.toDomain(
-                jpaRepository.save(
-                        mapper.toEntity(cinema)
-                )
+                jpaRepository.save(mapper.toEntity(cinema))
         );
+    }
+    /**
+     * Lưu Cinema đã được cập nhật vào database
+     */
+    @Override
+    public Cinema update(Cinema cinema) {
+        CinemaJpaEntity entity = jpaRepository.findById(cinema.getId().getValue())
+                .orElseThrow(() -> new RuntimeException("Cinema not found"));
+
+        mapper.updateEntity(entity, cinema);
+
+        return mapper.toDomain(jpaRepository.save(entity));
     }
 
     /**

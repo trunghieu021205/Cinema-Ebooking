@@ -26,5 +26,5 @@ import com.cinemaebooking.backend.infrastructure.persistence.mapper.BaseMapper;
  * @since 2026
  */
 public interface CinemaMapper extends BaseMapper<Cinema, CinemaJpaEntity> {
-
+    void updateEntity(CinemaJpaEntity entity, Cinema domain);
 }
