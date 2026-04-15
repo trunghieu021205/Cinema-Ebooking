@@ -2,9 +2,11 @@ package com.cinemaebooking.backend.room.application.usecase;
 
 import com.cinemaebooking.backend.room.application.dto.CreateRoomRequest;
 import com.cinemaebooking.backend.room.application.dto.RoomResponse;
-import com.cinemaebooking.backend.room.domain.Room;
+import com.cinemaebooking.backend.room.application.mapper.RoomResponseMapper;
+import com.cinemaebooking.backend.room.domain.enums.RoomStatus;
+import com.cinemaebooking.backend.room.domain.model.Room;
 import com.cinemaebooking.backend.room.application.port.RoomRepository;
-import jakarta.transaction.Transactional;
+import com.cinemaebooking.backend.room.domain.valueObject.RoomId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,21 +15,24 @@ import org.springframework.stereotype.Service;
 public class CreateRoomUseCase {
 
     private final RoomRepository roomRepository;
+    private final RoomResponseMapper mapper;
 
-    @Transactional
     public RoomResponse execute(CreateRoomRequest request) {
+
         if (roomRepository.existsByName(request.getName())) {
             throw new IllegalArgumentException("Room with name '" + request.getName() + "' already exists");
         }
 
-        Room room = Room.create(
-                request.getName(),
-                request.getTotalSeats(),
-                request.getRoomType(),
-                request.getCinemaId()
-        );
+        Room room = Room.builder()
+                .id(new RoomId(null))
+                .name(request.getName())
+                .totalSeats(request.getTotalSeats())
+                .roomType(request.getRoomType())
+                .status(RoomStatus.ACTIVE)
+                .cinemaId(request.getCinemaId())
+                .build();
 
         Room saved = roomRepository.save(room);
-        return RoomResponse.from(saved);
+        return mapper.toRoomResponse(saved);
     }
 }
