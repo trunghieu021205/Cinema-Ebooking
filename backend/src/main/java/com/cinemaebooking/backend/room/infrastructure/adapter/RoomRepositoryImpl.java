@@ -24,20 +24,18 @@ public class RoomRepositoryImpl implements RoomRepository {
     private final CinemaJpaRepository cinemaJpaRepository;
 
     @Override
-    public Room save(Room room) {
+    public Room create(Room room) {
+        var cinema = cinemaJpaRepository.findById(room.getCinemaId())
+                .orElseThrow();
 
-        // CREATE (id null)
-        if (room.getId() == null) {
-            var cinema = cinemaJpaRepository.findById(room.getCinemaId())
-                    .orElseThrow();
+        var newEntity = roomMapper.toEntity(room);
+        newEntity.setCinema(cinema);
 
-            var newEntity = roomMapper.toEntity(room);
-            newEntity.setCinema(cinema);
+        return roomMapper.toDomain(roomJpaRepository.save(newEntity));
+    }
 
-            return roomMapper.toDomain(roomJpaRepository.save(newEntity));
-        }
-
-        // UPDATE (id != null)
+    @Override
+    public Room update(Room room) {
         var oldEntity = roomJpaRepository.findById(room.getId().getValue())
                 .orElseThrow(() -> new RuntimeException("Room not found"));
 
@@ -52,6 +50,7 @@ public class RoomRepositoryImpl implements RoomRepository {
 
         return roomMapper.toDomain(roomJpaRepository.save(oldEntity));
     }
+
 
     @Override
     public Optional<Room> findById(RoomId id) {
@@ -84,5 +83,16 @@ public class RoomRepositoryImpl implements RoomRepository {
     @Override
     public boolean existsByName(String name) {
         return roomJpaRepository.existsByName(name);
+    }
+
+    @Override
+    public Page<Room> findByCinemaId(Long cinemaId, Pageable pageable) {
+
+        if (cinemaId == null) {
+            throw new IllegalArgumentException("CinemaId must not be null");
+        }
+
+        return roomJpaRepository.findByCinema_Id(cinemaId, pageable)
+                .map(roomMapper::toDomain);
     }
 }

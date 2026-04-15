@@ -6,7 +6,6 @@ import com.cinemaebooking.backend.room.application.mapper.RoomResponseMapper;
 import com.cinemaebooking.backend.room.domain.enums.RoomStatus;
 import com.cinemaebooking.backend.room.domain.model.Room;
 import com.cinemaebooking.backend.room.application.port.RoomRepository;
-import com.cinemaebooking.backend.room.domain.valueObject.RoomId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +23,6 @@ public class CreateRoomUseCase {
         }
 
         Room room = Room.builder()
-                .id(new RoomId(null))
                 .name(request.getName())
                 .totalSeats(request.getTotalSeats())
                 .roomType(request.getRoomType())
@@ -32,7 +30,7 @@ public class CreateRoomUseCase {
                 .cinemaId(request.getCinemaId())
                 .build();
 
-        Room saved = roomRepository.save(room);
+        Room saved = roomRepository.create(room);
         return mapper.toRoomResponse(saved);
     }
 }

@@ -25,7 +25,7 @@ public class UpdateRoomUseCase {
         room.setTotalSeats(request.getTotalSeats());
         room.setStatus(request.getStatus());
 
-        Room roomSaved = roomRepository.save(room);
+        Room roomSaved = roomRepository.update(room);
         return mapper.toRoomResponse(roomSaved);
     }
 }

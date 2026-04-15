@@ -125,4 +125,6 @@ public class CinemaRepositoryImpl implements CinemaRepository {
     public boolean existsByName(String name) {
         return jpaRepository.existsByName(name);
     }
+
+
 }

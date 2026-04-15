@@ -3,12 +3,15 @@ package com.cinemaebooking.backend.room.application.port;
 import com.cinemaebooking.backend.room.domain.model.Room;
 import com.cinemaebooking.backend.room.domain.valueObject.RoomId;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.Optional;
 
 public interface RoomRepository {
 
-    Room save(Room room);
+    Room create(Room room);
+
+    Room update(Room room);
 
     Optional<Room> findById(RoomId id);
 
@@ -19,4 +22,6 @@ public interface RoomRepository {
     boolean existsById(RoomId id);
 
     boolean existsByName(String name);
+
+    Page<Room> findByCinemaId(Long cinemaId, Pageable pageable);
 }

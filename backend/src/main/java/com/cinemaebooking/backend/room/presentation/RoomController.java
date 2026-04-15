@@ -1,16 +1,16 @@
 package com.cinemaebooking.backend.room.presentation;
 
-import com.cinemaebooking.backend.room.application.usecase.CreateRoomUseCase;
-import com.cinemaebooking.backend.room.application.usecase.DeleteRoomUseCase;
-import com.cinemaebooking.backend.room.application.usecase.UpdateRoomUseCase;
+import com.cinemaebooking.backend.room.application.usecase.*;
 import com.cinemaebooking.backend.room.application.dto.CreateRoomRequest;
 import com.cinemaebooking.backend.room.application.dto.RoomResponse;
 import com.cinemaebooking.backend.room.application.dto.UpdateRoomRequest;
-import com.cinemaebooking.backend.room.application.usecase.GetRoomUseCase;
 import com.cinemaebooking.backend.room.domain.valueObject.RoomId;
+import com.cinemaebooking.backend.room.infrastructure.persistence.repository.RoomJpaRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +24,7 @@ public class RoomController {
     private final UpdateRoomUseCase updateRoomUseCase;
     private final DeleteRoomUseCase deleteRoomUseCase;
     private final GetRoomUseCase getRoomUseCase;
+    private final GetRoomsByCinemaIdUseCase getRoomsByCinemaIdUseCase;
 
     /**
      * POST /api/v1/rooms
@@ -96,5 +97,24 @@ public class RoomController {
     public ResponseEntity<Void> deleteRoom(@PathVariable Long id) {
         deleteRoomUseCase.execute(new RoomId(id));
         return ResponseEntity.ok().build();
+    }
+
+    /**
+     * GET /api/v1/rooms/cinema/{cinemaId}
+     *
+     * <p>Endpoint lấy danh sách Room theo CinemaId (có phân trang).
+     *
+     * @param cinemaId ID của Cinema
+     * @param pageable thông tin phân trang (page, size, sort)
+     * @return ResponseEntity chứa danh sách Room thuộc Cinema
+     */
+    @GetMapping("/cinema/{cinemaId}")
+    public ResponseEntity<Page<RoomResponse>> getRoomsByCinema(
+            @PathVariable Long cinemaId,
+            @PageableDefault(size = 8, page = 0) Pageable pageable
+    ) {
+        return ResponseEntity.ok(
+                getRoomsByCinemaIdUseCase.execute(cinemaId, pageable)
+        );
     }
 }
