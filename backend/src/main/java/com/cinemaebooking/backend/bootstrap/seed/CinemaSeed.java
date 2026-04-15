@@ -17,10 +17,11 @@ public class CinemaSeed {
     private static final String NAME = "CGV Vincom";
     private static final String CITY = "Da Nang";
 
-    public void seed() {
+    public Cinema seed() {
 
         if (cinemaRepository.existsByName(NAME)) {
-            return;
+            log.info("Cinema already exists: {}", NAME);
+            return cinemaRepository.findByName(NAME); // 👈 FIX
         }
 
         Cinema cinema = Cinema.builder()
@@ -30,8 +31,9 @@ public class CinemaSeed {
                 .status(CinemaStatus.ACTIVE)
                 .build();
 
-        cinemaRepository.create(cinema);
+        Cinema savedCinema = cinemaRepository.create(cinema);
 
         log.info("Cinema seeded: {}", NAME);
+        return savedCinema;
     }
 }

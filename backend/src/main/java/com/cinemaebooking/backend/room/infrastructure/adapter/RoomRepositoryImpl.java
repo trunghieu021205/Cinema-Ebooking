@@ -93,4 +93,7 @@ public class RoomRepositoryImpl implements RoomRepository {
         return roomJpaRepository.findByCinema_Id(cinemaId, pageable)
                 .map(roomMapper::toDomain);
     }
+
+    @Override
+    public boolean existsByNameAndCinemaId(String name,Long CinemaId){return roomJpaRepository.existsByNameAndCinemaId(name,CinemaId);}
 }
