@@ -4,6 +4,7 @@ import com.cinemaebooking.backend.cinema.application.port.CinemaRepository;
 import com.cinemaebooking.backend.cinema.domain.model.Cinema;
 import com.cinemaebooking.backend.cinema.domain.valueobject.CinemaId;
 import com.cinemaebooking.backend.cinema.infrastructure.mapper.CinemaMapper;
+import com.cinemaebooking.backend.cinema.infrastructure.persistence.entity.CinemaJpaEntity;
 import com.cinemaebooking.backend.cinema.infrastructure.persistence.repository.CinemaJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -44,15 +45,25 @@ public class CinemaRepositoryImpl implements CinemaRepository {
     private final CinemaMapper mapper;
 
     /**
-     * Lưu Cinema vào database
+     * Lưu Cinema mới vào database
      */
     @Override
-    public Cinema save(Cinema cinema) {
+    public Cinema create(Cinema cinema) {
         return mapper.toDomain(
-                jpaRepository.save(
-                        mapper.toEntity(cinema)
-                )
+                jpaRepository.save(mapper.toEntity(cinema))
         );
+    }
+    /**
+     * Lưu Cinema đã được cập nhật vào database
+     */
+    @Override
+    public Cinema update(Cinema cinema) {
+        CinemaJpaEntity entity = jpaRepository.findById(cinema.getId().getValue())
+                .orElseThrow(() -> new RuntimeException("Cinema not found"));
+
+        mapper.updateEntity(entity, cinema);
+
+        return mapper.toDomain(jpaRepository.save(entity));
     }
 
     /**
@@ -68,9 +79,7 @@ public class CinemaRepositoryImpl implements CinemaRepository {
      * Lấy toàn bộ danh sách Cinema từ database
      */
     @Override
-    public Page<Cinema> findAll(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-
+    public Page<Cinema> findAll(Pageable pageable) {
         return jpaRepository.findAll(pageable)
                 .map(mapper::toDomain);
     }
@@ -106,4 +115,15 @@ public class CinemaRepositoryImpl implements CinemaRepository {
     public boolean existsById(CinemaId id) {
         return jpaRepository.existsById(id.getValue());
     }
+
+    /**
+     * Kiểm tra sự tồn tại của Cinema theo name
+     */
+    @Override
+    public boolean existsByName(String name) {
+        return jpaRepository.existsByName(name);
+    }
+
+    @Override
+    public Cinema findByName(String name) { return jpaRepository.findByName(name);}
 }

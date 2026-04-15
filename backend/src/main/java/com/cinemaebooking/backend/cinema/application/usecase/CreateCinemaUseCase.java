@@ -46,15 +46,14 @@ public class CreateCinemaUseCase {
 
         // Tạo domain object Cinema
         Cinema cinema = Cinema.builder()
-                .id(new CinemaId(null)) // id sẽ được DB auto-generate
                 .name(request.getName())
                 .address(request.getAddress())
                 .city(request.getCity())
                 .status(CinemaStatus.ACTIVE) // mặc định active khi tạo mới
                 .build();
 
-        // Gọi repository để lưu
-        Cinema savedCinema = cinemaRepository.save(cinema);
+        // Gọi repository để lưu cinema mới
+        Cinema savedCinema = cinemaRepository.create(cinema);
 
 
         // Convert Domain -> DTO Response

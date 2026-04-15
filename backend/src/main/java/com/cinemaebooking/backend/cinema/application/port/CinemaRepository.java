@@ -3,6 +3,7 @@ package com.cinemaebooking.backend.cinema.application.port;
 import com.cinemaebooking.backend.cinema.domain.model.Cinema;
 import com.cinemaebooking.backend.cinema.domain.valueobject.CinemaId;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,13 +29,19 @@ import java.util.Optional;
  */
 public interface CinemaRepository {
 
-    Cinema save(Cinema cinema);
+    Cinema create(Cinema cinema);
+
+    Cinema update(Cinema cinema);
 
     Optional<Cinema> findById(CinemaId id);
 
-    Page<Cinema> findAll(int page, int size);
+    Page<Cinema> findAll(Pageable pageable);
 
     void deleteById(CinemaId id);
 
     boolean existsById(CinemaId id);
+
+    boolean existsByName(String name);
+
+    Cinema findByName(String name);
 }

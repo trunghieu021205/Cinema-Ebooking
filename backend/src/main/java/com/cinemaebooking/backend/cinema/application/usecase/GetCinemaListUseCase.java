@@ -5,6 +5,7 @@ import com.cinemaebooking.backend.cinema.application.mapper.CinemaResponseMapper
 import com.cinemaebooking.backend.cinema.application.port.CinemaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -38,8 +39,8 @@ public class GetCinemaListUseCase {
      *
      * @return danh sách domain object Cinema
      */
-    public Page<CinemaResponse> execute(int page, int size) {
-        return cinemaRepository.findAll(page, size)
+    public Page<CinemaResponse> execute(Pageable pageable) {
+        return cinemaRepository.findAll(pageable)
                 .map(mapper::toResponse);
     }
 }
