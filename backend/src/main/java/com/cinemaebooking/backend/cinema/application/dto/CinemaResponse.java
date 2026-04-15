@@ -30,7 +30,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CinemaResponse {
+public class
+CinemaResponse {
 
     /**
      * ID của Cinema
