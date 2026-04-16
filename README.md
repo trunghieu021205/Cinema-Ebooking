@@ -179,6 +179,214 @@ Hỏi trước khi sửa
 
 ---
 
+## 8.5 Exception Handling Rule (IMPORTANT)
+
+Hệ thống backend sử dụng **Domain Exception Factory Pattern** để thống nhất toàn bộ xử lý lỗi.
+
+---
+
+### 8.5.1 Mục tiêu
+
+* Chuẩn hóa toàn bộ exception trong hệ thống
+* Không cho phép throw exception tùy ý
+* Dễ debug + dễ trace lỗi (traceId)
+* Response frontend luôn đồng nhất
+
+---
+
+### 8.5.2 Quy tắc bắt buộc
+
+## ❌ KHÔNG ĐƯỢC
+
+```java id="ex-a1"
+new RuntimeException()
+new IllegalArgumentException()
+new BaseException(ErrorCode.XXX)
+```
+
+---
+
+## ❌ KHÔNG ĐƯỢC dùng ErrorCode trực tiếp
+
+```java id="ex-a2"
+throw new BaseException(ErrorCode.CINEMA_NOT_FOUND);
+```
+
+---
+
+## ✅ CHỈ ĐƯỢC DÙNG FACTORY
+
+```java id="ex-a3"
+throw CinemaExceptions.notFound();
+throw CinemaExceptions.alreadyExists();
+throw CommonExceptions.invalidInput();
+```
+
+---
+
+### 8.5.3 Phân loại Exception
+
+### 🔹 CommonExceptions (system-level)
+
+Dùng cho:
+
+* input sai
+* auth / authorization
+* lỗi hệ thống chung
+
+```java id="ex-a4"
+CommonExceptions.invalidInput()
+CommonExceptions.resourceNotFound()
+CommonExceptions.unauthorized()
+```
+
+---
+
+### 🔹 Domain Exceptions
+
+Dùng theo từng module:
+
+```text id="ex-a5"
+CinemaExceptions
+RoomExceptions
+BookingExceptions
+UserExceptions
+```
+
+---
+
+Ví dụ:
+
+```java id="ex-a6"
+CinemaExceptions.notFound()
+RoomExceptions.alreadyExists()
+BookingExceptions.invalidStatus()
+```
+
+---
+
+### 8.5.4 Quy trình thêm exception mới
+
+### Bước 1:
+
+Kiểm tra `ErrorCode.java` đã tồn tại chưa
+
+---
+
+### Bước 2:
+
+Nếu chưa có → báo Backend Lead:
+
+Cần cung cấp:
+
+* Tên error (VD: ROOM_NOT_FOUND)
+* Message default
+* HTTP status
+
+---
+
+### Bước 3:
+
+Lead thêm vào `ErrorCode`
+
+---
+
+### Bước 4:
+
+Tạo Factory tương ứng
+
+```java id="ex-a7"
+throw RoomExceptions.notFound("Room ID: " + id);
+```
+
+---
+
+## ### 8.5.5 Rule về message
+
+## ✔ Được phép
+
+```java id="ex-a8"
+CinemaExceptions.notFound("Cinema ID: " + id);
+```
+
+---
+
+## ❌ Không nên
+
+```java id="ex-a9"
+CinemaExceptions.notFound("error");
+CinemaExceptions.notFound("something wrong");
+```
+
+---
+
+## ### 8.5.6 Exception Flow
+
+```text id="ex-a10"
+Controller
+   ↓
+Service
+   ↓
+ExceptionFactory
+   ↓
+BaseException
+   ↓
+GlobalExceptionHandler
+   ↓
+ErrorResponse (traceId + details)
+   ↓
+Frontend
+```
+
+---
+
+### 8.5.7 Red Flags (FAIL PR)
+
+Nếu có bất kỳ case nào sau:
+
+* ❌ new RuntimeException
+* ❌ new BaseException
+* ❌ dùng ErrorCode trực tiếp
+* ❌ throw exception trong controller logic
+* ❌ message không rõ ràng
+
+👉 **PR bị reject ngay**
+
+---
+
+## ### 8.5.8 Quick Cheat Sheet
+
+| Case                  | Dùng gì                         |
+| --------------------- | ------------------------------- |
+| Input sai             | CommonExceptions.invalidInput() |
+| Không tìm thấy Cinema | CinemaExceptions.notFound()     |
+| Lỗi Room              | RoomExceptions.xxx()            |
+| Lỗi hệ thống          | CommonExceptions.xxx()          |
+
+---
+
+### 8.5.9 Message cho team
+
+Hệ thống exception này giúp:
+
+* code thống nhất toàn team
+* debug nhanh hơn
+* giảm bug production
+* dễ mở rộng module mới
+
+Ban đầu có thể hơi khác thói quen cũ, nhưng sẽ quen rất nhanh sau vài ngày sử dụng.
+
+---
+
+# 🎯 KẾT QUẢ SAU CHUẨN HÓA
+
+✔ rõ ràng hơn cho dev mới
+✔ giảm overload chữ
+✔ scan nhanh trong PR
+✔ enforce rule mạnh hơn
+✔ đúng style “tech spec production system”
+
+
 ## 9. Code Review Rule
 
 ### Focus
