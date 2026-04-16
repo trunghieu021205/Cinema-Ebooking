@@ -1,6 +1,6 @@
 package com.cinemaebooking.backend.showtime.infrastructure.persistence.mapper;
 
-import com.cinemaebooking.backend.infrastructure.mapper.BaseRelationalMapper;
+import com.cinemaebooking.backend.infrastructure.mapper.JpaReferenceHelper;
 import com.cinemaebooking.backend.movie.infrastructure.persistence.entity.MovieJpaEntity;
 import com.cinemaebooking.backend.room.infrastructure.persistence.entity.RoomJpaEntity;
 import com.cinemaebooking.backend.showtime.domain.enums.Language;
@@ -50,16 +50,16 @@ class ShowtimeMapperImplTest {
     }
 
     /**
-     * Inject EntityManager mock vào BaseRelationalMapper thông qua reflection.
+     * Inject EntityManager mock vào JpaReferenceHelper thông qua reflection.
      *
      * <p>
      * Lý do:
-     * entityManager là protected field trong BaseRelationalMapper,
+     * entityManager là protected field trong JpaReferenceHelper,
      * test không nằm cùng package nên không access trực tiếp được.
      */
     private void injectEntityManager(ShowtimeMapperImpl mapper, EntityManager em) {
         try {
-            Field field = BaseRelationalMapper.class.getDeclaredField("entityManager");
+            Field field = JpaReferenceHelper.class.getDeclaredField("entityManager");
             field.setAccessible(true);
             field.set(mapper, em);
         } catch (Exception e) {

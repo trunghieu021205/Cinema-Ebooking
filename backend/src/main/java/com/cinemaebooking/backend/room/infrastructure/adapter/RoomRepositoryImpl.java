@@ -69,8 +69,7 @@ public class RoomRepositoryImpl implements RoomRepository {
         var entity = roomJpaRepository.findById(id.getValue())
                 .orElseThrow(() -> new RuntimeException("Room not found"));
 
-        entity.setDeletedAt(LocalDateTime.now());
-        roomJpaRepository.save(entity);
+        roomJpaRepository.delete(entity);
     }
 
     @Override

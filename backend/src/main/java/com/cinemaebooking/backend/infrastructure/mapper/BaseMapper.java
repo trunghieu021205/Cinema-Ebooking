@@ -1,21 +1,21 @@
 package com.cinemaebooking.backend.infrastructure.mapper;
+
 /**
- * Base mapper for converting between Domain and JpaEntity
+ * BaseMapper - Contract for Domain ↔ JpaEntity mapping.
+ * RULES:
+ * - MUST NOT contain business logic
+ * - MUST be stateless
+ * - MUST NOT call database
  *
- * @param <D> Domain
- * @param <E> Jpa Entity
+ * @param <D> Domain model
+ * @param <E> JPA entity
+ *
  * @author Hieu Nguyen
  * @since 2026
  */
 public interface BaseMapper<D, E> {
 
-    /**
-     * Convert Domain → JpaEntity
-     */
     E toEntity(D domain);
 
-    /**
-     * Convert JpaEntity → Domain
-     */
     D toDomain(E entity);
 }
