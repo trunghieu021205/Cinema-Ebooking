@@ -26,6 +26,8 @@ public enum ErrorCode {
     UNAUTHORIZED(1002, "Unauthorized", 401),
     FORBIDDEN(1003, "Forbidden", 403),
     CONCURRENCY_CONFLICT(1004, "Concurrency conflict, please try again", 409),
+    INVALID_REQUEST(1005, "Invalid request", 400),
+    CONFLICT(1006, "Conflict", 409),
 
     // ===================== CINEMA =====================
     CINEMA_NOT_FOUND(2001, "Cinema not found", 404),

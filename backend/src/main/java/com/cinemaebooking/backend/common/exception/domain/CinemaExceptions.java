@@ -38,4 +38,20 @@ public final class CinemaExceptions {
     public static BaseException invalidStatus(String message) {
         return new BaseException(ErrorCode.CINEMA_INVALID_STATUS, message);
     }
+
+    public static BaseException invalidRequest() {
+        return new BaseException(ErrorCode.INVALID_REQUEST);
+    }
+
+    public static BaseException invalidRequest(String message) {
+        return new BaseException(ErrorCode.INVALID_REQUEST, message);
+    }
+
+    public static BaseException conflict() {
+        return new BaseException(ErrorCode.CONFLICT);
+    }
+
+    public static BaseException conflict(String message) {
+        return new BaseException(ErrorCode.CONFLICT, message);
+    }
 }
