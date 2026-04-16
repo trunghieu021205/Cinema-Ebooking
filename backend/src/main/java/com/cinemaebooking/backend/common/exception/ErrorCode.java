@@ -4,20 +4,19 @@ import lombok.Getter;
 
 /**
  * ErrorCode - Centralized error definition for entire system.
- * RULES:
- * 1. DO NOT create new error enums inside domain packages.
- * 2. ONLY ADD new error codes here by backend lead/maintainer.
- * 3. DO NOT modify existing error code numbers once released.
- * 4. Frontend relies on "code" field for logic handling.
- * 5. message is default fallback, can be overridden in exception if needed.
- * ARCHITECTURE RULE:
- * - All exceptions MUST use ErrorCode
- * - No raw RuntimeException or string message throwing allowed
+ *
+ * STRICT RULES:
+ * 1. ONLY Backend Lead/Maintainer is allowed to add or modify error codes.
+ * 2. DO NOT create new error enums inside any domain packages.
+ * 3. DO NOT modify existing error code numbers once they are released (Frontend depends on it).
+ * 4. ALL exceptions MUST be thrown via corresponding Exception Factories:
+ *    → CommonExceptions, CinemaExceptions, RoomExceptions, ...
+ * 5. NEVER throw raw RuntimeException, new BaseException(...) directly, or use ErrorCode directly in business code.
+ * 6. Message in ErrorCode is the default message. It can be overridden when throwing exception if needed.
  *
  * @author Hieu Nguyen
  * @since 2026
  */
-
 @Getter
 public enum ErrorCode {
 
@@ -33,9 +32,15 @@ public enum ErrorCode {
     CINEMA_ALREADY_EXISTS(2002, "Cinema with this name already exists", 409),
     CINEMA_INVALID_STATUS(2003, "Invalid cinema status", 400),
 
+    // ===================== ROOM =====================
+    ROOM_NOT_FOUND(2101, "Room not found", 404),
+    ROOM_ALREADY_EXISTS(2102, "Room already exists in this cinema", 409),
+    ROOM_INVALID_STATUS(2103, "Invalid room status", 400),
+    ROOM_INVALID_CAPACITY(2104, "Invalid room capacity", 400),
+
     // ===================== COMMON =====================
     RESOURCE_NOT_FOUND(3001, "Resource not found", 404),
-    RESOURCE_ALREADY_EXISTS(3002, "Resource already exists", 409);;
+    RESOURCE_ALREADY_EXISTS(3002, "Resource already exists", 409);
 
     private final int code;
     private final String message;
