@@ -1,4 +1,4 @@
-package com.cinemaebooking.backend.infrastructure.persistence.mapper;
+package com.cinemaebooking.backend.infrastructure.mapper;
 /**
  * Base mapper for converting between Domain and JpaEntity
  *

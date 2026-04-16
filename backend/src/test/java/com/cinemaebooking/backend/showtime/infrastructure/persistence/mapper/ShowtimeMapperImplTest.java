@@ -1,6 +1,6 @@
 package com.cinemaebooking.backend.showtime.infrastructure.persistence.mapper;
 
-import com.cinemaebooking.backend.infrastructure.persistence.mapper.BaseRelationalMapper;
+import com.cinemaebooking.backend.infrastructure.mapper.BaseRelationalMapper;
 import com.cinemaebooking.backend.movie.infrastructure.persistence.entity.MovieJpaEntity;
 import com.cinemaebooking.backend.room.infrastructure.persistence.entity.RoomJpaEntity;
 import com.cinemaebooking.backend.showtime.domain.enums.Language;

@@ -1,4 +1,4 @@
-package com.cinemaebooking.backend.infrastructure.persistence.mapper;
+package com.cinemaebooking.backend.infrastructure.mapper;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
