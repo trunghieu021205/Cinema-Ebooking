@@ -5,25 +5,17 @@ import com.cinemaebooking.backend.cinema.domain.valueobject.CinemaId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
- * CinemaRepository: Port interface thuộc domain layer.
+ * CinemaRepository - Domain Port for Cinema persistence operations.
+ * Responsibility:
+ * - Define persistence contract for Cinema
+ * - Completely independent of infrastructure (JPA, DB)
+ * Rule:
+ * - Work with Domain objects only
+ * - No JpaEntity usage
  *
- * <p>
- * Chịu trách nhiệm:
- * <ul>
- *     <li>Định nghĩa contract cho persistence</li>
- *     <li>Không phụ thuộc vào JPA hay DB cụ thể</li>
- * </ul>
- *
- * <p>
- * Lưu ý:
- * <ul>
- *     <li>Chỉ làm việc với Domain (Cinema)</li>
- *     <li>Không dùng JpaEntity</li>
- * </ul>
  * @author Hieu Nguyen
  * @since 2026
  */
@@ -43,5 +35,5 @@ public interface CinemaRepository {
 
     boolean existsByName(String name);
 
-    Cinema findByName(String name);
+    Optional<Cinema> findByName(String name);
 }

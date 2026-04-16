@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Optional;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -21,7 +23,8 @@ public class CinemaSeed {
 
         if (cinemaRepository.existsByName(NAME)) {
             log.info("Cinema already exists: {}", NAME);
-            return cinemaRepository.findByName(NAME); // 👈 FIX
+            return cinemaRepository.findByName(NAME)
+                    .orElseThrow(() -> new IllegalStateException("Cinema exists but not found"));
         }
 
         Cinema cinema = Cinema.builder()
