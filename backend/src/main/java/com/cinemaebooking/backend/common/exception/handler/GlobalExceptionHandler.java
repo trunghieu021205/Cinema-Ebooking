@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 
 /**
  * GlobalExceptionHandler - Centralized exception handling for the entire application.
+ * All business exceptions must go through XXXExceptions factories.
  *
  * @author Hieu Nguyen
  * @since 2026
@@ -26,7 +27,8 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
 
     /**
-     * Handle all business exceptions that extend BaseException
+     * Handle all business exceptions created via Exception Factories
+     * (CinemaExceptions, CommonExceptions, ...)
      */
     @ExceptionHandler(BaseException.class)
     public ResponseEntity<ErrorResponse> handleBaseException(
@@ -43,7 +45,8 @@ public class GlobalExceptionHandler {
                 .traceId(traceId)
                 .build();
 
-        log.warn("Business exception [{}]: {} - {}", traceId, ex.getErrorCode().getCode(), ex.getMessage());
+        log.warn("Business exception [{}] - Code: {} - Message: {}",
+                traceId, ex.getErrorCode().getCode(), ex.getMessage());
 
         return ResponseEntity
                 .status(ex.getHttpStatus())
@@ -84,6 +87,7 @@ public class GlobalExceptionHandler {
 
     /**
      * Fallback handler for all unhandled exceptions
+     * This should rarely happen if exception architecture is followed properly
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(
