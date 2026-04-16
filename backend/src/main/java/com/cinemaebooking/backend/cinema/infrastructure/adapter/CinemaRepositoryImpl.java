@@ -104,8 +104,7 @@ public class CinemaRepositoryImpl implements CinemaRepository {
         var entity = jpaRepository.findById(id.getValue())
                 .orElseThrow(() -> new RuntimeException("Cinema not found"));
 
-        entity.setDeletedAt(LocalDateTime.now());
-        jpaRepository.save(entity);
+        jpaRepository.delete(entity);
     }
 
     /**

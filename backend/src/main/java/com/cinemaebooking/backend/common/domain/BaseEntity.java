@@ -3,32 +3,38 @@ package com.cinemaebooking.backend.common.domain;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
+import java.util.Objects;
+
 /**
- * BaseEntity: Lớp cơ sở cho tất cả Domain Entity.
+ * BaseEntity - Root class for all Domain Entities.
+ * Core Rule:
+ * - Represents domain identity only
+ * - Must not contain any persistence, JPA, or framework-specific logic
+ * - Equality is based solely on domain identity (id)
  *
- * Nguyên tắc:
- * <ul>
- *     <li>Không chứa annotation JPA</li>
- *     <li>Không chứa logic liên quan database (audit, soft delete,...)</li>
- *     <li>Chỉ chứa identity và business logic</li>
- * </ul>
- *
- * @param <ID> kiểu ID của entity (kế thừa BaseId)
+ * @author Hieu Nguyen
+ * @since 2026
  */
 @Getter
 @SuperBuilder(toBuilder = true)
 public abstract class BaseEntity<ID extends BaseId> {
 
-    /**
-     * ID của entity trong domain.
-     * Đây là identity chính trong business logic.
-     */
     protected ID id;
 
     /**
-     * So sánh entity theo ID (identity equality)
+     * Two entities are considered the same if they have the same domain identity.
      */
-    public boolean sameIdentityAs(BaseEntity<ID> other) {
-        return other != null && this.id.equals(other.id);
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        BaseEntity<?> other = (BaseEntity<?>) o;
+        return Objects.equals(this.id, other.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getClass(), id);
     }
 }

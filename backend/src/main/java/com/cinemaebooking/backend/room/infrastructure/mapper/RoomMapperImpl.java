@@ -26,12 +26,12 @@ public class RoomMapperImpl implements RoomMapper {
     public RoomJpaEntity toEntity(Room room) {
         if (room == null) return null;
 
-        RoomJpaEntity entity = new RoomJpaEntity();
-        entity.setId(room.getId() != null ? room.getId().getValue() : null);
-        entity.setName(room.getName());
-        entity.setTotalSeats(room.getTotalSeats());
-        entity.setRoomType(room.getRoomType());
-        entity.setStatus(room.getStatus());
-        return entity; // Không set cinema ở đây
+        return RoomJpaEntity.builder()
+                .id(room.getId() != null ? room.getId().getValue() : null)
+                .name(room.getName())
+                .totalSeats(room.getTotalSeats())
+                .roomType(room.getRoomType())
+                .status(room.getStatus())
+                .build();
     }
 }
