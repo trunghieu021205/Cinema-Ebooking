@@ -1,37 +1,33 @@
 package com.cinemaebooking.backend.infrastructure.persistence.repository;
 
+import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import com.cinemaebooking.backend.infrastructure.persistence.entity.BaseJpaEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.NoRepositoryBean;
 
-import java.util.Optional;
-
 /**
- * BaseJpaRepository: Repository cơ sở cho persistence layer.
+ * BaseJpaRepository - Base interface for all JPA repositories.
  *
- * Mục đích:
- * <ul>
- *     <li>Làm việc trực tiếp với database thông qua JPA</li>
- *     <li>Không liên quan đến domain</li>
- * </ul>
+ * Responsibility:
+ * - Provide common JPA operations
+ * - Centralized exception handling using domain exception system
+ * - No business/domain logic allowed
  *
- * Nguyên tắc:
- * <ul>
- *     <li>Chỉ dùng JpaEntity</li>
- *     <li>ID luôn là kiểu của DB (Long)</li>
- * </ul>
- *
- * @param <T> JpaEntity
+ * @author Hieu Nguyen
+ * @since 2026
  */
 @NoRepositoryBean
 public interface BaseJpaRepository<T extends BaseJpaEntity>
         extends JpaRepository<T, Long>, JpaSpecificationExecutor<T> {
+
     /**
-     * Tìm entity hoặc throw exception
+     * Find entity by id or throw standardized ResourceNotFound exception.
      */
     default T findByIdOrThrow(Long id) {
         return findById(id)
-                .orElseThrow(() -> new RuntimeException("Entity not found: " + id));
+                .orElseThrow(() -> CommonExceptions.resourceNotFound(
+                        "Resource not found with id: " + id
+                ));
     }
 }
