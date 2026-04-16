@@ -4,25 +4,25 @@ import com.cinemaebooking.backend.cinema.application.dto.CinemaResponse;
 import com.cinemaebooking.backend.cinema.application.dto.UpdateCinemaRequest;
 import com.cinemaebooking.backend.cinema.application.mapper.CinemaResponseMapper;
 import com.cinemaebooking.backend.cinema.application.port.CinemaRepository;
+import com.cinemaebooking.backend.cinema.application.validator.CinemaCommandValidator;
 import com.cinemaebooking.backend.cinema.domain.model.Cinema;
 import com.cinemaebooking.backend.cinema.domain.valueobject.CinemaId;
+import com.cinemaebooking.backend.common.exception.domain.CinemaExceptions;
+import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import lombok.RequiredArgsConstructor;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
+import jakarta.persistence.OptimisticLockException;
+
 /**
- * CreateCinemaUseCase: Use case chịu trách nhiệm cập nhật một Cinema.
+ * UpdateCinemaUseCase - Handles updating an existing Cinema.
+ * Flow:
+ * 1. Validate input & business rules
+ * 2. Load entity
+ * 3. Apply domain changes
+ * 4. Persist
  *
- * <p>Chịu trách nhiệm:
- * <ul>
- *     <li>Lấy Cinema hiện tại từ DB</li>
- *     <li>Cập nhật dữ liệu từ DTO</li>
- *     <li>Lưu thay đổi vào DB</li>
- * </ul>
- *
- * <p>Lưu ý:
- * <ul>
- *     <li>Không chứa logic liên quan đến presentation hay DB trực tiếp</li>
- * </ul>
  * @author Hieu Nguyen
  * @since 2026
  */
@@ -32,29 +32,34 @@ public class UpdateCinemaUseCase {
 
     private final CinemaRepository cinemaRepository;
     private final CinemaResponseMapper mapper;
-
-    /**
-     * Thực hiện cập nhật Cinema theo id.
-     *
-     * @param id id của Cinema cần cập nhật
-     * @param request dữ liệu cập nhật từ client
-     * @return Cinema đã được cập nhật
-     */
+    private final CinemaCommandValidator validator;
 
     public CinemaResponse execute(CinemaId id, UpdateCinemaRequest request) {
+
+        // ================== VALIDATION ==================
+        validator.validateUpdateRequest(id, request);
+
+        // ================== LOAD ==================
         Cinema cinema = cinemaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Cinema with id: " + id + " not found!"));
-        // Update các field
-        cinema.setName(request.getName());
-        cinema.setAddress(request.getAddress());
-        cinema.setCity(request.getCity());
-        cinema.setStatus(request.getStatus());
+                .orElseThrow(() ->
+                        CinemaExceptions.notFound("Cinema not found with id: " + id)
+                );
 
-        // Gọi repository để lưu
-        Cinema savedCinema = cinemaRepository.update(cinema);
+        // ================== APPLY DOMAIN ==================
+        Cinema updatedCinema = cinema.toBuilder()
+                .name(request.getName())
+                .address(request.getAddress())
+                .city(request.getCity())
+                .status(request.getStatus())
+                .build();
 
+        // ================== PERSIST ==================
+        try {
+            Cinema saved = cinemaRepository.update(updatedCinema);
+            return mapper.toResponse(saved);
 
-        // Convert Domain -> DTO Response
-        return mapper.toResponse(savedCinema);
+        } catch (OptimisticLockException | ObjectOptimisticLockingFailureException ex) {
+            throw CommonExceptions.concurrencyConflict();
+        }
     }
 }

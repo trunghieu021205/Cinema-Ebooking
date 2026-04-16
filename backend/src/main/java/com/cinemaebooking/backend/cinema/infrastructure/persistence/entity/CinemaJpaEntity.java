@@ -31,13 +31,13 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder(toBuilder = true)
 public class CinemaJpaEntity extends BaseJpaEntity {
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false, length = 80)
     private String name;
 
-    @Column(nullable = false, length = 500)
+    @Column(nullable = false, length = 150)
     private String address;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 50)
     private String city;
 
     @Enumerated(EnumType.STRING)
