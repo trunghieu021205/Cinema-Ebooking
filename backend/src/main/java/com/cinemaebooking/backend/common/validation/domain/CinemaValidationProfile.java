@@ -23,35 +23,37 @@ public class CinemaValidationProfile {
 
     private CinemaValidationProfile() {}
 
-    public List<ValidationRule> nameRules() {
+    public List<ValidationRule<String>> nameRules() {
         return ValidationBuilder.create()
                 .notBlank()
                 .length(3, 80)
                 .pattern(
                         ValidationPatterns.CINEMA_NAME,
-                        "cinema name contains invalid characters"
+                        "contains invalid characters"
                 )
+                .containsLetter()
                 .build();
     }
 
-    public List<ValidationRule> cityRules() {
+    public List<ValidationRule<String>> cityRules() {
         return ValidationBuilder.create()
                 .notBlank()
                 .length(2, 100)
                 .pattern(
                         ValidationPatterns.CITY,
-                        "city contains invalid characters"
+                        "contains invalid characters"
                 )
+                .containsLetter()
                 .build();
     }
 
-    public List<ValidationRule> addressRules() {
+    public List<ValidationRule<String>> addressRules() {
         return ValidationBuilder.create()
                 .notBlank()
                 .length(5, 150)
                 .pattern(
                         ValidationPatterns.ADDRESS,
-                        "address format is invalid"
+                        "format is invalid"
                 )
                 .build();
     }
