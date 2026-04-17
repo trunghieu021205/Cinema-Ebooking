@@ -27,17 +27,17 @@ public class CinemaCommandValidator {
 
     public void validateUpdateRequest(CinemaId id, UpdateCinemaRequest request) {
 
-        // ================== BASIC VALIDATION ==================
+        // ================== BASIC ==================
         validateBasicInput(id, request);
 
-        // ================== FIELD VALIDATION ==================
+        // ================== FIELD ==================
         validateFields(request);
 
-        // ================== BUSINESS VALIDATION ==================
+        // ================== BUSINESS ==================
         validateBusinessRules(id, request);
     }
 
-    // ================== BASIC INPUT ==================
+    // ================== BASIC ==================
 
     private void validateBasicInput(CinemaId id, UpdateCinemaRequest request) {
         if (id == null || request == null) {
@@ -45,7 +45,7 @@ public class CinemaCommandValidator {
         }
     }
 
-    // ================== FIELD VALIDATION ==================
+    // ================== FIELD ==================
 
     private void validateFields(UpdateCinemaRequest request) {
 
@@ -68,28 +68,38 @@ public class CinemaCommandValidator {
                 "City",
                 profile.cityRules()
         );
-
     }
 
-    // ================== BUSINESS VALIDATION ==================
+    // ================== BUSINESS ==================
 
     private void validateBusinessRules(CinemaId id, UpdateCinemaRequest request) {
-        validateDuplicateName(id, request.getName());
-        validateDuplicateLocation(id, request.getAddress(), request.getCity());
+
+        String name = normalize(request.getName());
+        String address = normalize(request.getAddress());
+        String city = normalize(request.getCity());
+
+        // guard null → chỉ check khi có value
+        if (name != null) {
+            validateDuplicateName(id, name);
+        }
+
+        if (address != null && city != null) {
+            validateDuplicateLocation(id, address, city);
+        }
     }
 
     private void validateDuplicateName(CinemaId id, String name) {
-        cinemaRepository.findByName(name)
+
+        cinemaRepository.findByNameIgnoreCase(name)
                 .ifPresent(existing -> {
                     if (!existing.getId().equals(id)) {
-                        throw CinemaExceptions.alreadyExists(
-                                "Cinema already exists with name: " + name
-                        );
+                        throw CinemaExceptions.duplicateCinemaName(name);
                     }
                 });
     }
 
     private void validateDuplicateLocation(CinemaId id, String address, String city) {
+
         boolean exists = cinemaRepository.existsByAddressAndCityAndIdNot(
                 address,
                 city,
@@ -97,9 +107,13 @@ public class CinemaCommandValidator {
         );
 
         if (exists) {
-            throw CinemaExceptions.alreadyExists(
-                    "Cinema already exists at address: " + address + ", city: " + city
-            );
+            throw CinemaExceptions.duplicateCinemaLocation(address, city);
         }
+    }
+
+    // ================== UTILS ==================
+
+    private String normalize(String value) {
+        return value == null ? null : value.trim();
     }
 }
