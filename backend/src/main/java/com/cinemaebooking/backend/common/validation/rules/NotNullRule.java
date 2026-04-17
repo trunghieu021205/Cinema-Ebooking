@@ -14,10 +14,10 @@ import com.cinemaebooking.backend.common.validation.engine.ValidationRule;
  * @author Hieu Nguyen
  * @since 2026
  */
-public class NotNullRule implements ValidationRule {
+public class NotNullRule<T> implements ValidationRule<T> {
 
     @Override
-    public void validate(ValidationContext context) {
+    public void validate(ValidationContext<T> context) {
         if (context.value() == null) {
             throw CommonExceptions.invalidInput(
                     context.fieldName() + " must not be null"

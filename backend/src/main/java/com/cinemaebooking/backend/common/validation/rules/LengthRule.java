@@ -15,7 +15,7 @@ import com.cinemaebooking.backend.common.validation.engine.ValidationRule;
  * @author Hieu Nguyen
  * @since 2026
  */
-public class LengthRule implements ValidationRule {
+public class LengthRule implements ValidationRule<String> {
 
     private final int min;
     private final int max;
@@ -26,11 +26,11 @@ public class LengthRule implements ValidationRule {
     }
 
     @Override
-    public void validate(ValidationContext context) {
-        String v = context.value();
+    public void validate(ValidationContext<String> context) {
+        String v = context.trimmed();
         if (v == null) return;
 
-        int len = v.trim().length();
+        int len = v.length();
 
         if (len < min || len > max) {
             throw CommonExceptions.invalidInput(

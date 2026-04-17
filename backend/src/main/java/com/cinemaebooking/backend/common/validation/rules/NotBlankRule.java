@@ -14,10 +14,13 @@ import com.cinemaebooking.backend.common.validation.engine.ValidationRule;
  * @author Hieu Nguyen
  * @since 2026
  */
-public class NotBlankRule implements ValidationRule {
+public class NotBlankRule implements ValidationRule<String> {
+
     @Override
-    public void validate(ValidationContext context) {
-        if (context.value() == null || context.value().trim().isEmpty()) {
+    public void validate(ValidationContext<String> context) {
+        String v = context.trimmed();
+
+        if (v == null || v.isEmpty()) {
             throw CommonExceptions.invalidInput(
                     context.fieldName() + " must not be blank"
             );
