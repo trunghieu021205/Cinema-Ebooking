@@ -18,7 +18,7 @@ import org.springframework.data.repository.NoRepositoryBean;
  * @since 2026
  */
 @NoRepositoryBean
-public interface BaseJpaRepository<T extends BaseJpaEntity>
+public interface SoftDeleteJpaRepository<T extends BaseJpaEntity>
         extends JpaRepository<T, Long>, JpaSpecificationExecutor<T> {
 
     /**
@@ -30,4 +30,6 @@ public interface BaseJpaRepository<T extends BaseJpaEntity>
                         "Resource not found with id: " + id
                 ));
     }
+
+    void softDeleteById(Long id);
 }

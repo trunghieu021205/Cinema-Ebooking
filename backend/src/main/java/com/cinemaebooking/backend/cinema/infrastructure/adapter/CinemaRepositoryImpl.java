@@ -65,11 +65,8 @@ public class CinemaRepositoryImpl implements CinemaRepository {
 
     @Override
     public void deleteById(CinemaId id) {
-        if (!jpaRepository.existsById(id.getValue())) {
-            throw CinemaExceptions.notFound(id);
-        }
-
-        jpaRepository.deleteById(id.getValue());
+        CinemaJpaEntity cinema = jpaRepository.findByIdOrThrow(id.getValue());
+        jpaRepository.delete(cinema);
     }
 
     @Override
