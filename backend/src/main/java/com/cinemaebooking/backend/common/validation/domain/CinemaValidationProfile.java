@@ -38,7 +38,7 @@ public class CinemaValidationProfile {
     public List<ValidationRule<String>> cityRules() {
         return ValidationBuilder.create()
                 .notBlank()
-                .length(2, 100)
+                .length(2, 50)
                 .pattern(
                         ValidationPatterns.CITY,
                         "contains invalid characters"
