@@ -1,20 +1,27 @@
 package com.cinemaebooking.backend.common.api.response;
 
-import lombok.Builder;
-import lombok.Getter;
-
 import java.time.Instant;
 
 /**
- * ApiResponse - Standard success response wrapper.
- * This class is automatically wrapped by ApiResponseAdvice
- * to ensure consistent API response format.
+ * Unified API response wrapper (success + error)
  */
-@Getter
-@Builder
-public class ApiResponse<T> {
+public record ApiResponse<T>(
+        T data,
+        ApiError error,
+        Instant timestamp,
+        String traceId
+) {
+    public ApiResponse {
+        if (timestamp == null) {
+            timestamp = Instant.now();
+        }
+    }
 
-    private final T data;
-    private final Instant timestamp;
-    private final String traceId;
+    public static <T> ApiResponse<T> success(T data, String traceId) {
+        return new ApiResponse<>(data, null, Instant.now(), traceId);
+    }
+
+    public static <T> ApiResponse<T> error(ApiError error, String traceId) {
+        return new ApiResponse<>(null, error, Instant.now(), traceId);
+    }
 }

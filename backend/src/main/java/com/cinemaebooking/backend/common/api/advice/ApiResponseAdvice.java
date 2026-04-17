@@ -9,8 +9,6 @@ import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
-import java.time.Instant;
-
 @RestControllerAdvice
 public class ApiResponseAdvice implements ResponseBodyAdvice<Object> {
 
@@ -38,17 +36,23 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object> {
             return body;
         }
 
-        return ApiResponse.<Object>builder()
-                .data(body)
-                .timestamp(Instant.now())
-                .traceId(resolveTraceId(request))
-                .build();
+        String traceId = resolveTraceId(request);
+
+        return ApiResponse.success(
+                body,
+                traceId
+        );
     }
 
     private String resolveTraceId(ServerHttpRequest request) {
         String traceId = request.getHeaders().getFirst("X-Trace-Id");
+
         return (traceId != null && !traceId.isBlank())
                 ? traceId
-                : "no-trace-id";
+                : generateTraceId();
+    }
+
+    private String generateTraceId() {
+        return java.util.UUID.randomUUID().toString();
     }
 }
