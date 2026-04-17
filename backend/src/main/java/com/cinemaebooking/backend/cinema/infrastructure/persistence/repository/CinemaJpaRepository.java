@@ -17,7 +17,11 @@ public interface CinemaJpaRepository extends BaseJpaRepository<CinemaJpaEntity> 
 
     boolean existsByName(String name);
 
+    boolean existsByNameAndIdNot(String name, Long value);
+
     Optional<CinemaJpaEntity> findByNameIgnoreCase(String name);
+
+    boolean existsByAddressAndCity(String address, String city);
 
     boolean existsByAddressAndCityAndIdNot(String address, String city, Long id);
 }

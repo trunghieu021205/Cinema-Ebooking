@@ -83,9 +83,19 @@ public class CinemaRepositoryImpl implements CinemaRepository {
     }
 
     @Override
+    public boolean existsByNameAndIdNot(String name, CinemaId id) {
+        return jpaRepository.existsByNameAndIdNot(name, id.getValue());
+    }
+
+    @Override
     public Optional<Cinema> findByNameIgnoreCase(String name) {
         return jpaRepository.findByNameIgnoreCase(name)
                 .map(mapper::toDomain);
+    }
+
+    @Override
+    public boolean existsByAddressAndCity(String address, String city) {
+        return jpaRepository.existsByAddressAndCity(address, city);
     }
 
     @Override
