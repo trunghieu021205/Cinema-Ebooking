@@ -13,13 +13,16 @@ import java.util.List;
  */
 public class ValidationEngine {
 
-    public static void validate(String value,
-                                String fieldName,
-                                List<ValidationRule> rules) {
+    public static <T> void validate(
+            T value,
+            String fieldName,
+            List<ValidationRule<T>> rules
+    ) {
+        if (rules == null || rules.isEmpty()) return;
 
-        ValidationContext context = new ValidationContext(value, fieldName);
+        ValidationContext<T> context = new ValidationContext<>(value, fieldName);
 
-        for (ValidationRule rule : rules) {
+        for (ValidationRule<T> rule : rules) {
             rule.validate(context);
         }
     }

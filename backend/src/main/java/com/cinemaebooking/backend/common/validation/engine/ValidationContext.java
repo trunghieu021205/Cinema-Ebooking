@@ -8,7 +8,18 @@ package com.cinemaebooking.backend.common.validation.engine;
  * @author Hieu Nguyen
  * @since 2026
  */
-public record ValidationContext(
-        String value,
+
+public record ValidationContext<T>(
+        T value,
         String fieldName
-) {}
+) {
+
+    public String asString() {
+        return value == null ? null : value.toString();
+    }
+
+    public String trimmed() {
+        String v = asString();
+        return v == null ? null : v.trim();
+    }
+}

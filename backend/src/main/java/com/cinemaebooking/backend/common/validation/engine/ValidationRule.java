@@ -8,7 +8,6 @@ package com.cinemaebooking.backend.common.validation.engine;
  * @author Hieu Nguyen
  * @since 2026
  */
-public interface ValidationRule {
-
-    void validate(ValidationContext context);
+public interface ValidationRule<T> {
+    void validate(ValidationContext<T> context);
 }
