@@ -3,70 +3,86 @@ package com.cinemaebooking.backend.cinema.domain.model;
 import com.cinemaebooking.backend.cinema.domain.enums.CinemaStatus;
 import com.cinemaebooking.backend.cinema.domain.valueobject.CinemaId;
 import com.cinemaebooking.backend.common.domain.BaseEntity;
+import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
-
-import java.util.Objects;
 
 /**
  * Cinema - Aggregate Root representing a movie theater.
  * Responsibility:
- * - Core business attributes and state
- * - Enforce cinema business rules and invariants
- * - Provide state transition methods
- * This is a rich (non-anemic) domain model.
+ * - Maintain core state
+ * - Enforce business invariants
+ * - Provide behavior for state changes
+ * Rich domain model (DDD)
  *
  * @author Hieu Nguyen
  * @since 2026
  */
 @Getter
-@SuperBuilder(toBuilder = true)
+@SuperBuilder
 public class Cinema extends BaseEntity<CinemaId> {
 
-    private final String name;
-    private final String address;
-    private final String city;
-    private final CinemaStatus status;
+    private String name;
+    private String address;
+    private String city;
+    private CinemaStatus status;
 
-    /**
-     * Business invariants validation
-     */
-    public void validate() {
-        Objects.requireNonNull(name, "Cinema name cannot be null");
-        Objects.requireNonNull(address, "Cinema address cannot be null");
-        Objects.requireNonNull(city, "City cannot be null");
+    // ================== BUSINESS METHODS ==================
 
-        if (name.trim().isEmpty()) {
-            throw new IllegalStateException("Cinema name cannot be empty");
-        }
+    public void update(String name, String address, String city, CinemaStatus status) {
+        validateBasicInfo(name, address, city);
+        validateStatus(status);
+
+        this.name = name;
+        this.address = address;
+        this.city = city;
+        this.status = status;
+    }
+
+    public void updateInfo(String name, String address, String city) {
+        validateBasicInfo(name, address, city);
+
+        this.name = name;
+        this.address = address;
+        this.city = city;
+    }
+
+    public void changeStatus(CinemaStatus status) {
+        validateStatus(status);
+        this.status = status;
+    }
+
+    public void activate() {
+        this.status = CinemaStatus.ACTIVE;
+    }
+
+    public void deactivate() {
+        this.status = CinemaStatus.INACTIVE;
     }
 
     public boolean isActive() {
         return this.status == CinemaStatus.ACTIVE;
     }
 
-    public Cinema activate() {
-        if (this.status == CinemaStatus.ACTIVE) {
-            return this; // idempotent
+    // ================== VALIDATION ==================
+
+    private void validateBasicInfo(String name, String address, String city) {
+        if (name == null || name.trim().isEmpty()) {
+            throw CommonExceptions.invalidInput("Cinema name must not be empty");
         }
-        return this.toBuilder().status(CinemaStatus.ACTIVE).build();
-    }
 
-    public Cinema deactivate() {
-        if (this.status == CinemaStatus.INACTIVE) {
-            return this;
+        if (address == null || address.trim().isEmpty()) {
+            throw CommonExceptions.invalidInput("Cinema address must not be empty");
         }
-        return this.toBuilder().status(CinemaStatus.INACTIVE).build();
+
+        if (city == null || city.trim().isEmpty()) {
+            throw CommonExceptions.invalidInput("City must not be empty");
+        }
     }
 
-    public Cinema changeName(String newName) {
-        return this.toBuilder().name(newName).build();
-    }
-
-    public Cinema relocate(String newAddress, String newCity) {
-        return this.toBuilder()
-                .address(newAddress)
-                .city(newCity)
-                .build();
+    private void validateStatus(CinemaStatus status) {
+        if (status == null) {
+            throw CommonExceptions.invalidInput("Cinema status must not be null");
+        }
     }
 }
