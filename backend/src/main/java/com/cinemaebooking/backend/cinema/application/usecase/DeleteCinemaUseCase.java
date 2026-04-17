@@ -2,24 +2,19 @@ package com.cinemaebooking.backend.cinema.application.usecase;
 
 import com.cinemaebooking.backend.cinema.application.port.CinemaRepository;
 import com.cinemaebooking.backend.cinema.domain.valueobject.CinemaId;
+import com.cinemaebooking.backend.common.exception.domain.CinemaExceptions;
+import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 /**
- * DeleteCinemaUseCase: Use case chịu trách nhiệm soft delete một Cinema.
+ * DeleteCinemaUseCase - Handles soft delete of a Cinema.
  *
- * <p>Chịu trách nhiệm:
- * <ul>
- *     <li>Kiểm tra Cinema tồn tại theo ID</li>
- *     <li>Thực hiện soft delete bằng cách đánh dấu deletedAt</li>
- *     <li>Lưu thay đổi vào DB</li>
- * </ul>
+ * Responsibility:
+ * - Validate existence of Cinema
+ * - Perform soft delete via repository
+ * - Ensure consistent domain exception handling
  *
- * <p>Lưu ý:
- * <ul>
- *     <li>Ném exception nếu Cinema không tồn tại</li>
- *     <li>Không chứa logic liên quan đến presentation hay thao tác DB trực tiếp ngoài repository</li>
- * </ul>
  * @author Hieu Nguyen
  * @since 2026
  */
@@ -30,14 +25,23 @@ public class DeleteCinemaUseCase {
     private final CinemaRepository cinemaRepository;
 
     /**
-     * Xóa Cinema theo id.
+     * Soft delete Cinema by id.
      *
-     * @param id của Cinema cần xóa
+     * @param id cinema identifier
      */
     public void execute(CinemaId id) {
-        if (!cinemaRepository.existsById(id)) {
-            throw new IllegalArgumentException("Cinema with id: " + id + " not found!");
+
+        // ================== INPUT VALIDATION ==================
+        if (id == null) {
+            throw CommonExceptions.invalidInput("Cinema id must not be null");
         }
+
+        // ================== BUSINESS VALIDATION ==================
+        if (!cinemaRepository.existsById(id)) {
+            throw CinemaExceptions.notFound(id);
+        }
+
+        // ================== DELETE ==================
         cinemaRepository.deleteById(id);
     }
 }

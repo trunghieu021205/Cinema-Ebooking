@@ -3,15 +3,13 @@ package com.cinemaebooking.backend.common.exception;
 import lombok.Getter;
 
 /**
- * BaseException - Root exception cho toàn bộ hệ thống (Clean Architecture + DDD).
- *
- * RULES:
- * - ALL exceptions in the system MUST extend this class.
- * - ALWAYS use ErrorCode, never throw raw RuntimeException or plain string message.
- * - Custom message is allowed only when additional business context is needed.
- *
- * @author Hieu Nguyen
- * @since 2026
+ * BaseException - Root exception for the entire system.
+ * Responsibility:
+ * - Hold error code and message
+ * - Provide unified exception structure
+ * Note:
+ * - NO HTTP concerns inside this class
+ * - HTTP mapping should be handled in GlobalExceptionHandler
  */
 @Getter
 public class BaseException extends RuntimeException {
@@ -23,8 +21,8 @@ public class BaseException extends RuntimeException {
         this.errorCode = errorCode;
     }
 
-    public BaseException(ErrorCode errorCode, String customMessage) {
-        super(customMessage != null ? customMessage : errorCode.getMessage());
+    public BaseException(ErrorCode errorCode, String message) {
+        super(message != null ? message : errorCode.getMessage());
         this.errorCode = errorCode;
     }
 
@@ -33,15 +31,8 @@ public class BaseException extends RuntimeException {
         this.errorCode = errorCode;
     }
 
-    public BaseException(ErrorCode errorCode, String customMessage, Throwable cause) {
-        super(customMessage != null ? customMessage : errorCode.getMessage(), cause);
+    public BaseException(ErrorCode errorCode, String message, Throwable cause) {
+        super(message != null ? message : errorCode.getMessage(), cause);
         this.errorCode = errorCode;
-    }
-
-    /**
-     * Helper cho GlobalExceptionHandler
-     */
-    public int getHttpStatus() {
-        return errorCode.getHttpStatus();
     }
 }

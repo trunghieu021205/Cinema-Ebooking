@@ -1,33 +1,27 @@
 package com.cinemaebooking.backend.cinema.infrastructure.persistence.repository;
 
-import com.cinemaebooking.backend.cinema.domain.model.Cinema;
-import com.cinemaebooking.backend.cinema.domain.valueobject.CinemaId;
+import com.cinemaebooking.backend.infrastructure.persistence.repository.SoftDeleteJpaRepository;
 import com.cinemaebooking.backend.cinema.infrastructure.persistence.entity.CinemaJpaEntity;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 /**
- * CinemaJpaRepository: Repository làm việc trực tiếp với database.
+ * CinemaJpaRepository - JPA repository for Cinema entity.
  *
- * <p>
- * Chịu trách nhiệm:
- * <ul>
- *     <li>Thực hiện CRUD với bảng "cinemas"</li>
- *     <li>Sử dụng Spring Data JPA</li>
- * </ul>
- *
- * <p>
- * Lưu ý:
- * <ul>
- *     <li>Chỉ làm việc với JpaEntity, không dùng Domain</li>
- *     <li>Không chứa business logic</li>
- * </ul>
  * @author Hieu Nguyen
  * @since 2026
  */
 @Repository
-public interface CinemaJpaRepository extends JpaRepository<CinemaJpaEntity, Long> {
+public interface CinemaJpaRepository extends SoftDeleteJpaRepository<CinemaJpaEntity> {
+
     boolean existsByName(String name);
 
-    Cinema findByName(String name);
+    boolean existsByNameAndIdNot(String name, Long value);
+
+    Optional<CinemaJpaEntity> findByNameIgnoreCase(String name);
+
+    boolean existsByAddressAndCity(String address, String city);
+
+    boolean existsByAddressAndCityAndIdNot(String address, String city, Long id);
 }

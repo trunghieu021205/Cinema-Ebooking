@@ -4,26 +4,18 @@ import com.cinemaebooking.backend.cinema.application.dto.CinemaResponse;
 import com.cinemaebooking.backend.cinema.application.mapper.CinemaResponseMapper;
 import com.cinemaebooking.backend.cinema.domain.valueobject.CinemaId;
 import com.cinemaebooking.backend.cinema.application.port.CinemaRepository;
+import com.cinemaebooking.backend.common.exception.domain.CinemaExceptions;
+import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 /**
- * GetCinemaDetailUseCase: Use case chịu trách nhiệm lấy chi tiết thông tin một Cinema theo ID.
+ * GetCinemaDetailUseCase - Handles retrieving cinema detail by ID.
+ * Responsibility:
+ * - Validate input
+ * - Fetch cinema from repository
+ * - Map domain → response DTO
  *
- * <p>Chịu trách nhiệm:
- * <ul>
- *     <li>Nhận ID của Cinema từ client</li>
- *     <li>Gọi Repository để tìm Cinema trong database</li>
- *     <li>Trả về domain object Cinema nếu tồn tại</li>
- * </ul>
- *
- * <p>Lưu ý:
- * <ul>
- *     <li>Không chứa logic liên quan đến presentation hay thao tác database trực tiếp</li>
- *     <li>Chưa xử lý exception nếu Cinema không tồn tại, có thể bổ sung sau</li>
- * </ul>
  * @author Hieu Nguyen
  * @since 2026
  */
@@ -35,14 +27,23 @@ public class GetCinemaDetailUseCase {
     private final CinemaResponseMapper mapper;
 
     /**
-     * Thực hiện lấy chi tiết Cinema theo ID.
+     * Get cinema detail by id.
      *
-     * @param id ID của Cinema cần lấy
-     * @return Cinema domain object nếu tồn tại, null nếu chưa xử lý exception
+     * @param id cinema identifier
+     * @return CinemaResponse
      */
     public CinemaResponse execute(CinemaId id) {
+
+        // ================== INPUT VALIDATION ==================
+        if (id == null) {
+            throw CommonExceptions.invalidInput("Cinema id must not be null");
+        }
+
+        // ================== BUSINESS VALIDATION ==================
         return cinemaRepository.findById(id)
                 .map(mapper::toResponse)
-                .orElseThrow(() -> new RuntimeException("Cinema with id: " + id + " not found!"));
+                .orElseThrow(() ->
+                        CinemaExceptions.notFound(id)
+                );
     }
 }

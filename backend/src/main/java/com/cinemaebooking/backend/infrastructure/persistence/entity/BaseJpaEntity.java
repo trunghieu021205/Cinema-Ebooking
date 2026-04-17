@@ -33,12 +33,6 @@ import java.time.LocalDateTime;
 @SuperBuilder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
-@SQLDelete(sql = """
-    UPDATE #{#entityName}
-    SET deleted_at = CURRENT_TIMESTAMP,
-        updated_at = CURRENT_TIMESTAMP
-    WHERE id = ? AND deleted_at IS NULL
-""")
 @SQLRestriction("deleted_at IS NULL")
 public abstract class BaseJpaEntity {
 
@@ -62,4 +56,20 @@ public abstract class BaseJpaEntity {
     // ================== Optimistic Locking ==================
     @Version
     protected Long version;
+
+    // ================== SOFT DELETE METHODS ==================
+
+    public void softDelete() {
+        this.deletedAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void restore() {
+        this.deletedAt = null;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public boolean isDeleted() {
+        return deletedAt != null;
+    }
 }

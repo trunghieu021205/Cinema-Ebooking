@@ -1,113 +1,115 @@
 package com.cinemaebooking.backend.common.exception.handler;
 
+import com.cinemaebooking.backend.common.api.response.ApiError;
+import com.cinemaebooking.backend.common.api.response.ApiResponse;
 import com.cinemaebooking.backend.common.exception.BaseException;
-import com.cinemaebooking.backend.common.exception.ErrorCode;
-import com.cinemaebooking.backend.common.exception.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
-/**
- * GlobalExceptionHandler - Centralized exception handling for the entire application.
- * All business exceptions must go through XXXExceptions factories.
- *
- * @author Hieu Nguyen
- * @since 2026
- */
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    /**
-     * Handle all business exceptions created via Exception Factories
-     * (CinemaExceptions, CommonExceptions, ...)
-     */
+    // ================== BUSINESS EXCEPTION ==================
     @ExceptionHandler(BaseException.class)
-    public ResponseEntity<ErrorResponse> handleBaseException(
-            BaseException ex, HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<?>> handleBaseException(
+            BaseException ex,
+            HttpServletRequest request
+    ) {
 
-        String traceId = UUID.randomUUID().toString();
+        String traceId = generateTraceId();
 
-        ErrorResponse response = ErrorResponse.builder()
-                .code(ex.getErrorCode().getCode())
-                .message(ex.getMessage())
-                .status(ex.getHttpStatus())
-                .timestamp(Instant.now())
-                .path(request.getRequestURI())
-                .traceId(traceId)
-                .build();
+        log.warn("[{}] Business error | code={} | path={} | message={}",
+                traceId,
+                ex.getErrorCode().getCode(),
+                request.getRequestURI(),
+                ex.getMessage()
+        );
 
-        log.warn("Business exception [{}] - Code: {} - Message: {}",
-                traceId, ex.getErrorCode().getCode(), ex.getMessage());
+        ApiError error = new ApiError(
+                String.valueOf(ex.getErrorCode().getCode()),
+                ex.getMessage(),
+                null
+        );
+
+        ApiResponse<?> response = ApiResponse.error(error, traceId);
 
         return ResponseEntity
-                .status(ex.getHttpStatus())
+                .status(ex.getErrorCode().getHttpStatus())
                 .body(response);
     }
 
-    /**
-     * Handle validation errors from @Valid / @Validated
-     */
+    // ================== VALIDATION ERROR ==================
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationException(
-            MethodArgumentNotValidException ex, HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<?>> handleValidationException(
+            MethodArgumentNotValidException ex,
+            HttpServletRequest request
+    ) {
 
-        String traceId = UUID.randomUUID().toString();
+        String traceId = generateTraceId();
 
         List<String> details = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
-                .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                .collect(Collectors.toList());
+                .map(e -> e.getField() + ": " + e.getDefaultMessage())
+                .toList();
 
-        ErrorResponse response = ErrorResponse.builder()
-                .code(ErrorCode.INVALID_INPUT.getCode())
-                .message("Validation failed")
-                .status(ErrorCode.INVALID_INPUT.getHttpStatus())
-                .timestamp(Instant.now())
-                .path(request.getRequestURI())
-                .traceId(traceId)
-                .details(details)
-                .build();
+        log.warn("[{}] Validation failed | path={} | details={}",
+                traceId,
+                request.getRequestURI(),
+                details
+        );
 
-        log.warn("Validation failed [{}]: {}", traceId, details);
+        ApiError error = new ApiError(
+                "VALIDATION_ERROR",
+                "Request validation failed",
+                details
+        );
+
+        ApiResponse<?> response = ApiResponse.error(error, traceId);
 
         return ResponseEntity
-                .status(ErrorCode.INVALID_INPUT.getHttpStatus())
+                .status(HttpStatus.BAD_REQUEST)
                 .body(response);
     }
 
-    /**
-     * Fallback handler for all unhandled exceptions
-     * This should rarely happen if exception architecture is followed properly
-     */
+    // ================== GENERIC ERROR ==================
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGenericException(
-            Exception ex, HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<?>> handleGenericException(
+            Exception ex,
+            HttpServletRequest request
+    ) {
 
-        String traceId = UUID.randomUUID().toString();
+        String traceId = generateTraceId();
 
-        log.error("Unexpected exception occurred [{}]", traceId, ex);
+        log.error("[{}] Unexpected error | path={} ",
+                traceId,
+                request.getRequestURI(),
+                ex
+        );
 
-        ErrorResponse response = ErrorResponse.builder()
-                .code(ErrorCode.UNCATEGORIZED_EXCEPTION.getCode())
-                .message(ex.getMessage() != null ? ex.getMessage() : "An unexpected error occurred")
-                .status(ErrorCode.UNCATEGORIZED_EXCEPTION.getHttpStatus())
-                .timestamp(Instant.now())
-                .path(request.getRequestURI())
-                .traceId(traceId)
-                .build();
+        ApiError error = new ApiError(
+                "INTERNAL_SERVER_ERROR",
+                "Unexpected error occurred",
+                null
+        );
+
+        ApiResponse<?> response = ApiResponse.error(error, traceId);
 
         return ResponseEntity
-                .status(ErrorCode.UNCATEGORIZED_EXCEPTION.getHttpStatus())
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(response);
+    }
+
+    private String generateTraceId() {
+        return UUID.randomUUID().toString();
     }
 }
