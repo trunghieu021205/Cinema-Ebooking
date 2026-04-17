@@ -94,11 +94,17 @@ public class CinemaCommandValidator {
     private void validateDuplicateForCreate(String name, String address, String city) {
 
         if (name != null) {
-            validateDuplicateName(null, name);
+            if (cinemaRepository.existsByName(name)) {
+                throw CinemaExceptions.duplicateCinemaName(name);
+            }
         }
 
         if (address != null && city != null) {
-            validateDuplicateLocation(null, address, city);
+            boolean exists = cinemaRepository.existsByAddressAndCity(address, city);
+
+            if (exists) {
+                throw CinemaExceptions.duplicateCinemaLocation(address, city);
+            }
         }
     }
 
@@ -112,47 +118,18 @@ public class CinemaCommandValidator {
     ) {
 
         if (name != null) {
-            validateDuplicateName(id, name);
+            if (cinemaRepository.existsByNameAndIdNot(name, id)) {
+                throw CinemaExceptions.duplicateCinemaName(name);
+            }
         }
 
         if (address != null && city != null) {
-            validateDuplicateLocation(id, address, city);
+            if (cinemaRepository.existsByAddressAndCityAndIdNot(address, city, id)) {
+                throw CinemaExceptions.duplicateCinemaLocation(address, city);
+            }
         }
     }
 
-    // ================== DUPLICATE CHECK ==================
-
-    private void validateDuplicateName(CinemaId id, String name) {
-
-        cinemaRepository.findByNameIgnoreCase(name)
-                .ifPresent(existing -> {
-
-                    // create: id = null → always conflict if exists
-                    // update: ignore same id
-                    if (id == null || !existing.getId().equals(id)) {
-                        throw CinemaExceptions.duplicateCinemaName(name);
-                    }
-                });
-    }
-
-    private void validateDuplicateLocation(
-            CinemaId id,
-            String address,
-            String city
-    ) {
-
-        boolean exists = cinemaRepository.existsByAddressAndCityAndIdNot(
-                address,
-                city,
-                id
-        );
-
-        if (exists) {
-            throw CinemaExceptions.duplicateCinemaLocation(address, city);
-        }
-    }
-
-    // ================== UTILS ==================
 
     private String normalize(String value) {
         if (value == null) return null;
