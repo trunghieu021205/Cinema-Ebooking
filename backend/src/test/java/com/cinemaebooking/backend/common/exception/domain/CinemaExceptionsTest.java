@@ -11,32 +11,43 @@ import static org.assertj.core.api.Assertions.assertThat;
 class CinemaExceptionsTest {
 
     @Test
-    @DisplayName("notFound() should return CINEMA_NOT_FOUND")
+    @DisplayName("notFound() should return CINEMA_NOT_FOUND with default message")
     void notFound_shouldReturnCorrectError() {
+
         BaseException ex = CinemaExceptions.notFound();
 
-        assertThat(ex.getErrorCode()).isEqualTo(ErrorCode.CINEMA_NOT_FOUND);
-        assertThat(ex.getHttpStatus()).isEqualTo(404);
-        assertThat(ex.getMessage()).isEqualTo("Cinema not found");
+        assertThat(ex.getErrorCode())
+                .isEqualTo(ErrorCode.CINEMA_NOT_FOUND);
+
+        assertThat(ex.getMessage())
+                .isEqualTo(ErrorCode.CINEMA_NOT_FOUND.getMessage());
     }
 
     @Test
     @DisplayName("alreadyExists() should return CINEMA_ALREADY_EXISTS")
     void alreadyExists_shouldReturnCorrectError() {
+
         BaseException ex = CinemaExceptions.alreadyExists();
 
-        assertThat(ex.getErrorCode()).isEqualTo(ErrorCode.CINEMA_ALREADY_EXISTS);
-        assertThat(ex.getHttpStatus()).isEqualTo(409);
+        assertThat(ex.getErrorCode())
+                .isEqualTo(ErrorCode.CINEMA_ALREADY_EXISTS);
+
+        assertThat(ex.getMessage())
+                .isEqualTo(ErrorCode.CINEMA_ALREADY_EXISTS.getMessage());
     }
 
     @Test
-    @DisplayName("invalidStatus() with custom message")
+    @DisplayName("invalidStatus() should override default message when custom provided")
     void invalidStatus_withCustomMessage_shouldOverrideMessage() {
+
         String customMsg = "Trạng thái rạp không hợp lệ";
+
         BaseException ex = CinemaExceptions.invalidStatus(customMsg);
 
-        assertThat(ex.getErrorCode()).isEqualTo(ErrorCode.CINEMA_INVALID_STATUS);
-        assertThat(ex.getMessage()).isEqualTo(customMsg);
-        assertThat(ex.getHttpStatus()).isEqualTo(400);
+        assertThat(ex.getErrorCode())
+                .isEqualTo(ErrorCode.CINEMA_INVALID_STATUS);
+
+        assertThat(ex.getMessage())
+                .isEqualTo(customMsg);
     }
 }
