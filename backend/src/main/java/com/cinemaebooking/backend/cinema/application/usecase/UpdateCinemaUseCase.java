@@ -9,22 +9,19 @@ import com.cinemaebooking.backend.cinema.domain.model.Cinema;
 import com.cinemaebooking.backend.cinema.domain.valueobject.CinemaId;
 import com.cinemaebooking.backend.common.exception.domain.CinemaExceptions;
 import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
+import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
-
-import jakarta.persistence.OptimisticLockException;
 
 /**
  * UpdateCinemaUseCase - Handles updating an existing Cinema.
  * Flow:
  * 1. Validate input & business rules
- * 2. Load entity
- * 3. Apply domain changes
- * 4. Persist
- *
- * @author Hieu Nguyen
- * @since 2026
+ * 2. Load existing cinema
+ * 3. Apply domain update
+ * 4. Persist changes
+ * 5. Map to response
  */
 @Service
 @RequiredArgsConstructor
@@ -40,24 +37,39 @@ public class UpdateCinemaUseCase {
         validator.validateUpdateRequest(id, request);
 
         // ================== LOAD ==================
-        Cinema cinema = cinemaRepository.findById(id)
-                .orElseThrow(() ->
-                        CinemaExceptions.notFound("Cinema not found with id: " + id)
-                );
+        Cinema cinema = loadCinema(id);
 
         // ================== APPLY DOMAIN ==================
-        Cinema updatedCinema = cinema.toBuilder()
-                .name(request.getName())
-                .address(request.getAddress())
-                .city(request.getCity())
-                .status(request.getStatus())
-                .build();
+        applyUpdate(cinema, request);
 
         // ================== PERSIST ==================
-        try {
-            Cinema saved = cinemaRepository.update(updatedCinema);
-            return mapper.toResponse(saved);
+        Cinema saved = persist(cinema);
 
+        // ================== MAP RESPONSE ==================
+        return mapper.toResponse(saved);
+    }
+
+    // ================== PRIVATE METHODS ==================
+
+    private Cinema loadCinema(CinemaId id) {
+        return cinemaRepository.findById(id)
+                .orElseThrow(() ->
+                        CinemaExceptions.notFound(id)
+                );
+    }
+
+    private void applyUpdate(Cinema cinema, UpdateCinemaRequest request) {
+        cinema.update(
+                request.getName(),
+                request.getAddress(),
+                request.getCity(),
+                request.getStatus()
+        );
+    }
+
+    private Cinema persist(Cinema cinema) {
+        try {
+            return cinemaRepository.update(cinema);
         } catch (OptimisticLockException | ObjectOptimisticLockingFailureException ex) {
             throw CommonExceptions.concurrencyConflict();
         }
