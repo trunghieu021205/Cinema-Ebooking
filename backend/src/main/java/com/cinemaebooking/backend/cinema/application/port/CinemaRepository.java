@@ -35,7 +35,7 @@ public interface CinemaRepository {
 
     boolean existsByName(String name);
 
-    Optional<Cinema> findByName(String name);
+    Optional<Cinema> findByNameIgnoreCase(String name);
 
     boolean existsByAddressAndCityAndIdNot(String address, String city, CinemaId id);
 }

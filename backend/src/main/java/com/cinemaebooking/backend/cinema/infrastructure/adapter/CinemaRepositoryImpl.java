@@ -66,7 +66,7 @@ public class CinemaRepositoryImpl implements CinemaRepository {
     @Override
     public void deleteById(CinemaId id) {
         if (!jpaRepository.existsById(id.getValue())) {
-            throw CinemaExceptions.notFound("Cinema not found with id: " + id.getValue());
+            throw CinemaExceptions.notFound(id);
         }
 
         jpaRepository.deleteById(id.getValue());
@@ -83,8 +83,8 @@ public class CinemaRepositoryImpl implements CinemaRepository {
     }
 
     @Override
-    public Optional<Cinema> findByName(String name) {
-        return jpaRepository.findByName(name)
+    public Optional<Cinema> findByNameIgnoreCase(String name) {
+        return jpaRepository.findByNameIgnoreCase(name)
                 .map(mapper::toDomain);
     }
 
