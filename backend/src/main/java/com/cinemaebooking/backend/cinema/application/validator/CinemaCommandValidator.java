@@ -1,5 +1,6 @@
 package com.cinemaebooking.backend.cinema.application.validator;
 
+import com.cinemaebooking.backend.cinema.application.dto.CreateCinemaRequest;
 import com.cinemaebooking.backend.cinema.application.dto.UpdateCinemaRequest;
 import com.cinemaebooking.backend.cinema.application.port.CinemaRepository;
 import com.cinemaebooking.backend.cinema.domain.valueobject.CinemaId;
@@ -13,9 +14,8 @@ import org.springframework.stereotype.Component;
 /**
  * CinemaCommandValidator
  * Responsibility:
- * - Validate request structure using validation engine + profiles
- * - Validate business rules (uniqueness, constraints)
- *
+ * - Validate input structure (create/update)
+ * - Validate domain business rules (uniqueness)
  * @author Hieu Nguyen
  * @since 2026
  */
@@ -25,60 +25,92 @@ public class CinemaCommandValidator {
 
     private final CinemaRepository cinemaRepository;
 
-    public void validateUpdateRequest(CinemaId id, UpdateCinemaRequest request) {
+    // ================== CREATE ==================
 
-        // ================== BASIC ==================
-        validateBasicInput(id, request);
+    public void validateCreateRequest(CreateCinemaRequest request) {
 
-        // ================== FIELD ==================
-        validateFields(request);
+        validateCreateInput(request);
 
-        // ================== BUSINESS ==================
-        validateBusinessRules(id, request);
+        validateFields(
+                request.getName(),
+                request.getAddress(),
+                request.getCity()
+        );
+
+        validateDuplicateForCreate(
+                normalize(request.getName()),
+                normalize(request.getAddress()),
+                normalize(request.getCity())
+        );
     }
 
-    // ================== BASIC ==================
+    // ================== UPDATE ==================
 
-    private void validateBasicInput(CinemaId id, UpdateCinemaRequest request) {
+    public void validateUpdateRequest(CinemaId id, UpdateCinemaRequest request) {
+
+        validateUpdateInput(id, request);
+
+        validateFields(
+                request.getName(),
+                request.getAddress(),
+                request.getCity()
+        );
+
+        validateDuplicateForUpdate(
+                id,
+                normalize(request.getName()),
+                normalize(request.getAddress()),
+                normalize(request.getCity())
+        );
+    }
+
+    // ================== INPUT VALIDATION ==================
+
+    private void validateCreateInput(CreateCinemaRequest request) {
+        if (request == null) {
+            throw CommonExceptions.invalidInput("Request must not be null");
+        }
+    }
+
+    private void validateUpdateInput(CinemaId id, UpdateCinemaRequest request) {
         if (id == null || request == null) {
             throw CommonExceptions.invalidInput("Cinema id and request must not be null");
         }
     }
 
-    // ================== FIELD ==================
+    // ================== FIELD VALIDATION ==================
 
-    private void validateFields(UpdateCinemaRequest request) {
+    private void validateFields(String name, String address, String city) {
 
         var profile = ValidationFactory.cinema();
 
-        ValidationEngine.validate(
-                request.getName(),
-                "Cinema name",
-                profile.nameRules()
-        );
-
-        ValidationEngine.validate(
-                request.getAddress(),
-                "Cinema address",
-                profile.addressRules()
-        );
-
-        ValidationEngine.validate(
-                request.getCity(),
-                "City",
-                profile.cityRules()
-        );
+        ValidationEngine.validate(name, "Cinema name", profile.nameRules());
+        ValidationEngine.validate(address, "Cinema address", profile.addressRules());
+        ValidationEngine.validate(city, "City", profile.cityRules());
     }
 
-    // ================== BUSINESS ==================
+    // ================== BUSINESS - CREATE ==================
 
-    private void validateBusinessRules(CinemaId id, UpdateCinemaRequest request) {
+    private void validateDuplicateForCreate(String name, String address, String city) {
 
-        String name = normalize(request.getName());
-        String address = normalize(request.getAddress());
-        String city = normalize(request.getCity());
+        if (name != null) {
+            validateDuplicateName(null, name);
+        }
 
-        // guard null → chỉ check khi có value
+        if (address != null && city != null) {
+            validateDuplicateLocation(null, address, city);
+        }
+    }
+
+    // ================== BUSINESS - UPDATE ==================
+
+    private void validateDuplicateForUpdate(
+            CinemaId id,
+            String name,
+            String address,
+            String city
+    ) {
+
         if (name != null) {
             validateDuplicateName(id, name);
         }
@@ -88,17 +120,26 @@ public class CinemaCommandValidator {
         }
     }
 
+    // ================== DUPLICATE CHECK ==================
+
     private void validateDuplicateName(CinemaId id, String name) {
 
         cinemaRepository.findByNameIgnoreCase(name)
                 .ifPresent(existing -> {
-                    if (!existing.getId().equals(id)) {
+
+                    // create: id = null → always conflict if exists
+                    // update: ignore same id
+                    if (id == null || !existing.getId().equals(id)) {
                         throw CinemaExceptions.duplicateCinemaName(name);
                     }
                 });
     }
 
-    private void validateDuplicateLocation(CinemaId id, String address, String city) {
+    private void validateDuplicateLocation(
+            CinemaId id,
+            String address,
+            String city
+    ) {
 
         boolean exists = cinemaRepository.existsByAddressAndCityAndIdNot(
                 address,
@@ -114,6 +155,8 @@ public class CinemaCommandValidator {
     // ================== UTILS ==================
 
     private String normalize(String value) {
-        return value == null ? null : value.trim();
+        if (value == null) return null;
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
     }
 }
