@@ -10,7 +10,7 @@ package com.cinemaebooking.backend.common.validation.patterns;
 public final class ValidationPatterns {
 
     // ===================== CINEMA =====================
-    public static final String CITY = "^[\\p{L}\\s\\-\\.]+$";
+    public static final String CITY = "^[\\p{L}0-9\\s\\-\\.]+$";
     public static final String ADDRESS = "^[\\p{L}0-9\\s,\\-./#]+$";
     public static final String CINEMA_NAME = "^[\\p{L}0-9\\s\\-\\(\\)\\.&']+$";
 
