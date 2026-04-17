@@ -1,7 +1,6 @@
 package com.cinemaebooking.backend.common.exception.handler;
 
 import com.cinemaebooking.backend.common.exception.BaseException;
-import com.cinemaebooking.backend.common.exception.ErrorCode;
 import com.cinemaebooking.backend.common.exception.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -28,13 +27,17 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleBaseException(
             BaseException ex, HttpServletRequest request) {
 
-        String traceId = UUID.randomUUID().toString();
+        String traceId = generateTraceId();
 
         ErrorResponse response =
-                ErrorResponseMapper.fromBaseException(ex, request);
+                ErrorResponseMapper.fromBaseException(ex, request, traceId);
 
-        log.warn("Business exception [{}] - {}",
-                traceId, ex.getMessage());
+        log.warn("[{}] Business error | code={} | path={} | message={}",
+                traceId,
+                ex.getErrorCode().getCode(),
+                request.getRequestURI(),
+                ex.getMessage()
+        );
 
         return ResponseEntity
                 .status(response.getStatus())
@@ -45,7 +48,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleValidationException(
             MethodArgumentNotValidException ex, HttpServletRequest request) {
 
-        String traceId = UUID.randomUUID().toString();
+        String traceId = generateTraceId();
 
         List<String> details = ex.getBindingResult()
                 .getFieldErrors()
@@ -54,9 +57,13 @@ public class GlobalExceptionHandler {
                 .toList();
 
         ErrorResponse response =
-                ErrorResponseMapper.fromValidation(details, request);
+                ErrorResponseMapper.fromValidation(details, request, traceId);
 
-        log.warn("Validation failed [{}]: {}", traceId, details);
+        log.warn("[{}] Validation failed | path={} | details={}",
+                traceId,
+                request.getRequestURI(),
+                details
+        );
 
         return ResponseEntity
                 .status(response.getStatus())
@@ -67,15 +74,23 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleGenericException(
             Exception ex, HttpServletRequest request) {
 
-        String traceId = UUID.randomUUID().toString();
+        String traceId = generateTraceId();
 
-        log.error("Unexpected exception [{}]", traceId, ex);
+        log.error("[{}] Unexpected error | path={}",
+                traceId,
+                request.getRequestURI(),
+                ex
+        );
 
         ErrorResponse response =
-                ErrorResponseMapper.fromGeneric(ex, request);
+                ErrorResponseMapper.fromGeneric(request, traceId);
 
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);
+    }
+
+    private String generateTraceId() {
+        return UUID.randomUUID().toString();
     }
 }

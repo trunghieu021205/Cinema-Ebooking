@@ -8,7 +8,6 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.UUID;
 /**
  * @author Hieu Nguyen
  * @since 2026
@@ -17,19 +16,25 @@ public final class ErrorResponseMapper {
 
     private ErrorResponseMapper() {}
 
-    public static ErrorResponse fromBaseException(BaseException ex, HttpServletRequest request) {
+    public static ErrorResponse fromBaseException(
+            BaseException ex,
+            HttpServletRequest request,
+            String traceId) {
 
         return ErrorResponse.builder()
                 .code(ex.getErrorCode().getCode())
                 .message(ex.getMessage())
-                .status(resolveHttpStatus(ex.getErrorCode()))
+                .status(ex.getErrorCode().getHttpStatus())
                 .timestamp(Instant.now())
                 .path(request.getRequestURI())
-                .traceId(UUID.randomUUID().toString())
+                .traceId(traceId)
                 .build();
     }
 
-    public static ErrorResponse fromValidation(List<String> details, HttpServletRequest request) {
+    public static ErrorResponse fromValidation(
+            List<String> details,
+            HttpServletRequest request,
+            String traceId) {
 
         return ErrorResponse.builder()
                 .code(ErrorCode.INVALID_INPUT.getCode())
@@ -37,24 +42,22 @@ public final class ErrorResponseMapper {
                 .status(ErrorCode.INVALID_INPUT.getHttpStatus())
                 .timestamp(Instant.now())
                 .path(request.getRequestURI())
-                .traceId(UUID.randomUUID().toString())
+                .traceId(traceId)
                 .details(details)
                 .build();
     }
 
-    public static ErrorResponse fromGeneric(Exception ex, HttpServletRequest request) {
+    public static ErrorResponse fromGeneric(
+            HttpServletRequest request,
+            String traceId) {
 
         return ErrorResponse.builder()
                 .code(ErrorCode.UNCATEGORIZED_EXCEPTION.getCode())
-                .message(ex.getMessage() != null ? ex.getMessage() : "Unexpected error")
+                .message("Unexpected error") //
                 .status(ErrorCode.UNCATEGORIZED_EXCEPTION.getHttpStatus())
                 .timestamp(Instant.now())
                 .path(request.getRequestURI())
-                .traceId(UUID.randomUUID().toString())
+                .traceId(traceId)
                 .build();
-    }
-
-    private static int resolveHttpStatus(ErrorCode code) {
-        return code.getHttpStatus();
     }
 }
