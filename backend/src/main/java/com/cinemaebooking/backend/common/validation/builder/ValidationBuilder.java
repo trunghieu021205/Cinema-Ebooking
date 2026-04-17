@@ -5,9 +5,11 @@ import com.cinemaebooking.backend.common.validation.rules.LengthRule;
 import com.cinemaebooking.backend.common.validation.rules.NotBlankRule;
 import com.cinemaebooking.backend.common.validation.rules.NotNullRule;
 import com.cinemaebooking.backend.common.validation.rules.PatternRule;
+import com.cinemaebooking.backend.common.validation.rules.ContainsLetterRule;
 
 import java.util.ArrayList;
 import java.util.List;
+
 /**
  * ValidationBuilder - Fluent builder for constructing validation rule chains.
  * Responsibility:
@@ -15,13 +17,15 @@ import java.util.List;
  * - Encapsulate rule creation logic to reduce duplication in profiles
  * - Support reusable and composable validation rule sets
  * - Improve readability of validation definitions across domains
+ * Notes:
+ * - Generic builder to support type-safe validation rules
  *
  * @author Hieu Nguyen
  * @since 2026
  */
 public class ValidationBuilder {
 
-    private final List<ValidationRule> rules = new ArrayList<>();
+    private final List<ValidationRule<String>> rules = new ArrayList<>();
 
     public static ValidationBuilder create() {
         return new ValidationBuilder();
@@ -33,7 +37,7 @@ public class ValidationBuilder {
     }
 
     public ValidationBuilder notNull() {
-        rules.add(new NotNullRule());
+        rules.add(new NotNullRule<>());
         return this;
     }
 
@@ -47,7 +51,17 @@ public class ValidationBuilder {
         return this;
     }
 
-    public List<ValidationRule> build() {
+    public ValidationBuilder containsLetter() {
+        rules.add(new ContainsLetterRule());
+        return this;
+    }
+
+    public ValidationBuilder custom(ValidationRule<String> rule) {
+        rules.add(rule);
+        return this;
+    }
+
+    public List<ValidationRule<String>> build() {
         return rules;
     }
 }
