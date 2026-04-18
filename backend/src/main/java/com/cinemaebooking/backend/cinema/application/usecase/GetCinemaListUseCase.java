@@ -3,27 +3,19 @@ package com.cinemaebooking.backend.cinema.application.usecase;
 import com.cinemaebooking.backend.cinema.application.dto.CinemaResponse;
 import com.cinemaebooking.backend.cinema.application.mapper.CinemaResponseMapper;
 import com.cinemaebooking.backend.cinema.application.port.CinemaRepository;
+import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 /**
- * GetCinemaListUseCase: Use case chịu trách nhiệm lấy danh sách tất cả Cinema.
+ * GetCinemaListUseCase - Handles retrieving paginated cinema list.
+ * Responsibility:
+ * - Validate input (if needed)
+ * - Fetch paginated data from repository
+ * - Map domain → response DTO
  *
- * <p>Chịu trách nhiệm:
- * <ul>
- *     <li>Gọi Repository để lấy toàn bộ danh sách Cinema từ database</li>
- *     <li>Trả về danh sách các domain object Cinema</li>
- * </ul>
- *
- * <p>Lưu ý:
- * <ul>
- *     <li>Không chứa logic liên quan đến presentation hay thao tác database trực tiếp</li>
- *     <li>Chỉ trả domain object, không expose entity của JPA</li>
- * </ul>
  * @author Hieu Nguyen
  * @since 2026
  */
@@ -35,11 +27,19 @@ public class GetCinemaListUseCase {
     private final CinemaResponseMapper mapper;
 
     /**
-     * Thực hiện lấy danh sách tất cả Cinema.
+     * Get paginated list of cinemas.
      *
-     * @return danh sách domain object Cinema
+     * @param pageable pagination info
+     * @return page of CinemaResponse
      */
     public Page<CinemaResponse> execute(Pageable pageable) {
+
+        // ================== INPUT VALIDATION ==================
+        if (pageable == null) {
+            throw CommonExceptions.invalidInput("Pageable must not be null");
+        }
+
+        // ================== BUSINESS ==================
         return cinemaRepository.findAll(pageable)
                 .map(mapper::toResponse);
     }

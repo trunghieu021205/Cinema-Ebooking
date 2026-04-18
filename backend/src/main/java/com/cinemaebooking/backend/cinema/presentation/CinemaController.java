@@ -5,22 +5,23 @@ import com.cinemaebooking.backend.cinema.application.dto.CreateCinemaRequest;
 import com.cinemaebooking.backend.cinema.application.dto.UpdateCinemaRequest;
 import com.cinemaebooking.backend.cinema.application.usecase.*;
 import com.cinemaebooking.backend.cinema.domain.valueobject.CinemaId;
+import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * CinemaController: Presentation layer, chịu trách nhiệm expose API cho Cinema.
+ * CinemaController - REST API for Cinema resource.
+ * Responsibility:
+ * - Handle HTTP requests
+ * - Delegate to use cases
+ * - Return proper HTTP responses
  *
- * <p>Chịu trách nhiệm:
- * <ul>
- *     <li>Nhận request từ client</li>
- *     <li>Gọi các UseCase tương ứng</li>
- *     <li>Trả response về client</li>
- * </ul>
+ * @author Hieu Nguyen
+ * @since 2026
  */
 @RestController
 @RequestMapping("/api/v1/cinemas")
@@ -33,73 +34,51 @@ public class CinemaController {
     private final GetCinemaDetailUseCase getCinemaDetailUseCase;
     private final GetCinemaListUseCase getCinemaListUseCase;
 
-    /**
-     * POST /api/v1/cinemas
-     *
-     * <p>Endpoint tạo mới một Cinema.
-     *
-     * @param request dữ liệu tạo Cinema từ client
-     * @return Cinema vừa được tạo
-     */
+    // ================== CREATE ==================
     @PostMapping
-    public ResponseEntity<CinemaResponse> createCinema(@RequestBody CreateCinemaRequest request) {
-        return ResponseEntity.ok(createCinemaUseCase.execute(request));
+    @ResponseStatus(HttpStatus.CREATED)
+    public CinemaResponse createCinema(@RequestBody CreateCinemaRequest request) {
+        return createCinemaUseCase.execute(request);
     }
 
-    /**
-     * PUT /api/v1/cinemas/{id}
-     *
-     * <p>Endpoint cập nhật thông tin một Cinema theo ID.
-     *
-     * @param id      ID của Cinema cần cập nhật
-     * @param request dữ liệu cập nhật từ client
-     * @return Cinema đã được cập nhật
-     */
+    // ================== UPDATE ==================
     @PutMapping("/{id}")
-    public ResponseEntity<CinemaResponse> updateCinema(
-            @PathVariable("id") Long id,
+    public CinemaResponse updateCinema(
+            @PathVariable Long id,
             @RequestBody UpdateCinemaRequest request) {
-        return ResponseEntity.ok(updateCinemaUseCase.execute(new CinemaId(id), request));
+
+        CinemaId cinemaId = toCinemaId(id);
+        return updateCinemaUseCase.execute(cinemaId, request);
     }
 
-    /**
-     * DELETE /api/v1/cinemas/{id}
-     *
-     * <p>Endpoint thực hiện soft delete một Cinema theo ID.
-     *
-     * @param id ID của Cinema cần xóa
-     * @return ResponseEntity với status OK nếu thành công
-     */
+    // ================== DELETE ==================
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCinema(@PathVariable("id") Long id) {
-        deleteCinemaUseCase.execute(new CinemaId(id));
-        return ResponseEntity.ok().build();
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteCinema(@PathVariable Long id) {
+
+        CinemaId cinemaId = toCinemaId(id);
+        deleteCinemaUseCase.execute(cinemaId);
     }
 
-    /**
-     * GET /api/v1/cinemas/{id}
-     *
-     * <p>Endpoint lấy chi tiết thông tin một Cinema theo ID.
-     *
-     * @param id ID của Cinema cần lấy thông tin
-     * @return Cinema chi tiết
-     */
+    // ================== DETAIL ==================
     @GetMapping("/{id}")
-    public ResponseEntity<CinemaResponse> getCinemaDetail(@PathVariable("id") Long id) {
-        return ResponseEntity.ok(getCinemaDetailUseCase.execute(new CinemaId(id)));
+    public CinemaResponse getCinemaDetail(@PathVariable Long id) {
+
+        CinemaId cinemaId = toCinemaId(id);
+        return getCinemaDetailUseCase.execute(cinemaId);
     }
 
-    /**
-     * GET /api/v1/cinemas
-     *
-     * <p>Endpoint lấy danh sách tất cả Cinema.
-     *
-     * @return Page<Cinema> danh sách Cinema
-     */
+    // ================== LIST ==================
     @GetMapping
-    public ResponseEntity<Page<CinemaResponse>> getCinemaList(
-            @PageableDefault(size = 8, page = 0) Pageable pageable
-    ) {
-        return ResponseEntity.ok(getCinemaListUseCase.execute(pageable));
+    public Page<CinemaResponse> getCinemaList(@PageableDefault(size = 8) Pageable pageable) {
+        return getCinemaListUseCase.execute(pageable);
+    }
+
+    // ================== HELPER ==================
+    private CinemaId toCinemaId(Long id) {
+        if (id == null) {
+            throw CommonExceptions.invalidInput("Cinema id must not be null");
+        }
+        return CinemaId.of(id);
     }
 }

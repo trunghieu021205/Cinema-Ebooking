@@ -1,6 +1,6 @@
 package com.cinemaebooking.backend.showtime.infrastructure.mapper;
 
-import com.cinemaebooking.backend.infrastructure.persistence.mapper.BaseRelationalMapper;
+import com.cinemaebooking.backend.infrastructure.mapper.JpaReferenceHelper;
 import com.cinemaebooking.backend.movie.infrastructure.persistence.entity.MovieJpaEntity;
 import com.cinemaebooking.backend.room.infrastructure.persistence.entity.RoomJpaEntity;
 import com.cinemaebooking.backend.showtime.domain.model.Showtime;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
  * <ul>
  *     <li>Convert Domain → JpaEntity để lưu xuống database</li>
  *     <li>Convert JpaEntity → Domain để trả về domain layer</li>
- *     <li>Resolve relationship Movie/Room/Format bằng EntityManager.getReference()</li>
+ *     <li>Resolve relationship Movie/Room/Format bằng EntityManager.ref()</li>
  * </ul>
  *
  * <p>
@@ -32,7 +32,7 @@ import org.springframework.stereotype.Component;
  * @since 2026
  */
 @Component
-public class ShowtimeMapperImpl extends BaseRelationalMapper implements ShowtimeMapper {
+public class ShowtimeMapperImpl extends JpaReferenceHelper implements ShowtimeMapper {
 
     /**
      * Convert Domain → JpaEntity
@@ -41,7 +41,7 @@ public class ShowtimeMapperImpl extends BaseRelationalMapper implements Showtime
      * Khi mapping từ Domain sang Entity:
      * <ul>
      *     <li>Unwrap ShowtimeId → Long</li>
-     *     <li>Resolve relationship bằng getReference() để tránh query DB không cần thiết</li>
+     *     <li>Resolve relationship bằng ref() để tránh query DB không cần thiết</li>
      * </ul>
      *
      * @param domain Showtime domain entity
@@ -61,9 +61,9 @@ public class ShowtimeMapperImpl extends BaseRelationalMapper implements Showtime
                 .subtitleLanguage(domain.getSubtitleLanguage())
 
                 // Resolve relationship (lazy reference - không query DB ngay)
-                .movie(getReference(MovieJpaEntity.class, domain.getMovieId()))
-                .room(getReference(RoomJpaEntity.class, domain.getRoomId()))
-                .format(getReference(ShowtimeFormatJpaEntity.class, domain.getFormatId()))
+                .movie(ref(MovieJpaEntity.class, domain.getMovieId()))
+                .room(ref(RoomJpaEntity.class, domain.getRoomId()))
+                .format(ref(ShowtimeFormatJpaEntity.class, domain.getFormatId()))
 
                 .build();
     }

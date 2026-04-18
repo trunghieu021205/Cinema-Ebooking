@@ -1,42 +1,26 @@
 package com.cinemaebooking.backend.cinema.application.dto;
 
 import com.cinemaebooking.backend.cinema.domain.enums.CinemaStatus;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 /**
- * UpdateCinemaRequest: DTO dùng để nhận dữ liệu cập nhật Cinema từ client.
+ * UpdateCinemaRequest represents the payload used to update an existing Cinema.
  *
- * <p>Chỉ chứa dữ liệu input, không chứa logic.
  * @author Hieu Nguyen
  * @since 2026
  */
-
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateCinemaRequest {
 
-    /**
-     * Tên rạp
-     */
     private String name;
 
-    /**
-     * Địa chỉ chi tiết
-     */
     private String address;
 
-    /**
-     * Thành phố
-     */
     private String city;
 
-    /**
-     * Trạng thái
-     */
     private CinemaStatus status;
 }

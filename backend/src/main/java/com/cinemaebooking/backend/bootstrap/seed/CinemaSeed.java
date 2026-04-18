@@ -21,7 +21,8 @@ public class CinemaSeed {
 
         if (cinemaRepository.existsByName(NAME)) {
             log.info("Cinema already exists: {}", NAME);
-            return cinemaRepository.findByName(NAME); // 👈 FIX
+            return cinemaRepository.findByNameIgnoreCase(NAME)
+                    .orElseThrow(() -> new IllegalStateException("Cinema exists but not found"));
         }
 
         Cinema cinema = Cinema.builder()
