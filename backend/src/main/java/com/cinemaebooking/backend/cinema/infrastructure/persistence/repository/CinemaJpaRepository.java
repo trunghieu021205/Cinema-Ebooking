@@ -29,5 +29,5 @@ import org.springframework.stereotype.Repository;
 public interface CinemaJpaRepository extends JpaRepository<CinemaJpaEntity, Long> {
     boolean existsByName(String name);
 
-    Cinema findByName(String name);
+    CinemaJpaEntity findByName(String name);
 }

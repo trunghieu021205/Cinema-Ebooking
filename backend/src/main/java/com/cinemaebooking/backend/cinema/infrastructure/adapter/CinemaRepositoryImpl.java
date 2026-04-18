@@ -125,5 +125,8 @@ public class CinemaRepositoryImpl implements CinemaRepository {
     }
 
     @Override
-    public Cinema findByName(String name) { return jpaRepository.findByName(name);}
+    public Cinema findByName(String name) {
+        CinemaJpaEntity entity = jpaRepository.findByName(name);
+        return mapper.toDomain(entity);
+    }
 }
