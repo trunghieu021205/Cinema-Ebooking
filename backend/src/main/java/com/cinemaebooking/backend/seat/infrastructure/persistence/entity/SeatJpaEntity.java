@@ -2,6 +2,7 @@ package com.cinemaebooking.backend.seat.infrastructure.persistence.entity;
 
 import com.cinemaebooking.backend.infrastructure.persistence.entity.BaseJpaEntity;
 import com.cinemaebooking.backend.room.infrastructure.persistence.entity.RoomJpaEntity;
+import com.cinemaebooking.backend.seat.domain.enums.SeatStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -56,6 +57,10 @@ public class SeatJpaEntity extends BaseJpaEntity {
     public String getSeatNumber() {
         return rowLabel + columnNumber;
     }
+
+    @Enumerated(EnumType.STRING)
+    private SeatStatus status;
+
     /**
      * Loại ghế (STANDARD, VIP,...)
      */
