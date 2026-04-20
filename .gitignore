@@ -1,0 +1,90 @@
+############################
+# OS
+############################
+.DS_Store
+Thumbs.db
+
+############################
+# IDE / Editor
+############################
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+*.iws
+*.iml
+*.ipr
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+############################
+# ENV (IMPORTANT)
+############################
+.env
+.env.*
+*.env
+
+############################
+# LOGS
+############################
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+############################
+# BACKEND (Java - Maven / Spring)
+############################
+target/
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+.mvn/wrapper/maven-wrapper.jar
+
+# STS
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+HELP.md
+
+############################
+# FRONTEND (Node / Vite / React)
+############################
+node_modules/
+dist/
+dist-ssr/
+coverage/
+*.local
+*.tsbuildinfo
+.eslintcache
+
+# Cypress
+/cypress/videos/
+/cypress/screenshots/
+
+# Vitest
+__screenshots__/
+
+# Vite
+*.timestamp-*-*.mjs
