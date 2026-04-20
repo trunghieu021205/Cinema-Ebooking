@@ -6,35 +6,45 @@ import com.cinemaebooking.backend.seat.application.mapper.seat.SeatResponseMappe
 import com.cinemaebooking.backend.seat.application.port.seat.SeatRepository;
 import com.cinemaebooking.backend.seat.domain.enums.SeatStatus;
 import com.cinemaebooking.backend.seat.domain.model.seat.Seat;
+import com.cinemaebooking.backend.seat.domain.validator.SeatCommandValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+/**
+ * CreateSeatUseCase - Handles creation of a new Seat.
+ */
 @Service
 @RequiredArgsConstructor
 public class CreateSeatUsecase {
 
-    private final SeatRepository repository;
+    private final SeatRepository seatRepository;
     private final SeatResponseMapper mapper;
+    private final SeatCommandValidator validator;
 
     public SeatResponse execute(CreateSeatRequest request) {
 
-        // Không cho tạo trùng ghế trong cùng 1 phòng
-        if (repository.existsByRoomIdAndRowLabelAndColumnNumber(
-                request.getRoomId(),
-                request.getRowLabel(),
-                request.getColumnNumber()
-        )) {
-            throw new IllegalArgumentException("Seat already exists in this room");
-        }
+        // ================== VALIDATION ==================
+        validator.validateCreateRequest(request);
 
-        Seat seat = Seat.builder()
+        // ================== BUILD DOMAIN ==================
+        Seat seat = buildSeat(request);
+
+        // ================== PERSIST ==================
+        Seat saved = seatRepository.create(seat);
+
+        // ================== RESPONSE ==================
+        return mapper.toResponse(saved);
+    }
+
+    // ================== PRIVATE METHODS ==================
+
+    private Seat buildSeat(CreateSeatRequest request) {
+        return Seat.builder()
                 .rowLabel(request.getRowLabel())
                 .columnNumber(request.getColumnNumber())
-                .status(SeatStatus.AVAILABLE)
                 .seatTypeId(request.getSeatTypeId())
                 .roomId(request.getRoomId())
+                .status(SeatStatus.AVAILABLE)
                 .build();
-
-        return mapper.toResponse(repository.create(seat));
     }
 }

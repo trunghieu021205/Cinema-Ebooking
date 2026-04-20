@@ -1,13 +1,14 @@
 package com.cinemaebooking.backend.seat.infrastructure.persistence.repository;
 
+import com.cinemaebooking.backend.infrastructure.persistence.repository.SoftDeleteJpaRepository;
+import com.cinemaebooking.backend.seat.domain.valueObject.seat.SeatId;
 import com.cinemaebooking.backend.seat.infrastructure.persistence.entity.SeatJpaEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface SeatJpaRepository extends JpaRepository<SeatJpaEntity, Long> {
+public interface SeatJpaRepository extends SoftDeleteJpaRepository<SeatJpaEntity> {
 
     boolean existsByRoom_IdAndRowLabelAndColumnNumber(
             Long roomId,
@@ -19,6 +20,18 @@ public interface SeatJpaRepository extends JpaRepository<SeatJpaEntity, Long> {
 
     boolean existsByRoom_IdAndRowLabelAndColumnNumberAndIdNot(
             Long roomId,
+            String rowLabel,
+            Integer columnNumber,
+            Long id
+    );
+
+    boolean existsByRowLabelAndColumnNumberAndRoomId(
+            String rowLabel,
+            Integer columnNumber,
+            Long roomId
+    );
+
+    boolean existsByRowLabelAndColumnNumberAndIdNot(
             String rowLabel,
             Integer columnNumber,
             Long id

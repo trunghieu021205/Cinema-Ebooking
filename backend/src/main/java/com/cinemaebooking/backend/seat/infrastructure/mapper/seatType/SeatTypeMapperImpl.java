@@ -9,23 +9,23 @@ import org.springframework.stereotype.Component;
 public class SeatTypeMapperImpl implements SeatTypeMapper{
 
     @Override
-    public SeatTypeJpaEntity toEntity(SeatType seatType) {
-        if (seatType == null) return null;
-
-        SeatTypeJpaEntity entity = new SeatTypeJpaEntity();
-        entity.setId(seatType.getId() != null ? seatType.getId().getValue() : null);
-        entity.setName(seatType.getName());
-        entity.setBasePrice(seatType.getBasePrice());
-        return entity;
-    }
-
-    @Override
     public SeatType toDomain(SeatTypeJpaEntity entity) {
         if (entity == null) return null;
         return SeatType.builder()
                 .id(new SeatTypeId(entity.getId()))
                 .name(entity.getName())
                 .basePrice(entity.getBasePrice())
+                .build();
+    }
+
+    @Override
+    public SeatTypeJpaEntity toEntity(SeatType seatType) {
+        if (seatType == null) return null;
+
+        return SeatTypeJpaEntity.builder()
+                .id(seatType.getId() != null ? seatType.getId().getValue() : null)
+                .name(seatType.getName())
+                .basePrice(seatType.getBasePrice())
                 .build();
     }
 }

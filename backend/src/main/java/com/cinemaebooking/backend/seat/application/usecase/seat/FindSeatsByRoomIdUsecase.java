@@ -1,9 +1,7 @@
 package com.cinemaebooking.backend.seat.application.usecase.seat;
 
 
-import com.cinemaebooking.backend.room.application.dto.RoomResponse;
-import com.cinemaebooking.backend.room.domain.model.Room;
-import com.cinemaebooking.backend.room.domain.valueObject.RoomId;
+import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import com.cinemaebooking.backend.seat.application.dto.seat.SeatResponse;
 import com.cinemaebooking.backend.seat.application.mapper.seat.SeatResponseMapper;
 import com.cinemaebooking.backend.seat.application.port.seat.SeatRepository;
@@ -13,7 +11,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -26,9 +23,12 @@ public class FindSeatsByRoomIdUsecase {
 
         // Validate input
         if (roomId == null) {
-            throw new IllegalArgumentException("RoomId must not be null");
+            throw CommonExceptions.invalidInput("Room id must not be null");
         }
 
+        if (pageable == null) {
+            throw CommonExceptions.invalidInput("Pageable must not be null");
+        }
         // Gọi repository để lấy dữ liệu (có pagination)
         Page<Seat> seats = seatRepository.findByRoomId(roomId, pageable);
 

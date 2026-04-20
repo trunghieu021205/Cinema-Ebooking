@@ -5,14 +5,13 @@ import com.cinemaebooking.backend.room.domain.model.Room;
 import com.cinemaebooking.backend.room.application.port.RoomRepository;
 import com.cinemaebooking.backend.room.domain.valueObject.RoomId;
 import com.cinemaebooking.backend.room.infrastructure.mapper.RoomMapper;
+import com.cinemaebooking.backend.room.infrastructure.persistence.entity.RoomJpaEntity;
 import com.cinemaebooking.backend.room.infrastructure.persistence.repository.RoomJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Component
@@ -25,8 +24,7 @@ public class RoomRepositoryImpl implements RoomRepository {
 
     @Override
     public Room create(Room room) {
-        var cinema = cinemaJpaRepository.findById(room.getCinemaId())
-                .orElseThrow();
+        var cinema = cinemaJpaRepository.findByIdOrThrow(room.getCinemaId());
 
         var newEntity = roomMapper.toEntity(room);
         newEntity.setCinema(cinema);
@@ -36,11 +34,9 @@ public class RoomRepositoryImpl implements RoomRepository {
 
     @Override
     public Room update(Room room) {
-        var oldEntity = roomJpaRepository.findById(room.getId().getValue())
-                .orElseThrow(() -> new RuntimeException("Room not found"));
+        var oldEntity = roomJpaRepository.findByIdOrThrow(room.getId().getValue());
 
-        var cinema = cinemaJpaRepository.findById(room.getCinemaId())
-                .orElseThrow();
+        var cinema = cinemaJpaRepository.findByIdOrThrow(room.getCinemaId());
 
         oldEntity.setName(room.getName());
         oldEntity.setTotalSeats(room.getTotalSeats());
@@ -66,10 +62,9 @@ public class RoomRepositoryImpl implements RoomRepository {
 
     @Override
     public void deleteById(RoomId id) {
-        var entity = roomJpaRepository.findById(id.getValue())
-                .orElseThrow(() -> new RuntimeException("Room not found"));
+        RoomJpaEntity room = roomJpaRepository.findByIdOrThrow(id.getValue());
 
-        roomJpaRepository.delete(entity);
+        roomJpaRepository.delete(room);
     }
 
     @Override
@@ -94,5 +89,14 @@ public class RoomRepositoryImpl implements RoomRepository {
     }
 
     @Override
-    public boolean existsByNameAndCinemaId(String name,Long CinemaId){return roomJpaRepository.existsByNameAndCinemaId(name,CinemaId);}
+    public boolean existsByNameAndCinemaId(String name,Long CinemaId){
+        return roomJpaRepository.existsByNameAndCinemaId(name,CinemaId);
+    }
+    @Override
+    public boolean existsByNameAndIdNot(String name, RoomId id) {
+        return roomJpaRepository.existsByNameAndIdNot(
+                name,
+                id.getValue()
+        );
+    }
 }

@@ -1,11 +1,10 @@
 package com.cinemaebooking.backend.room.presentation;
 
-import com.cinemaebooking.backend.room.application.usecase.*;
 import com.cinemaebooking.backend.room.application.dto.CreateRoomRequest;
 import com.cinemaebooking.backend.room.application.dto.RoomResponse;
 import com.cinemaebooking.backend.room.application.dto.UpdateRoomRequest;
+import com.cinemaebooking.backend.room.application.usecase.*;
 import com.cinemaebooking.backend.room.domain.valueObject.RoomId;
-import com.cinemaebooking.backend.room.infrastructure.persistence.repository.RoomJpaRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -23,90 +22,64 @@ public class RoomController {
     private final CreateRoomUseCase createRoomUseCase;
     private final UpdateRoomUseCase updateRoomUseCase;
     private final DeleteRoomUseCase deleteRoomUseCase;
-    private final GetRoomUseCase getRoomUseCase;
+    private final GetRoomListUseCase getRoomListUseCase;
     private final GetRoomsByCinemaIdUseCase getRoomsByCinemaIdUseCase;
+    private final GetRoomByIdUseCase getRoomByIdUseCase;
 
-    /**
-     * POST /api/v1/rooms
-     *
-     * <p>Endpoint tạo mới một Room.
-     *
-     * @param request dữ liệu tạo Room từ client
-     * @return Room vừa được tạo
-     */
+    // ================== CREATE ==================
+
     @PostMapping
-    public ResponseEntity<RoomResponse> createRoom(@Valid @RequestBody CreateRoomRequest request) {
+    public ResponseEntity<RoomResponse> createRoom(
+            @Valid @RequestBody CreateRoomRequest request
+    ) {
         RoomResponse response = createRoomUseCase.execute(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    /**
-     * GET /api/v1/rooms/{id}
-     *
-     * <p>Endpoint lấy chi tiết thông tin một Room theo ID.
-     *
-     * @param id ID của Room cần lấy thông tin
-     * @return Room chi tiết
-     */
+    // ================== GET BY ID ==================
+
     @GetMapping("/{id}")
-    public ResponseEntity<RoomResponse> getRoomById(@PathVariable Long id) {
-        RoomResponse response = getRoomUseCase.execute(new RoomId(id));
+    public ResponseEntity<RoomResponse> getRoomById(
+            @PathVariable Long id
+    ) {
+        RoomResponse response = getRoomByIdUseCase.execute(toRoomId(id));
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * GET /api/v1/rooms
-     *
-     * <p>Endpoint lấy danh sách tất cả Room.
-     *
-     * @return Page<Room> danh sách Room
-     */
+    // ================== GET ALL ==================
+
     @GetMapping
-    public ResponseEntity<Page<RoomResponse>> getRoomList(
+    public ResponseEntity<Page<RoomResponse>> getRooms(
             @PageableDefault(size = 8, page = 0) Pageable pageable
     ) {
-        return ResponseEntity.ok(getRoomUseCase.execute(pageable));
+        return ResponseEntity.ok(getRoomListUseCase.execute(pageable));
     }
 
-    /**
-     * PUT /api/v1/rooms/{id}
-     *
-     * <p>Endpoint cập nhật thông tin một Room theo ID.
-     *
-     * @param id      ID của Room cần cập nhật
-     * @param request dữ liệu cập nhật từ client
-     * @return Room đã được cập nhật
-     */
+    // ================== UPDATE ==================
+
     @PutMapping("/{id}")
     public ResponseEntity<RoomResponse> updateRoom(
-            @PathVariable("id") Long id,
-            @RequestBody UpdateRoomRequest request) {
-        return ResponseEntity.ok(updateRoomUseCase.execute(new RoomId(id), request));
+            @PathVariable Long id,
+            @RequestBody UpdateRoomRequest request
+    ) {
+        RoomResponse response =
+                updateRoomUseCase.execute(toRoomId(id), request);
+
+        return ResponseEntity.ok(response);
     }
 
-    /**
-     * DELETE /api/v1/rooms/{id}
-     *
-     * <p>Endpoint thực hiện soft delete một Room theo ID.
-     *
-     * @param id ID của Room cần xóa
-     * @return ResponseEntity với status OK nếu thành công
-     */
+    // ================== DELETE ==================
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteRoom(@PathVariable Long id) {
-        deleteRoomUseCase.execute(new RoomId(id));
+    public ResponseEntity<Void> deleteRoom(
+            @PathVariable Long id
+    ) {
+        deleteRoomUseCase.execute(toRoomId(id));
         return ResponseEntity.ok().build();
     }
 
-    /**
-     * GET /api/v1/rooms/cinema/{cinemaId}
-     *
-     * <p>Endpoint lấy danh sách Room theo CinemaId (có phân trang).
-     *
-     * @param cinemaId ID của Cinema
-     * @param pageable thông tin phân trang (page, size, sort)
-     * @return ResponseEntity chứa danh sách Room thuộc Cinema
-     */
+    // ================== ROOMS BY CINEMA ==================
+
     @GetMapping("/cinema/{cinemaId}")
     public ResponseEntity<Page<RoomResponse>> getRoomsByCinema(
             @PathVariable Long cinemaId,
@@ -115,5 +88,14 @@ public class RoomController {
         return ResponseEntity.ok(
                 getRoomsByCinemaIdUseCase.execute(cinemaId, pageable)
         );
+    }
+
+    // ================== MAPPER HELPERS ==================
+
+    private RoomId toRoomId(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Room id must not be null");
+        }
+        return RoomId.of(id);
     }
 }

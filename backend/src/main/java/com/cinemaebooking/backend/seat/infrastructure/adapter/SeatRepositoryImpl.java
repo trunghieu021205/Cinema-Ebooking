@@ -1,5 +1,6 @@
 package com.cinemaebooking.backend.seat.infrastructure.adapter;
 
+import com.cinemaebooking.backend.room.domain.valueObject.RoomId;
 import com.cinemaebooking.backend.room.infrastructure.persistence.entity.RoomJpaEntity;
 import com.cinemaebooking.backend.room.infrastructure.persistence.repository.RoomJpaRepository;
 import com.cinemaebooking.backend.seat.application.port.seat.SeatRepository;
@@ -15,7 +16,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Component
@@ -27,9 +27,7 @@ public class SeatRepositoryImpl implements SeatRepository {
     private final SeatTypeJpaRepository seatTypeJpaRepository;
     private final SeatMapper mapper;
 
-    // =========================
     // CREATE
-    // =========================
     @Override
     public Seat create(Seat seat) {
 
@@ -37,15 +35,13 @@ public class SeatRepositoryImpl implements SeatRepository {
 
         // FIX: ROOM must be managed entity
         if (seat.getRoomId() != null) {
-            RoomJpaEntity room = roomJpaRepository.findById(seat.getRoomId())
-                    .orElseThrow(() -> new RuntimeException("Room not found"));
+            RoomJpaEntity room = roomJpaRepository.findByIdOrThrow(seat.getRoomId());
             entity.setRoom(room);
         }
 
         // FIX: SEAT TYPE must be managed entity
         if (seat.getSeatTypeId() != null) {
-            SeatTypeJpaEntity seatType = seatTypeJpaRepository.findById(seat.getSeatTypeId())
-                    .orElseThrow(() -> new RuntimeException("SeatType not found"));
+            SeatTypeJpaEntity seatType = seatTypeJpaRepository.findByIdOrThrow(seat.getSeatTypeId());
             entity.setSeatType(seatType);
         }
 
@@ -53,14 +49,11 @@ public class SeatRepositoryImpl implements SeatRepository {
         return mapper.toDomain(saved);
     }
 
-    // =========================
     // UPDATE
-    // =========================
     @Override
     public Seat update(Seat seat) {
 
-        SeatJpaEntity old = seatJpaRepository.findById(seat.getId().getValue())
-                .orElseThrow(() -> new RuntimeException("Seat not found"));
+        SeatJpaEntity old = seatJpaRepository.findByIdOrThrow(seat.getId().getValue());
 
         old.setRowLabel(seat.getRowLabel());
         old.setColumnNumber(seat.getColumnNumber());
@@ -68,54 +61,45 @@ public class SeatRepositoryImpl implements SeatRepository {
 
         // update seat type safely
         if (seat.getSeatTypeId() != null) {
-            SeatTypeJpaEntity seatType = seatTypeJpaRepository.findById(seat.getSeatTypeId())
-                    .orElseThrow(() -> new RuntimeException("SeatType not found"));
+            SeatTypeJpaEntity seatType = seatTypeJpaRepository.findByIdOrThrow(seat.getSeatTypeId());
             old.setSeatType(seatType);
         }
 
         // optional update room
         if (seat.getRoomId() != null) {
-            RoomJpaEntity room = roomJpaRepository.findById(seat.getRoomId())
-                    .orElseThrow(() -> new RuntimeException("Room not found"));
+            RoomJpaEntity room = roomJpaRepository.findByIdOrThrow(seat.getRoomId());
             old.setRoom(room);
         }
 
         return mapper.toDomain(seatJpaRepository.save(old));
     }
 
-    // =========================
+    @Override
+    public boolean existsById(SeatId id){
+        return seatJpaRepository.existsById(id.getValue());
+    }
     // FIND BY ID
-    // =========================
     @Override
     public Optional<Seat> findById(SeatId id) {
         return seatJpaRepository.findById(id.getValue())
                 .map(mapper::toDomain);
     }
 
-    // =========================
     // FIND ALL
-    // =========================
     @Override
     public Page<Seat> findAll(Pageable pageable) {
         return seatJpaRepository.findAll(pageable)
                 .map(mapper::toDomain);
     }
 
-    // =========================
     // DELETE (SOFT DELETE)
-    // =========================
     @Override
     public void deleteById(SeatId id) {
-        SeatJpaEntity entity = seatJpaRepository.findById(id.getValue())
-                .orElseThrow(() -> new RuntimeException("Seat not found"));
-
-        entity.setDeletedAt(LocalDateTime.now());
-        seatJpaRepository.save(entity);
+        SeatJpaEntity seat = seatJpaRepository.findByIdOrThrow(id.getValue());
+        seatJpaRepository.delete(seat);
     }
 
-    // =========================
     // EXISTS CHECK
-    // =========================
     @Override
     public boolean existsByRoomIdAndRowLabelAndColumnNumber(
             Long roomId, String rowLabel, Integer columnNumber) {
@@ -124,23 +108,19 @@ public class SeatRepositoryImpl implements SeatRepository {
                 .existsByRoom_IdAndRowLabelAndColumnNumber(roomId, rowLabel, columnNumber);
     }
 
-    // =========================
     // EXISTS CHECK (EXCLUDE ID)
-    // =========================
-
     @Override
     public boolean existsByRoomIdAndRowLabelAndColumnNumberAndIdNot(
             Long roomId,
             String rowLabel,
             Integer columnNumber,
-            Long id
+            SeatId id
     ){
         return seatJpaRepository.existsByRoom_IdAndRowLabelAndColumnNumberAndIdNot(
-                roomId, rowLabel, columnNumber, id);
+                roomId, rowLabel, columnNumber, id.getValue());
     }
-    // =========================
+
     // FIND BY ROOM
-    // =========================
     @Override
     public Page<Seat> findByRoomId(Long roomId, Pageable pageable) {
 
