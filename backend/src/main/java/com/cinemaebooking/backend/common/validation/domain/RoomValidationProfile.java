@@ -1,5 +1,6 @@
 package com.cinemaebooking.backend.common.validation.domain;
 
+import com.cinemaebooking.backend.common.exception.domain.RoomExceptions;
 import com.cinemaebooking.backend.common.validation.builder.ValidationBuilder;
 import com.cinemaebooking.backend.common.validation.engine.ValidationRule;
 import com.cinemaebooking.backend.common.validation.patterns.ValidationPatterns;
@@ -36,12 +37,11 @@ public class RoomValidationProfile {
         return List.of(
                 context -> {
                     Integer value = context.value(); // ✅ lấy value đúng cách
-
                     if (value == null) {
-                        throw new RuntimeException("Total seats must not be null");
+                        throw RoomExceptions.invalidCapacity(value);
                     }
                     if (value <= 0) {
-                        throw new RuntimeException("Total seats must be greater than 0");
+                        throw RoomExceptions.invalidCapacity(value);
                     }
                 }
         );

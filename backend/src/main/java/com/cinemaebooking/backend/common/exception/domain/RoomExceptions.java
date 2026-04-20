@@ -1,6 +1,7 @@
 package com.cinemaebooking.backend.common.exception.domain;
 
 import com.cinemaebooking.backend.common.exception.BaseException;
+import com.cinemaebooking.backend.common.exception.ErrorCode;
 import com.cinemaebooking.backend.room.domain.valueObject.RoomId;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -18,21 +19,19 @@ public final class RoomExceptions {
     // ================== NOT FOUND ==================
 
     public static BaseException notFound(RoomId id) {
-        return CommonExceptions.resourceNotFound(
-                "Room not found with id: " + id
-        );
+        return new BaseException(ErrorCode.ROOM_NOT_FOUND,
+                "Room not found: " + id);
     }
 
     // ================== DUPLICATE ==================
 
     public static BaseException duplicateRoomName(String name) {
-        return CommonExceptions.resourceAlreadyExists(
-                "Room name already exists: " + name
-        );
+        return new BaseException(ErrorCode.ROOM_ALREADY_EXISTS,
+                "Room already exist with: " + name);
     }
 
     public static BaseException duplicateRoomInCinema(String name, Long cinemaId) {
-        return CommonExceptions.resourceAlreadyExists(
+        return new BaseException(ErrorCode.ROOM_ALREADY_EXISTS,
                 "Room already exists with name: " + name + " in cinema: " + cinemaId
         );
     }
@@ -46,8 +45,12 @@ public final class RoomExceptions {
     }
 
     public static BaseException invalidCapacity(Integer seats) {
+        String message = "Room capacity must not be null";
+        if(seats != null) {
+            message = "Room capacity must be positive";
+        }
         return CommonExceptions.invalidInput(
-                "Invalid room capacity: " + seats
+                message
         );
     }
 }
