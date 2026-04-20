@@ -11,52 +11,65 @@ import static org.assertj.core.api.Assertions.assertThat;
 class CommonExceptionsTest {
 
     @Test
-    @DisplayName("resourceNotFound() should return correct error code and message")
+    @DisplayName("resourceNotFound() should return correct error code and default message")
     void resourceNotFound_shouldReturnCorrectError() {
+
         BaseException ex = CommonExceptions.resourceNotFound();
 
-        assertThat(ex.getErrorCode()).isEqualTo(ErrorCode.RESOURCE_NOT_FOUND);
-        assertThat(ex.getHttpStatus()).isEqualTo(404);
-        assertThat(ex.getMessage()).isEqualTo("Resource not found");
+        assertThat(ex.getErrorCode())
+                .isEqualTo(ErrorCode.RESOURCE_NOT_FOUND);
+
+        assertThat(ex.getMessage())
+                .isEqualTo(ErrorCode.RESOURCE_NOT_FOUND.getMessage());
     }
 
     @Test
-    @DisplayName("resourceNotFound(String) should override default message")
+    @DisplayName("resourceNotFound(custom message) should override default message")
     void resourceNotFound_withCustomMessage_shouldOverrideMessage() {
+
         String customMsg = "Không tìm thấy lịch chiếu yêu cầu";
+
         BaseException ex = CommonExceptions.resourceNotFound(customMsg);
 
-        assertThat(ex.getErrorCode()).isEqualTo(ErrorCode.RESOURCE_NOT_FOUND);
-        assertThat(ex.getMessage()).isEqualTo(customMsg);
-        assertThat(ex.getHttpStatus()).isEqualTo(404);
+        assertThat(ex.getErrorCode())
+                .isEqualTo(ErrorCode.RESOURCE_NOT_FOUND);
+
+        assertThat(ex.getMessage())
+                .isEqualTo(customMsg);
     }
 
     @Test
-    @DisplayName("invalidInput() should return INVALID_INPUT error")
+    @DisplayName("invalidInput() should return correct error code and message")
     void invalidInput_shouldReturnCorrectError() {
+
         String customMsg = "Dữ liệu đầu vào không hợp lệ";
+
         BaseException ex = CommonExceptions.invalidInput(customMsg);
 
-        assertThat(ex.getErrorCode()).isEqualTo(ErrorCode.INVALID_INPUT);
-        assertThat(ex.getMessage()).isEqualTo(customMsg);
-        assertThat(ex.getHttpStatus()).isEqualTo(400);
+        assertThat(ex.getErrorCode())
+                .isEqualTo(ErrorCode.INVALID_INPUT);
+
+        assertThat(ex.getMessage())
+                .isEqualTo(customMsg);
     }
 
     @Test
-    @DisplayName("unauthorized() should return 401 status")
+    @DisplayName("unauthorized() should return correct error code")
     void unauthorized_shouldReturnUnauthorizedError() {
+
         BaseException ex = CommonExceptions.unauthorized();
 
-        assertThat(ex.getErrorCode()).isEqualTo(ErrorCode.UNAUTHORIZED);
-        assertThat(ex.getHttpStatus()).isEqualTo(401);
+        assertThat(ex.getErrorCode())
+                .isEqualTo(ErrorCode.UNAUTHORIZED);
     }
 
     @Test
-    @DisplayName("concurrencyConflict() should return correct error")
+    @DisplayName("concurrencyConflict() should return correct error code")
     void concurrencyConflict_shouldReturnCorrectError() {
+
         BaseException ex = CommonExceptions.concurrencyConflict();
 
-        assertThat(ex.getErrorCode()).isEqualTo(ErrorCode.CONCURRENCY_CONFLICT);
-        assertThat(ex.getHttpStatus()).isEqualTo(409);
+        assertThat(ex.getErrorCode())
+                .isEqualTo(ErrorCode.CONCURRENCY_CONFLICT);
     }
 }

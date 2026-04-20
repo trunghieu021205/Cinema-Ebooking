@@ -1,6 +1,6 @@
 package com.cinemaebooking.backend.showtime.infrastructure.mapper;
 
-import com.cinemaebooking.backend.infrastructure.persistence.mapper.BaseMapper;
+import com.cinemaebooking.backend.infrastructure.mapper.BaseMapper;
 import com.cinemaebooking.backend.showtime.domain.model.Showtime;
 import com.cinemaebooking.backend.showtime.infrastructure.persistence.entity.ShowtimeJpaEntity;
 

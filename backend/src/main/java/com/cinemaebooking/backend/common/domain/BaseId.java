@@ -3,46 +3,42 @@ package com.cinemaebooking.backend.common.domain;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Objects;
+
 /**
- * BaseId: Value Object cho tất cả entity IDs trong domain layer.
+ * BaseId - Type-safe identifier for Domain Entities.
+ * Core Purpose:
+ * - Prevent mixing IDs between different domains
+ * - Provide type-safe identity in Domain Layer
+ * - Keep independence from persistence layer
  *
- * Mục đích:
- * <ul>
- *     <li>Đảm bảo type-safe ID cho các entity.</li>
- *     <li>Tránh nhầm lẫn giữa các ID khác nhau (MovieId, UserId,...).</li>
- *     <li>Không phụ thuộc vào database hay JPA.</li>
- * </ul>
- *
- * Lưu ý:
- * <ul>
- *     <li>Chỉ chứa value thuần (Long, UUID,...)</li>
- *     <li>Không chứa annotation JPA</li>
- * </ul>
+ * @author Hieu Nguyen
+ * @since 2026
  */
 @Getter
 @RequiredArgsConstructor
 public abstract class BaseId {
 
     /**
-     * Giá trị ID thực tế.
+     * Raw identifier value.
      */
     private final Long value;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof BaseId)) return false;
-        BaseId baseId = (BaseId) o;
-        return value.equals(baseId.value);
+        if (o == null || getClass() != o.getClass()) return false;
+        BaseId other = (BaseId) o;
+        return Objects.equals(value, other.value);
     }
 
     @Override
     public int hashCode() {
-        return value.hashCode();
+        return Objects.hash(getClass(), value);
     }
 
     @Override
     public String toString() {
-        return value.toString();
+        return getClass().getSimpleName() + "(" + value + ")";
     }
 }
