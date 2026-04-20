@@ -2,6 +2,7 @@ package com.cinemaebooking.backend.cinema.application.port;
 
 import com.cinemaebooking.backend.cinema.domain.model.Cinema;
 import com.cinemaebooking.backend.cinema.domain.valueobject.CinemaId;
+import com.cinemaebooking.backend.cinema.infrastructure.persistence.entity.CinemaJpaEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

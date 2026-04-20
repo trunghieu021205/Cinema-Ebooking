@@ -1,6 +1,9 @@
 package com.cinemaebooking.backend.common.validation.factory;
 
 import com.cinemaebooking.backend.common.validation.domain.CinemaValidationProfile;
+import com.cinemaebooking.backend.common.validation.domain.RoomValidationProfile;
+import com.cinemaebooking.backend.common.validation.domain.SeatTypeValidationProfile;
+import com.cinemaebooking.backend.common.validation.domain.SeatValidationProfile;
 
 /**
  * ValidationFactory - Entry point to domain validation profiles.
@@ -20,4 +23,7 @@ public final class ValidationFactory {
     public static CinemaValidationProfile cinema() {
         return CinemaValidationProfile.INSTANCE;
     }
+    public static RoomValidationProfile   room(){ return RoomValidationProfile.INSTANCE;}
+    public static SeatValidationProfile seat(){ return SeatValidationProfile.INSTANCE;}
+    public static SeatTypeValidationProfile seatType(){ return SeatTypeValidationProfile.INSTANCE;}
 }

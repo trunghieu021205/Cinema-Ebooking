@@ -25,3 +25,4 @@ public interface CinemaJpaRepository extends SoftDeleteJpaRepository<CinemaJpaEn
 
     boolean existsByAddressAndCityAndIdNot(String address, String city, Long id);
 }
+

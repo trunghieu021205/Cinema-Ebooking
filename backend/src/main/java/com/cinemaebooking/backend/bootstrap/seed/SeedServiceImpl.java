@@ -8,12 +8,12 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class SeedServiceImpl implements SeedService {
-    private final ResetService resetService;
+   // private final ResetService resetService;
     private final CinemaSeed cinemaSeed;
     private final RoomSeed roomSeed;
     @Override
     public void seed() {
-        resetService.reset();
+        //resetService.reset();
         Cinema cinema = cinemaSeed.seed();
         roomSeed.seed(cinema.getId().getValue());
     }

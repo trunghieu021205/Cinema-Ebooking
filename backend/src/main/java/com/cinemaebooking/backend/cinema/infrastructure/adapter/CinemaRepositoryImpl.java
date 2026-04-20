@@ -80,6 +80,7 @@ public class CinemaRepositoryImpl implements CinemaRepository {
     }
 
     @Override
+
     public boolean existsByNameAndIdNot(String name, CinemaId id) {
         return jpaRepository.existsByNameAndIdNot(name, id.getValue());
     }
@@ -100,3 +101,4 @@ public class CinemaRepositoryImpl implements CinemaRepository {
         return jpaRepository.existsByAddressAndCityAndIdNot(address, city, id.getValue());
     }
 }
+
