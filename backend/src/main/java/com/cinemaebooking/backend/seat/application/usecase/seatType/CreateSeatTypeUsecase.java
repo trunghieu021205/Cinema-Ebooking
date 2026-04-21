@@ -5,7 +5,7 @@ import com.cinemaebooking.backend.seat.application.dto.seatType.SeatTypeResponse
 import com.cinemaebooking.backend.seat.application.mapper.seatType.SeatTypeResponseMapper;
 import com.cinemaebooking.backend.seat.application.port.seatType.SeatTypeRepository;
 import com.cinemaebooking.backend.seat.domain.model.seatType.SeatType;
-import com.cinemaebooking.backend.seat.domain.validator.SeatTypeCommandValidator;
+import com.cinemaebooking.backend.seat.application.validator.SeatTypeCommandValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

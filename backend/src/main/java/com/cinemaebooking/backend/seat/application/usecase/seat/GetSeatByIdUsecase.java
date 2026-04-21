@@ -1,7 +1,6 @@
 package com.cinemaebooking.backend.seat.application.usecase.seat;
 
 import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
-import com.cinemaebooking.backend.common.exception.domain.RoomExceptions;
 import com.cinemaebooking.backend.common.exception.domain.SeatExceptions;
 import com.cinemaebooking.backend.seat.application.dto.seat.SeatResponse;
 import com.cinemaebooking.backend.seat.application.mapper.seat.SeatResponseMapper;
