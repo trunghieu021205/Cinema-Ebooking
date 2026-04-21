@@ -4,10 +4,7 @@ import com.cinemaebooking.backend.infrastructure.persistence.entity.BaseJpaEntit
 import com.cinemaebooking.backend.user.domain.enums.UserRole;
 import com.cinemaebooking.backend.user.domain.enums.UserStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
@@ -15,7 +12,7 @@ import java.time.LocalDate;
 /**
  * UserJpaEntity - Persistence model for users table.
  * Responsibility:
- * - Map database table "users"
+ * - Map database table users
  * - Handle persistence concerns only
  * - No business logic allowed
  * Note:
@@ -26,7 +23,15 @@ import java.time.LocalDate;
  * @since 2026
  */
 @Entity
-@Table(name = "users")
+@Table(
+        name = "users",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_users_email_deleted",
+                        columnNames = {"email", "deleted"}
+                )
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -37,7 +42,7 @@ public class UserJpaEntity extends BaseJpaEntity {
     @Column(nullable = false, length = 100)
     private String fullName;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String email;
 
     @Column(nullable = false)
@@ -62,4 +67,9 @@ public class UserJpaEntity extends BaseJpaEntity {
 
     @Column(name = "loyalty_account_id")
     private Long loyaltyAccountId;
+
+    @Override
+    protected void beforeSoftDelete() {
+        this.email = markDeleted(this.email);
+    }
 }
