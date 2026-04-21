@@ -5,21 +5,47 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="dfac1dd7-6ce0-490d-ad8e-93917d3a65a0" name="Changes" comment="Base Project">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/src/main/resources/application.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/Cinema-Ebooking.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/cinemaebooking/backend/room/application/dto/CreateRoomRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/cinemaebooking/backend/room/application/dto/RoomResponse.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/cinemaebooking/backend/room/application/dto/UpdateRoomRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/cinemaebooking/backend/room/application/usecase/CreateRoomUseCase.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/cinemaebooking/backend/room/application/usecase/DeleteRoomUseCase.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/cinemaebooking/backend/room/application/usecase/GetRoomUsecase.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/cinemaebooking/backend/room/application/usecase/UpdateRoomUseCase.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/cinemaebooking/backend/room/domain/Room.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/cinemaebooking/backend/room/domain/RoomRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/cinemaebooking/backend/room/domain/RoomStatus.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/cinemaebooking/backend/room/domain/RoomType.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/cinemaebooking/backend/room/infrastructure/adapter/RoomRepositoryAdapter.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/cinemaebooking/backend/room/infrastructure/mapper/RoomMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/cinemaebooking/backend/room/infrastructure/persistence/repository/RoomJpaRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/cinemaebooking/backend/room/presentation/RoomController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/jarRepositories.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/BackendApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/BackendApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/cinemaebooking/backend/room/infrastructure/persistence/entity/RoomJpaEntity.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/cinemaebooking/backend/room/infrastructure/persistence/entity/RoomJpaEntity.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="master" />
+        <entry key="$PROJECT_DIR$" value="develop" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -36,6 +62,16 @@
     &quot;accountId&quot;: &quot;88e63be2-17af-41ed-99ed-12a4e75e869d&quot;
   }
 }</component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="mavenHomeTypeForPersistence" value="WRAPPER" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 8
@@ -47,23 +83,33 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Downloaded.Files.Path.Enabled": "false",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Repository.Attach.Annotations": "false",
+    "Repository.Attach.JavaDocs": "false",
+    "Repository.Attach.Sources": "false",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Spring Boot.BackendApplication.executor": "Run",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "feature/setup-database-and-entities",
+    "git-widget-placeholder": "feature/room-usecases",
     "ignore.virus.scanning.warn.message": "true",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "D:/USER/OneDrive - student.ptithcm.edu.vn/Documents/tai lieu/TTCS/Cinema-Ebooking",
+    "last_opened_file_path": "C:/Cinema-Ebooking",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
     "to.speed.mode.migration.done": "true"
   }
 }]]></component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.28238.7" />
+        <option value="bundled-jdk-30f59d01ecdd-2fc7cc6b9a17-intellij.indexing.shared.core-IU-253.31033.145" />
       </set>
     </attachedChunks>
   </component>
@@ -96,7 +142,7 @@
         <line-breakpoint enabled="true" type="java-method">
           <url>file://$PROJECT_DIR$/backend/src/main/java/com/example/backend/BackendApplication.java</url>
           <line>9</line>
-          <properties class="com.example.backend.BackendApplication" method="main">
+          <properties class="com.example.backend.BackendApplication">
             <option name="EMULATED" value="true" />
             <option name="WATCH_EXIT" value="false" />
           </properties>
