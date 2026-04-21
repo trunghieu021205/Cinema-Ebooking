@@ -1,5 +1,6 @@
 package com.cinemaebooking.backend.seat.application.port.seat;
 
+import com.cinemaebooking.backend.room.domain.valueObject.RoomId;
 import com.cinemaebooking.backend.seat.domain.model.seat.Seat;
 import com.cinemaebooking.backend.seat.domain.valueObject.seat.SeatId;
 import org.springframework.data.domain.Page;
@@ -14,6 +15,7 @@ public interface SeatRepository {
     Optional<Seat> findById(SeatId id);
     Page<Seat> findAll(Pageable pageable);
     void deleteById(SeatId id);
+    boolean existsById(SeatId id);
     Page<Seat> findByRoomId(Long roomId, Pageable pageable);
     boolean existsByRoomIdAndRowLabelAndColumnNumber(
             Long roomId,
@@ -25,7 +27,12 @@ public interface SeatRepository {
             Long roomId,
             String rowLabel,
             Integer columnNumber,
-            Long id
+            SeatId id
     );
+
 }
+
+
+
+
 

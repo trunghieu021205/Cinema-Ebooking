@@ -26,26 +26,25 @@ public class SeatMapperImpl implements SeatMapper{
     public SeatJpaEntity toEntity(Seat seat) {
         if (seat == null) return null;
 
-        SeatJpaEntity entity = new SeatJpaEntity();
-        entity.setId(seat.getId() != null ? seat.getId().getValue() : null);
-        entity.setRowLabel(seat.getRowLabel());
-        entity.setColumnNumber(seat.getColumnNumber());
-        entity.setStatus(seat.getStatus());
-
-        // Reference SeatType
-        if (seat.getSeatTypeId() != null) {
-            SeatTypeJpaEntity seatTypeRef = new SeatTypeJpaEntity();
-            seatTypeRef.setId(seat.getSeatTypeId());
-            entity.setSeatType(seatTypeRef);
-        }
-
-        // Reference Room
-        if (seat.getRoomId() != null) {
-            RoomJpaEntity room = new RoomJpaEntity();
-            room.setId(seat.getRoomId());
-            entity.setRoom(room);
-        }
-
-        return entity;
+        return SeatJpaEntity.builder()
+                .id(seat.getId() != null ? seat.getId().getValue() : null)
+                .rowLabel(seat.getRowLabel())
+                .columnNumber(seat.getColumnNumber())
+                .status(seat.getStatus())
+                .seatType(
+                        seat.getSeatTypeId() != null
+                                ? SeatTypeJpaEntity.builder()
+                                .id(seat.getSeatTypeId())
+                                .build()
+                                : null
+                )
+                .room(
+                        seat.getRoomId() != null
+                                ? RoomJpaEntity.builder()
+                                .id(seat.getRoomId())
+                                .build()
+                                : null
+                )
+                .build();
     }
 }

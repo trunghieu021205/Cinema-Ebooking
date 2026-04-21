@@ -4,13 +4,13 @@ import com.cinemaebooking.backend.seat.application.port.seatType.SeatTypeReposit
 import com.cinemaebooking.backend.seat.domain.model.seatType.SeatType;
 import com.cinemaebooking.backend.seat.domain.valueObject.seatType.SeatTypeId;
 import com.cinemaebooking.backend.seat.infrastructure.mapper.seatType.SeatTypeMapper;
+import com.cinemaebooking.backend.seat.infrastructure.persistence.entity.SeatTypeJpaEntity;
 import com.cinemaebooking.backend.seat.infrastructure.persistence.repository.SeatTypeJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Component
@@ -28,13 +28,12 @@ public class SeatTypeRepositoryImpl implements SeatTypeRepository {
 
     @Override
     public SeatType update(SeatType seatType) {
-        var old = jpaRepository.findById(seatType.getId().getValue())
-                .orElseThrow(() -> new RuntimeException("SeatType not found"));
+        SeatTypeJpaEntity entity = jpaRepository.findByIdOrThrow(seatType.getId().getValue());
 
-        old.setName(seatType.getName());
-        old.setBasePrice(seatType.getBasePrice());
+        entity.setName(seatType.getName());
+        entity.setBasePrice(seatType.getBasePrice());
 
-        return mapper.toDomain(jpaRepository.save(old));
+        return mapper.toDomain(jpaRepository.save(entity));
     }
 
     @Override
@@ -51,15 +50,23 @@ public class SeatTypeRepositoryImpl implements SeatTypeRepository {
 
     @Override
     public void deleteById(SeatTypeId id) {
-        var entity = jpaRepository.findById(id.getValue())
-                .orElseThrow(() -> new RuntimeException("SeatType not found"));
-
-        entity.setDeletedAt(LocalDateTime.now());
-        jpaRepository.save(entity);
+        SeatTypeJpaEntity seatType = jpaRepository.findByIdOrThrow(id.getValue());
+        jpaRepository.delete(seatType);
     }
-
+    @Override
+    public  boolean existsById(SeatTypeId id){
+        return jpaRepository.existsById(id.getValue());
+    }
     @Override
     public boolean existsByName(String name) {
         return jpaRepository.existsByName(name);
+    }
+
+    @Override
+    public boolean existsByNameAndIdNot(String name, SeatTypeId id) {
+        return jpaRepository.existsByNameAndIdNot(
+                name,
+                id.getValue()
+        );
     }
 }

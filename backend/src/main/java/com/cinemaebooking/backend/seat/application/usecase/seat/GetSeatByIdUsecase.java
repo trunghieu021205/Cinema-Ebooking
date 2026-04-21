@@ -1,5 +1,8 @@
 package com.cinemaebooking.backend.seat.application.usecase.seat;
 
+import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
+import com.cinemaebooking.backend.common.exception.domain.RoomExceptions;
+import com.cinemaebooking.backend.common.exception.domain.SeatExceptions;
 import com.cinemaebooking.backend.seat.application.dto.seat.SeatResponse;
 import com.cinemaebooking.backend.seat.application.mapper.seat.SeatResponseMapper;
 import com.cinemaebooking.backend.seat.application.port.seat.SeatRepository;
@@ -11,12 +14,15 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class GetSeatByIdUsecase {
 
-    private final SeatRepository repository;
+    private final SeatRepository seatRepository;
     private final SeatResponseMapper mapper;
 
-    public SeatResponse execute(Long id) {
-        return repository.findById(new SeatId(id))
+    public SeatResponse execute(SeatId id) {
+        if (id == null) {
+            throw CommonExceptions.invalidInput("Seat id must not be null");
+        }
+        return seatRepository.findById(id)
                 .map(mapper::toResponse)
-                .orElseThrow(() -> new RuntimeException("Seat not found"));
+                .orElseThrow(() -> SeatExceptions.notFound(id));
     }
 }

@@ -5,27 +5,42 @@ import com.cinemaebooking.backend.seat.application.dto.seatType.SeatTypeResponse
 import com.cinemaebooking.backend.seat.application.mapper.seatType.SeatTypeResponseMapper;
 import com.cinemaebooking.backend.seat.application.port.seatType.SeatTypeRepository;
 import com.cinemaebooking.backend.seat.domain.model.seatType.SeatType;
+import com.cinemaebooking.backend.seat.domain.validator.SeatTypeCommandValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+/**
+ * CreateSeatTypeUseCase - Handles creation of a new SeatType.
+ */
 @Service
 @RequiredArgsConstructor
 public class CreateSeatTypeUsecase {
 
-    private final SeatTypeRepository repository;
+    private final SeatTypeRepository seatTypeRepository;
     private final SeatTypeResponseMapper mapper;
+    private final SeatTypeCommandValidator validator;
 
     public SeatTypeResponse execute(CreateSeatTypeRequest request) {
 
-        if (repository.existsByName(request.getName())) {
-            throw new IllegalArgumentException("SeatType name already exists");
-        }
+        // ================== VALIDATION ==================
+        validator.validateCreateRequest(request);
 
-        SeatType seatType = SeatType.builder()
+        // ================== BUILD DOMAIN ==================
+        SeatType seatType = buildSeatType(request);
+
+        // ================== PERSIST ==================
+        SeatType saved = seatTypeRepository.create(seatType);
+
+        // ================== RESPONSE ==================
+        return mapper.toResponse(saved);
+    }
+
+    // ================== PRIVATE METHODS ==================
+
+    private SeatType buildSeatType(CreateSeatTypeRequest request) {
+        return SeatType.builder()
                 .name(request.getName())
                 .basePrice(request.getBasePrice())
                 .build();
-
-        return mapper.toResponse(repository.create(seatType));
     }
 }

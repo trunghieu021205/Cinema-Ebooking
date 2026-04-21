@@ -17,7 +17,11 @@ public interface SeatTypeRepository {
 
     Page<SeatType> findAll(Pageable pageable);
 
+    boolean existsById(SeatTypeId id);
+
     void deleteById(SeatTypeId id);
 
     boolean existsByName(String name);
+
+    boolean existsByNameAndIdNot(String name, SeatTypeId id);
 }

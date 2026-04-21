@@ -5,8 +5,6 @@ import com.cinemaebooking.backend.room.domain.enums.RoomType;
 import lombok.*;
 
 @Getter
-@Setter
-@NoArgsConstructor
 @AllArgsConstructor
 public class RoomResponse {
     private Long id;

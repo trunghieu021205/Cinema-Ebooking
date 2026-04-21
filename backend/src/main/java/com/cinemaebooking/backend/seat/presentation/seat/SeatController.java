@@ -4,6 +4,7 @@ import com.cinemaebooking.backend.seat.application.dto.seat.CreateSeatRequest;
 import com.cinemaebooking.backend.seat.application.dto.seat.SeatResponse;
 import com.cinemaebooking.backend.seat.application.dto.seat.UpdateSeatRequest;
 import com.cinemaebooking.backend.seat.application.usecase.seat.*;
+import com.cinemaebooking.backend.seat.domain.valueObject.seat.SeatId;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,69 +26,79 @@ public class SeatController {
     private final FindSeatsByRoomIdUsecase findSeatsByRoomIdUsecase;
     private final GetAllSeatsUsecase getAllSeatsUsecase;
 
-    /**
-     * POST /api/v1/seats
-     * Tạo mới Seat
-     */
+    // ================== CREATE ==================
+
     @PostMapping
-    public ResponseEntity<SeatResponse> create(@Valid @RequestBody CreateSeatRequest request) {
+    public ResponseEntity<SeatResponse> create(
+            @Valid @RequestBody CreateSeatRequest request
+    ) {
         SeatResponse response = createSeatUsecase.execute(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    /**
-     * GET /api/v1/seats/{id}
-     * Lấy Seat theo ID
-     */
+    // ================== GET BY ID ==================
+
     @GetMapping("/{id}")
-    public ResponseEntity<SeatResponse> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(getSeatByIdUsecase.execute(id));
+    public ResponseEntity<SeatResponse> getById(
+            @PathVariable Long id
+    ) {
+        return ResponseEntity.ok(
+                getSeatByIdUsecase.execute(toSeatId(id))
+        );
     }
 
-    /**
-     * GET /api/v1/seats
-     * Lấy danh sách Seat (pagination)
-     */
+    // ================== GET ALL ==================
+
     @GetMapping
-    public ResponseEntity<Page<SeatResponse>> getSeatList(
+    public ResponseEntity<Page<SeatResponse>> getAll(
             @PageableDefault(size = 8, page = 0) Pageable pageable
     ) {
-        return ResponseEntity.ok(getAllSeatsUsecase.execute(pageable));
+        return ResponseEntity.ok(
+                getAllSeatsUsecase.execute(pageable)
+        );
     }
 
-    /**
-     * PUT /api/v1/seats/{id}
-     * Cập nhật Seat
-     */
+    // ================== UPDATE ==================
+
     @PutMapping("/{id}")
     public ResponseEntity<SeatResponse> update(
             @PathVariable Long id,
-            @Valid @RequestBody UpdateSeatRequest request) {
+            @Valid @RequestBody UpdateSeatRequest request
+    ) {
+        SeatResponse response =
+                updateSeatUsecase.execute(toSeatId(id), request);
 
-        return ResponseEntity.ok(updateSeatUsecase.execute(id, request));
+        return ResponseEntity.ok(response);
     }
 
-    /**
-     * DELETE /api/v1/seats/{id}
-     * Xoá Seat
-     */
+    // ================== DELETE ==================
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        deleteSeatUsecase.execute(id);
-        return ResponseEntity.ok().build(); // giống RoomController
+    public ResponseEntity<Void> delete(
+            @PathVariable Long id
+    ) {
+        deleteSeatUsecase.execute(toSeatId(id));
+        return ResponseEntity.ok().build();
     }
 
-    /**
-     * GET /api/v1/seats/room/{roomId}
-     * Lấy danh sách Seat theo Room
-     */
+    // ================== GET BY ROOM ==================
+
     @GetMapping("/room/{roomId}")
-    public ResponseEntity<Page<SeatResponse>> findByRoomId(
+    public ResponseEntity<Page<SeatResponse>> getByRoomId(
             @PathVariable Long roomId,
             @PageableDefault(size = 8, page = 0) Pageable pageable
     ) {
         return ResponseEntity.ok(
                 findSeatsByRoomIdUsecase.execute(roomId, pageable)
         );
+    }
+
+    // ================== HELPER ==================
+
+    private SeatId toSeatId(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Seat id must not be null");
+        }
+        return new SeatId(id);
     }
 }
