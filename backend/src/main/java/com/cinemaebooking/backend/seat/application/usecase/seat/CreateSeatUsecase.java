@@ -44,7 +44,7 @@ public class CreateSeatUsecase {
                 .columnNumber(request.getColumnNumber())
                 .seatTypeId(request.getSeatTypeId())
                 .roomId(request.getRoomId())
-                .status(SeatStatus.AVAILABLE)
+                .status(SeatStatus.ACTIVE)
                 .build();
     }
 }
