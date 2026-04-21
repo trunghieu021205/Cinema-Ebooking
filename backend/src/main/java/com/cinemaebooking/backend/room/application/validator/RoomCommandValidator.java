@@ -113,12 +113,18 @@ public class RoomCommandValidator {
 
     private void validateDuplicateForUpdate(RoomId id, String name) {
 
-        if (name != null) {
-            boolean exists = roomRepository.existsByNameAndIdNot(name, id);
+        if (name == null) return;
 
-            if (exists) {
-                throw RoomExceptions.duplicateRoomName(name);
-            }
+        // Lấy room từ DB
+        var room = roomRepository.findById(id)
+                .orElseThrow(() -> RoomExceptions.notFound(id));
+
+        Long cinemaId = room.getCinemaId();
+
+        boolean exists = roomRepository.existsByNameAndCinemaIdAndIdNot(name, cinemaId, id);
+
+        if (exists) {
+            throw RoomExceptions.duplicateRoomInCinema(name, cinemaId);
         }
     }
 

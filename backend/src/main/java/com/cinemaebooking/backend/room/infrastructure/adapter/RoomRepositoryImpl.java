@@ -93,9 +93,11 @@ public class RoomRepositoryImpl implements RoomRepository {
         return roomJpaRepository.existsByNameAndCinemaId(name,CinemaId);
     }
     @Override
-    public boolean existsByNameAndIdNot(String name, RoomId id) {
-        return roomJpaRepository.existsByNameAndIdNot(
+    public boolean existsByNameAndCinemaIdAndIdNot(String name, Long cinemaId, RoomId id){
+        if (name == null || cinemaId == null || id == null) return false;
+        return roomJpaRepository.existsByNameAndCinemaIdAndIdNot(
                 name,
+                cinemaId,
                 id.getValue()
         );
     }

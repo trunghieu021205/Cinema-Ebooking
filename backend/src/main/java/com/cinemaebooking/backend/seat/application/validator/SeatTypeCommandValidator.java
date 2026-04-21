@@ -1,4 +1,4 @@
-package com.cinemaebooking.backend.seat.domain.validator;
+package com.cinemaebooking.backend.seat.application.validator;
 
 import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import com.cinemaebooking.backend.common.exception.domain.SeatTypeExceptions;

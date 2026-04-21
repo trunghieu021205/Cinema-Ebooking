@@ -7,7 +7,7 @@ import com.cinemaebooking.backend.seat.application.dto.seatType.UpdateSeatTypeRe
 import com.cinemaebooking.backend.seat.application.mapper.seatType.SeatTypeResponseMapper;
 import com.cinemaebooking.backend.seat.application.port.seatType.SeatTypeRepository;
 import com.cinemaebooking.backend.seat.domain.model.seatType.SeatType;
-import com.cinemaebooking.backend.seat.domain.validator.SeatTypeCommandValidator;
+import com.cinemaebooking.backend.seat.application.validator.SeatTypeCommandValidator;
 import com.cinemaebooking.backend.seat.domain.valueObject.seatType.SeatTypeId;
 import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
