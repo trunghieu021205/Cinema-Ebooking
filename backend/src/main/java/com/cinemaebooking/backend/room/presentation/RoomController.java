@@ -1,5 +1,6 @@
 package com.cinemaebooking.backend.room.presentation;
 
+import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import com.cinemaebooking.backend.room.application.dto.CreateRoomRequest;
 import com.cinemaebooking.backend.room.application.dto.RoomResponse;
 import com.cinemaebooking.backend.room.application.dto.UpdateRoomRequest;
@@ -11,9 +12,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * RoomController - REST API for Room resource.
+ * Responsibility:
+ * - Handle HTTP requests
+ * - Delegate to use cases
+ * - Return proper HTTP responses
+ */
 @RestController
 @RequestMapping("/api/v1/rooms")
 @RequiredArgsConstructor
@@ -27,74 +34,60 @@ public class RoomController {
     private final GetRoomByIdUseCase getRoomByIdUseCase;
 
     // ================== CREATE ==================
-
     @PostMapping
-    public ResponseEntity<RoomResponse> createRoom(
-            @Valid @RequestBody CreateRoomRequest request
-    ) {
-        RoomResponse response = createRoomUseCase.execute(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
-
-    // ================== GET BY ID ==================
-
-    @GetMapping("/{id}")
-    public ResponseEntity<RoomResponse> getRoomById(
-            @PathVariable Long id
-    ) {
-        RoomResponse response = getRoomByIdUseCase.execute(toRoomId(id));
-        return ResponseEntity.ok(response);
-    }
-
-    // ================== GET ALL ==================
-
-    @GetMapping
-    public ResponseEntity<Page<RoomResponse>> getRooms(
-            @PageableDefault(size = 8, page = 0) Pageable pageable
-    ) {
-        return ResponseEntity.ok(getRoomListUseCase.execute(pageable));
+    @ResponseStatus(HttpStatus.CREATED)
+    public RoomResponse createRoom(@Valid @RequestBody CreateRoomRequest request) {
+        return createRoomUseCase.execute(request);
     }
 
     // ================== UPDATE ==================
-
     @PutMapping("/{id}")
-    public ResponseEntity<RoomResponse> updateRoom(
+    public RoomResponse updateRoom(
             @PathVariable Long id,
-            @RequestBody UpdateRoomRequest request
-    ) {
-        RoomResponse response =
-                updateRoomUseCase.execute(toRoomId(id), request);
+            @Valid @RequestBody UpdateRoomRequest request) {
 
-        return ResponseEntity.ok(response);
+        RoomId roomId = toRoomId(id);
+        return updateRoomUseCase.execute(roomId, request);
     }
 
     // ================== DELETE ==================
-
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteRoom(
-            @PathVariable Long id
-    ) {
-        deleteRoomUseCase.execute(toRoomId(id));
-        return ResponseEntity.ok().build();
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteRoom(@PathVariable Long id) {
+
+        RoomId roomId = toRoomId(id);
+        deleteRoomUseCase.execute(roomId);
     }
 
-    // ================== ROOMS BY CINEMA ==================
+    // ================== DETAIL ==================
+    @GetMapping("/{id}")
+    public RoomResponse getRoomById(@PathVariable Long id) {
 
+        RoomId roomId = toRoomId(id);
+        return getRoomByIdUseCase.execute(roomId);
+    }
+
+    // ================== LIST ==================
+    @GetMapping
+    public Page<RoomResponse> getRoomList(
+            @PageableDefault(size = 8, page = 0) Pageable pageable) {
+
+        return getRoomListUseCase.execute(pageable);
+    }
+
+    // ================== LIST BY CINEMA ==================
     @GetMapping("/cinema/{cinemaId}")
-    public ResponseEntity<Page<RoomResponse>> getRoomsByCinema(
+    public Page<RoomResponse> getRoomsByCinema(
             @PathVariable Long cinemaId,
-            @PageableDefault(size = 8, page = 0) Pageable pageable
-    ) {
-        return ResponseEntity.ok(
-                getRoomsByCinemaIdUseCase.execute(cinemaId, pageable)
-        );
+            @PageableDefault(size = 8, page = 0) Pageable pageable) {
+
+        return getRoomsByCinemaIdUseCase.execute(cinemaId, pageable);
     }
 
-    // ================== MAPPER HELPERS ==================
-
+    // ================== HELPER ==================
     private RoomId toRoomId(Long id) {
         if (id == null) {
-            throw new IllegalArgumentException("Room id must not be null");
+            throw CommonExceptions.invalidInput("Room id must not be null");
         }
         return RoomId.of(id);
     }

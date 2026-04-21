@@ -1,5 +1,6 @@
 package com.cinemaebooking.backend.seat.presentation.seatType;
 
+import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import com.cinemaebooking.backend.seat.application.dto.seatType.CreateSeatTypeRequest;
 import com.cinemaebooking.backend.seat.application.dto.seatType.SeatTypeResponse;
 import com.cinemaebooking.backend.seat.application.dto.seatType.UpdateSeatTypeRequest;
@@ -11,7 +12,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -26,57 +26,46 @@ public class SeatTypeController {
     private final DeleteSeatTypeUsecase deleteSeatTypeUsecase;
 
     // ================== CREATE ==================
-
     @PostMapping
-    public ResponseEntity<SeatTypeResponse> create(
-            @Valid @RequestBody CreateSeatTypeRequest request
-    ) {
-        SeatTypeResponse response = createSeatTypeUsecase.execute(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    @ResponseStatus(HttpStatus.CREATED)
+    public SeatTypeResponse createSeatType(@Valid @RequestBody CreateSeatTypeRequest request) {
+        return createSeatTypeUsecase.execute(request);
     }
 
     // ================== UPDATE ==================
-
     @PutMapping("/{id}")
-    public ResponseEntity<SeatTypeResponse> update(
+    public SeatTypeResponse updateSeatType(
             @PathVariable Long id,
             @Valid @RequestBody UpdateSeatTypeRequest request
     ) {
-        SeatTypeResponse response = updateSeatTypeUsecase.execute(toSeatTypeId(id), request);
-        return ResponseEntity.ok(response);
+        return updateSeatTypeUsecase.execute(toSeatTypeId(id), request);
     }
 
-    // ================== GET BY ID ==================
-
+    // ================== DETAIL ==================
     @GetMapping("/{id}")
-    public ResponseEntity<SeatTypeResponse> getById(
-            @PathVariable Long id
-    ) {
-        return ResponseEntity.ok(getSeatTypeByIdUsecase.execute(toSeatTypeId(id)));
+    public SeatTypeResponse getSeatTypeById(@PathVariable Long id) {
+        return getSeatTypeByIdUsecase.execute(toSeatTypeId(id));
     }
 
-    // ================== GET ALL ==================
-
+    // ================== LIST ==================
     @GetMapping
-    public ResponseEntity<Page<SeatTypeResponse>> getAll(
+    public Page<SeatTypeResponse> getAllSeatTypes(
             @PageableDefault(size = 8, page = 0) Pageable pageable
     ) {
-        return ResponseEntity.ok(getSeatTypeUsecase.execute(pageable));
+        return getSeatTypeUsecase.execute(pageable);
     }
 
     // ================== DELETE ==================
-
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(
-            @PathVariable Long id
-    ) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteSeatType(@PathVariable Long id) {
         deleteSeatTypeUsecase.execute(toSeatTypeId(id));
-        return ResponseEntity.ok().build();
     }
 
+    // ================== HELPER ==================
     private SeatTypeId toSeatTypeId(Long id) {
         if (id == null) {
-            throw new IllegalArgumentException("SeatType id must not be null");
+            throw CommonExceptions.invalidInput("SeatType id must not be null");
         }
         return SeatTypeId.of(id);
     }
