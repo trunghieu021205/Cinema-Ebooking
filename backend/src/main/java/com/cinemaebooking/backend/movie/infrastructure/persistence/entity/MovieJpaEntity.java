@@ -4,6 +4,10 @@ import com.cinemaebooking.backend.infrastructure.persistence.entity.BaseJpaEntit
 import com.cinemaebooking.backend.movie.domain.enums.AgeRating;
 import com.cinemaebooking.backend.movie.domain.enums.MovieStatus;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -11,30 +15,28 @@ import java.time.LocalDate;
 import java.util.Set;
 
 /**
- * MovieJpaEntity: Mapping JPA cho Movie domain entity.
- *
- * <p>
- * Chịu trách nhiệm:
- * <ul>
- *     <li>Mapping bảng "movies"</li>
- *     <li>Lưu thông tin chi tiết phim</li>
- *     <li>Liên kết với Genre</li>
- *     <li>Kế thừa auditing + soft delete</li>
- * </ul>
- *
- * <p>
- * Lưu ý:
- * <ul>
- *     <li>Genre là Many-to-Many</li>
- *     <li>Director/Actors đang lưu dạng text (MVP)</li>
- *     <li>Rating là giá trị trung bình + số lượt đánh giá</li>
- * </ul>
+ * MovieJpaEntity - Persistence model for movies table.
+ * Responsibility:
+ * - Map database table movies
+ * - Handle persistence concerns only
+ * - No business logic allowed
+ * Note:
+ * - This is NOT a domain model
+ * - Must be converted via Mapper
  *
  * @author Hieu Nguyen
  * @since 2026
  */
 @Entity
-@Table(name = "movies")
+@Table(
+        name = "movies",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_movies_title_deleted",
+                        columnNames = {"title", "deleted"}
+                )
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -42,72 +44,45 @@ import java.util.Set;
 @SuperBuilder(toBuilder = true)
 public class MovieJpaEntity extends BaseJpaEntity {
 
-    /**
-     * Tên phim
-     */
+    @NotNull
     @Column(nullable = false, length = 255)
     private String title;
 
-    /**
-     * Mô tả nội dung phim
-     */
     @Column(length = 1000)
     private String description;
 
-    /**
-     * Thời lượng (phút)
-     */
+    @NotNull
+    @Min(1)
     @Column(nullable = false)
     private Integer duration;
 
-    /**
-     * Phân loại độ tuổi
-     */
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
     private AgeRating ageRating;
 
-    /**
-     * Ngày khởi chiếu
-     */
+    @NotNull
     @Column(nullable = false)
     private LocalDate releaseDate;
 
-    /**
-     * Trạng thái phim
-     */
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private MovieStatus status;
 
-    /**
-     * Poster phim
-     */
-    @Column(length = 500)
+    @Column(name = "poster_url", length = 500)
     private String posterUrl;
 
-    /**
-     * Banner phim
-     */
-    @Column(length = 500)
+    @Column(name = "banner_url", length = 500)
     private String bannerUrl;
 
-    /**
-     * Đạo diễn (MVP: dạng text)
-     */
     @Column(length = 255)
     private String director;
 
-    /**
-     * Danh sách diễn viên (MVP: dạng text)
-     */
     @Column(length = 500)
     private String actors;
 
-    /**
-     * Thể loại phim
-     */
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "movie_genres",
             joinColumns = @JoinColumn(name = "movie_id"),
@@ -115,13 +90,16 @@ public class MovieJpaEntity extends BaseJpaEntity {
     )
     private Set<GenreJpaEntity> genres;
 
-    /**
-     * Điểm đánh giá trung bình
-     */
-    private Double rating;// cache
+    @Positive
+    @Column(nullable = false)
+    private Double rating;
 
-    /**
-     * Số lượt đánh giá
-     */
-    private Integer ratingCount;// cache
+    @PositiveOrZero
+    @Column(name = "rating_count", nullable = false)
+    private Integer ratingCount;
+
+    @Override
+    protected void beforeSoftDelete() {
+        this.title = markDeleted(this.title);
+    }
 }

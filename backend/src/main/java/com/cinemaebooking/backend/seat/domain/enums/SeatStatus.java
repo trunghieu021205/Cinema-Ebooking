@@ -1,11 +1,10 @@
 package com.cinemaebooking.backend.seat.domain.enums;
 
 public enum SeatStatus {
-    AVAILABLE,
-    BOOKED,
-    DISABLED;
+    ACTIVE,
+    INACTIVE;
 
     public boolean isActive() {
-        return this == AVAILABLE;
+        return this == ACTIVE;
     }
 }
