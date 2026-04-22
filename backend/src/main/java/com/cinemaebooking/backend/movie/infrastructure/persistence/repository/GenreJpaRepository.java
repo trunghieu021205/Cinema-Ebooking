@@ -5,6 +5,7 @@ import com.cinemaebooking.backend.movie.infrastructure.persistence.entity.GenreJ
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public interface GenreJpaRepository extends SoftDeleteJpaRepository<GenreJpaEntity> {
@@ -14,4 +15,6 @@ public interface GenreJpaRepository extends SoftDeleteJpaRepository<GenreJpaEnti
     boolean existsByNameAndIdNot(String name, Long id);
 
     Optional<GenreJpaEntity> findByNameIgnoreCase(String name);
+
+    Set<GenreJpaEntity> findAllByIdIn(Set<Long> ids);
 }
