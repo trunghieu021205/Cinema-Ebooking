@@ -1,10 +1,10 @@
 package com.cinemaebooking.backend.movie.domain.model;
 
 import com.cinemaebooking.backend.common.domain.BaseEntity;
+import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import com.cinemaebooking.backend.movie.domain.enums.AgeRating;
 import com.cinemaebooking.backend.movie.domain.enums.MovieStatus;
 import com.cinemaebooking.backend.movie.domain.valueobject.MovieId;
-import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
@@ -30,65 +30,56 @@ public class Movie extends BaseEntity<MovieId> {
     private Double rating;
     private Integer ratingCount;
 
-    public void updateInfo(String title, String description, Integer duration,
-                           AgeRating ageRating, LocalDate releaseDate,
-                           String posterUrl, String bannerUrl,
-                           String director, String actors) {
-        validateBasicInfo(title, duration, ageRating, releaseDate);
+    // business methods
+    public void update(String title, String description, Integer duration,
+                       AgeRating ageRating, LocalDate releaseDate, MovieStatus status,
+                       String posterUrl, String bannerUrl, String director, String actors,
+                       Set<Genre> genres) {
+        validateTitle(title);
+        validateDuration(duration);
+        validateReleaseDate(releaseDate);
+        validateStatus(status);
+        // other fields optional
+
         this.title = title;
         this.description = description;
         this.duration = duration;
         this.ageRating = ageRating;
         this.releaseDate = releaseDate;
+        this.status = status;
         this.posterUrl = posterUrl;
         this.bannerUrl = bannerUrl;
         this.director = director;
         this.actors = actors;
+        this.genres = genres != null ? new HashSet<>(genres) : new HashSet<>();
     }
 
     public void changeStatus(MovieStatus status) {
-        if (status == null) {
-            throw CommonExceptions.invalidInput("Movie status must not be null");
-        }
+        validateStatus(status);
         this.status = status;
     }
 
-    public void addGenre(Genre genre) {
-        if (genre == null) {
-            throw CommonExceptions.invalidInput("Genre must not be null");
-        }
-        if (this.genres == null) {
-            this.genres = new HashSet<>();
-        }
-        this.genres.add(genre);
-    }
-
-    public void removeGenre(Genre genre) {
-        if (genre == null) return;
-        if (this.genres != null) {
-            this.genres.remove(genre);
-        }
-    }
-
-    public void clearGenres() {
-        if (this.genres != null) {
-            this.genres.clear();
-        }
-    }
-
-    private void validateBasicInfo(String title, Integer duration,
-                                   AgeRating ageRating, LocalDate releaseDate) {
+    private void validateTitle(String title) {
         if (title == null || title.trim().isEmpty()) {
             throw CommonExceptions.invalidInput("Movie title must not be empty");
         }
+    }
+
+    private void validateDuration(Integer duration) {
         if (duration == null || duration <= 0) {
             throw CommonExceptions.invalidInput("Duration must be positive");
         }
-        if (ageRating == null) {
-            throw CommonExceptions.invalidInput("Age rating must not be null");
-        }
+    }
+
+    private void validateReleaseDate(LocalDate releaseDate) {
         if (releaseDate == null) {
             throw CommonExceptions.invalidInput("Release date must not be null");
+        }
+    }
+
+    private void validateStatus(MovieStatus status) {
+        if (status == null) {
+            throw CommonExceptions.invalidInput("Movie status must not be null");
         }
     }
 }

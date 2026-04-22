@@ -1,6 +1,6 @@
 package com.cinemaebooking.backend.movie.application.mapper;
 
-import com.cinemaebooking.backend.movie.application.dto.GenreResponse;
+import com.cinemaebooking.backend.movie.application.dto.genre.GenreResponse;
 import com.cinemaebooking.backend.movie.domain.model.Genre;
 import org.springframework.stereotype.Component;
 

@@ -1,11 +1,13 @@
 package com.cinemaebooking.backend.movie.application.validator;
 
-import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
-import com.cinemaebooking.backend.common.exception.domain.GenreExceptions;
-import com.cinemaebooking.backend.movie.application.dto.CreateGenreRequest;
-import com.cinemaebooking.backend.movie.application.dto.UpdateGenreRequest;
+import com.cinemaebooking.backend.movie.application.dto.genre.CreateGenreRequest;
+import com.cinemaebooking.backend.movie.application.dto.genre.UpdateGenreRequest;
 import com.cinemaebooking.backend.movie.application.port.GenreRepository;
 import com.cinemaebooking.backend.movie.domain.valueobject.GenreId;
+import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
+import com.cinemaebooking.backend.common.exception.domain.GenreExceptions;
+import com.cinemaebooking.backend.common.validation.engine.ValidationEngine;
+import com.cinemaebooking.backend.common.validation.factory.ValidationFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -19,36 +21,33 @@ public class GenreCommandValidator {
         if (request == null) {
             throw CommonExceptions.invalidInput("Request must not be null");
         }
-        validateName(request.getName());
-        validateDuplicateNameForCreate(request.getName());
+
+        String name = normalize(request.getName());
+        ValidationEngine.validate(name, "Genre name", ValidationFactory.genre().nameRules());
+
+        if (genreRepository.existsByName(name)) {
+            throw GenreExceptions.duplicateName(name);
+        }
     }
 
     public void validateUpdateRequest(GenreId id, UpdateGenreRequest request) {
         if (id == null || request == null) {
             throw CommonExceptions.invalidInput("Genre id and request must not be null");
         }
-        validateName(request.getName());
-        validateDuplicateNameForUpdate(id, request.getName());
-    }
 
-    private void validateName(String name) {
-        if (name == null || name.trim().isEmpty()) {
-            throw CommonExceptions.invalidInput("Genre name must not be empty");
-        }
-        if (name.length() > 100) {
-            throw CommonExceptions.invalidInput("Genre name must not exceed 100 characters");
-        }
-    }
+        String name = normalize(request.getName());
+        if (name != null) {
+            ValidationEngine.validate(name, "Genre name", ValidationFactory.genre().nameRules());
 
-    private void validateDuplicateNameForCreate(String name) {
-        if (genreRepository.existsByName(name)) {
-            throw GenreExceptions.duplicateGenreName(name);
+            if (genreRepository.existsByNameAndIdNot(name, id)) {
+                throw GenreExceptions.duplicateName(name);
+            }
         }
     }
 
-    private void validateDuplicateNameForUpdate(GenreId id, String name) {
-        if (genreRepository.existsByNameAndIdNot(name, id)) {
-            throw GenreExceptions.duplicateGenreName(name);
-        }
+    private String normalize(String value) {
+        if (value == null) return null;
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
     }
 }

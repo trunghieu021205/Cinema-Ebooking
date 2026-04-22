@@ -12,10 +12,10 @@ public interface GenreRepository {
     Genre create(Genre genre);
     Genre update(Genre genre);
     Optional<Genre> findById(GenreId id);
+    Set<Genre> findAllByIds(Set<GenreId> ids);
     Page<Genre> findAll(Pageable pageable);
     void deleteById(GenreId id);
     boolean existsById(GenreId id);
     boolean existsByName(String name);
     boolean existsByNameAndIdNot(String name, GenreId id);
-    Set<Genre> findAllByIdIn(Set<GenreId> ids);
 }

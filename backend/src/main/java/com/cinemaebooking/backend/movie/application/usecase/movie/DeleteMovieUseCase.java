@@ -1,9 +1,9 @@
-package com.cinemaebooking.backend.movie.application.usecase;
+package com.cinemaebooking.backend.movie.application.usecase.movie;
 
 import com.cinemaebooking.backend.movie.application.port.MovieRepository;
 import com.cinemaebooking.backend.movie.domain.valueobject.MovieId;
-import com.cinemaebooking.backend.common.exception.domain.MovieExceptions;
 import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
+import com.cinemaebooking.backend.common.exception.domain.MovieExceptions;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

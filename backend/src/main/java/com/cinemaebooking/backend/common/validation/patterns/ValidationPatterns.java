@@ -28,4 +28,11 @@ public final class ValidationPatterns {
     // Ví dụ: Standard, VIP, Couple, Premium...
     public static final String SEAT_TYPE_NAME = "^[\\p{L}0-9\\s\\-]+$";
     private ValidationPatterns() {}
+
+
+    // ===================== MOVIE_TITLE =====================
+    public static final String MOVIE_TITLE = "^[\\p{L}0-9\\s\\-\\:\\,\\.\\!\\?\\'\\&\\\\(\\)]+$";
+
+    // ===================== GENRE_NAME =====================
+    public static final String GENRE_NAME = "^[\\p{L}0-9\\s\\-]+$";
 }

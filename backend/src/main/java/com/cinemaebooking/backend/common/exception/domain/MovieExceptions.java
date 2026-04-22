@@ -1,7 +1,8 @@
 package com.cinemaebooking.backend.common.exception.domain;
 
-import com.cinemaebooking.backend.movie.domain.valueobject.MovieId;
 import com.cinemaebooking.backend.common.exception.BaseException;
+import com.cinemaebooking.backend.common.exception.ErrorCode;
+import com.cinemaebooking.backend.movie.domain.valueobject.MovieId;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -9,15 +10,12 @@ import lombok.NoArgsConstructor;
 public final class MovieExceptions {
 
     public static BaseException notFound(MovieId id) {
-        return CommonExceptions.resourceNotFound(
-                "Movie not found with id: " + id
-        );
+        return new BaseException(ErrorCode.MOVIE_NOT_FOUND,
+                "Movie not found with id: " + id);
     }
 
-    public static BaseException duplicateMovieTitle(String title) {
-        return CommonExceptions.resourceAlreadyExists(
-                "Movie title already exists: " + title
-        );
+    public static BaseException duplicateTitle(String title) {
+        return new BaseException(ErrorCode.MOVIE_ALREADY_EXISTS,
+                "Movie already exists with title: " + title);
     }
-
 }
