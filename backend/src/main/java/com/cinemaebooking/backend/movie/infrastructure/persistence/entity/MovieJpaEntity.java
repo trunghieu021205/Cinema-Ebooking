@@ -90,7 +90,7 @@ public class MovieJpaEntity extends BaseJpaEntity {
     )
     private Set<GenreJpaEntity> genres;
 
-    @Positive
+    @PositiveOrZero
     @Column(nullable = false)
     private Double rating;
 
