@@ -28,6 +28,9 @@ public class MovieCommandValidator {
                 request.getDuration(),
                 request.getReleaseDate()
         );
+        if (request.getGenreIds() == null || request.getGenreIds().isEmpty()) {
+            throw CommonExceptions.invalidInput("Movie must have at least one genre");
+        }
 
         if (movieRepository.existsByTitle(normalize(request.getTitle()))) {
             throw MovieExceptions.duplicateTitle(request.getTitle());
@@ -45,6 +48,9 @@ public class MovieCommandValidator {
                 request.getDuration(),
                 request.getReleaseDate()
         );
+        if (request.getGenreIds() != null && request.getGenreIds().isEmpty()) {
+            throw CommonExceptions.invalidInput("Movie must have at least one genre");
+        }
 
         String title = normalize(request.getTitle());
         if (title != null && movieRepository.existsByTitleAndIdNot(title, id)) {
