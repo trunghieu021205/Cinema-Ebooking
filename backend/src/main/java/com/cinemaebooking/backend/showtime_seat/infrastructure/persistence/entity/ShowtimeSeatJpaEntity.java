@@ -3,6 +3,7 @@ package com.cinemaebooking.backend.showtime_seat.infrastructure.persistence.enti
 import com.cinemaebooking.backend.infrastructure.persistence.entity.BaseJpaEntity;
 import com.cinemaebooking.backend.seat.infrastructure.persistence.entity.SeatJpaEntity;
 import com.cinemaebooking.backend.showtime.infrastructure.persistence.entity.ShowtimeJpaEntity;
+import com.cinemaebooking.backend.showtime_seat.domain.enums.ShowtimeSeatStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -45,4 +46,8 @@ public class ShowtimeSeatJpaEntity extends BaseJpaEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "showtime_id", nullable = false)
     private ShowtimeJpaEntity showtime;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private ShowtimeSeatStatus status;
 }
