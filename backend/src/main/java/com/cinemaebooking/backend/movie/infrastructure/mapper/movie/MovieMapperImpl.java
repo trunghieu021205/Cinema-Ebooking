@@ -1,12 +1,14 @@
-package com.cinemaebooking.backend.movie.infrastructure.mapper;
+
+package com.cinemaebooking.backend.movie.infrastructure.mapper.movie;
 
 import com.cinemaebooking.backend.movie.domain.model.Movie;
 import com.cinemaebooking.backend.movie.domain.valueobject.MovieId;
+import com.cinemaebooking.backend.movie.infrastructure.mapper.genre.GenreMapper;
 import com.cinemaebooking.backend.movie.infrastructure.persistence.entity.MovieJpaEntity;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.Hibernate;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
 import java.util.stream.Collectors;
 
 @Component
@@ -31,9 +33,13 @@ public class MovieMapperImpl implements MovieMapper {
                 .bannerUrl(domain.getBannerUrl())
                 .director(domain.getDirector())
                 .actors(domain.getActors())
-                .rating(domain.getRating())
-                .ratingCount(domain.getRatingCount())
-                .genres(null)
+                .genres(
+                        domain.getGenres() == null
+                                ? new HashSet<>()
+                                : domain.getGenres().stream()
+                                .map(genreMapper::toEntity)
+                                .collect(Collectors.toSet())
+                )
                 .build();
     }
 
@@ -53,13 +59,11 @@ public class MovieMapperImpl implements MovieMapper {
                 .bannerUrl(entity.getBannerUrl())
                 .director(entity.getDirector())
                 .actors(entity.getActors())
-                // Chỉ map genres nếu đã được khởi tạo (tránh LazyInitializationException)
-                .genres(Hibernate.isInitialized(entity.getGenres()) && entity.getGenres() != null ?
-                        entity.getGenres().stream()
-                                .map(genreMapper::toDomain)
-                                .collect(Collectors.toSet()) : null)
-                .rating(entity.getRating())
-                .ratingCount(entity.getRatingCount())
+                .genres(entity.getGenres() == null
+                        ? new HashSet<>()
+                        : entity.getGenres().stream()
+                        .map(genreMapper::toDomain)
+                        .collect(Collectors.toSet()))
                 .build();
     }
 
@@ -77,7 +81,14 @@ public class MovieMapperImpl implements MovieMapper {
         entity.setBannerUrl(domain.getBannerUrl());
         entity.setDirector(domain.getDirector());
         entity.setActors(domain.getActors());
-        entity.setRating(domain.getRating());
-        entity.setRatingCount(domain.getRatingCount());
+        entity.getGenres().clear();
+
+        if (domain.getGenres() != null) {
+            entity.getGenres().addAll(
+                    domain.getGenres().stream()
+                            .map(genreMapper::toEntity)
+                            .collect(Collectors.toSet())
+            );
+        }
     }
 }
