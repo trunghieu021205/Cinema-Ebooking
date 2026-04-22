@@ -1,4 +1,4 @@
-package com.cinemaebooking.backend.movie.application.dto;
+package com.cinemaebooking.backend.movie.application.dto.genre;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

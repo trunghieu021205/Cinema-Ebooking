@@ -1,5 +1,6 @@
-package com.cinemaebooking.backend.movie.application.dto;
+package com.cinemaebooking.backend.movie.application.dto.movie;
 
+import com.cinemaebooking.backend.movie.application.dto.genre.GenreResponse;
 import com.cinemaebooking.backend.movie.domain.enums.AgeRating;
 import com.cinemaebooking.backend.movie.domain.enums.MovieStatus;
 import lombok.AllArgsConstructor;
@@ -23,6 +24,4 @@ public class MovieResponse {
     private String director;
     private String actors;
     private Set<GenreResponse> genres;
-    private Double rating;
-    private Integer ratingCount;
 }
