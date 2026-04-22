@@ -52,6 +52,8 @@ public class CreateMovieUseCase {
                 .director(request.getDirector())
                 .actors(request.getActors())
                 .genres(genres)
+                .rating(0.0)
+                .ratingCount(0)
                 .build();
     }
 

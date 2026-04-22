@@ -30,7 +30,9 @@ public class MovieResponseMapper {
                 movie.getActors(),
                 movie.getGenres().stream()
                         .map(genreResponseMapper::toResponse)
-                        .collect(Collectors.toSet())
+                        .collect(Collectors.toSet()),
+                movie.getRating(),
+                movie.getRatingCount()
         );
     }
 }

@@ -24,4 +24,6 @@ public class MovieResponse {
     private String director;
     private String actors;
     private Set<GenreResponse> genres;
+    private Double rating;
+    private Integer ratingCount;
 }

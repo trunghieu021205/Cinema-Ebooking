@@ -40,6 +40,8 @@ public class MovieMapperImpl implements MovieMapper {
                                 .map(genreMapper::toEntity)
                                 .collect(Collectors.toSet())
                 )
+                .rating(domain.getRating())
+                .ratingCount(domain.getRatingCount())
                 .build();
     }
 
@@ -64,6 +66,8 @@ public class MovieMapperImpl implements MovieMapper {
                         : entity.getGenres().stream()
                         .map(genreMapper::toDomain)
                         .collect(Collectors.toSet()))
+                .rating(entity.getRating())
+                .ratingCount(entity.getRatingCount())
                 .build();
     }
 

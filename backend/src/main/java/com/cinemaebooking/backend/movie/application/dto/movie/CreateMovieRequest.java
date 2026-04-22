@@ -1,6 +1,7 @@
 package com.cinemaebooking.backend.movie.application.dto.movie;
 
 import com.cinemaebooking.backend.movie.domain.enums.AgeRating;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,6 +17,7 @@ public class CreateMovieRequest {
     private String description;
     private Integer duration;
     private AgeRating ageRating;
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate releaseDate;
     private String posterUrl;
     private String bannerUrl;

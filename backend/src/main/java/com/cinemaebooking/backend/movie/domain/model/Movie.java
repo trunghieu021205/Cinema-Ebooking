@@ -27,6 +27,8 @@ public class Movie extends BaseEntity<MovieId> {
     private String director;
     private String actors;
     private Set<Genre> genres;
+    private Double rating;
+    private Integer ratingCount;
 
     // business methods
     public void update(String title, String description, Integer duration,
