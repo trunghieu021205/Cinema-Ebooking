@@ -1,6 +1,8 @@
 
 package com.cinemaebooking.backend.movie.application.usecase.movie;
 
+import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
+import com.cinemaebooking.backend.common.exception.domain.GenreExceptions;
 import com.cinemaebooking.backend.movie.application.dto.movie.CreateMovieRequest;
 import com.cinemaebooking.backend.movie.application.dto.movie.MovieResponse;
 import com.cinemaebooking.backend.movie.application.mapper.MovieResponseMapper;
@@ -54,10 +56,23 @@ public class CreateMovieUseCase {
     }
 
     private Set<Genre> resolveGenres(Set<Long> genreIds) {
-        if (genreIds == null || genreIds.isEmpty()) return Set.of();
+        if (genreIds == null || genreIds.isEmpty()) {
+            throw CommonExceptions.invalidInput("Movie must have at least one genre");
+        }
         Set<GenreId> ids = genreIds.stream()
                 .map(GenreId::of)
                 .collect(Collectors.toSet());
-        return genreRepository.findAllByIds(ids);
+        Set<Genre> genres = genreRepository.findAllByIds(ids);
+        if (genres.size() != ids.size()) {
+            Set<Long> foundIds = genres.stream()
+                    .map(g -> g.getId().getValue())
+                    .collect(Collectors.toSet());
+            Set<Long> missingIds = ids.stream()
+                    .map(GenreId::getValue)
+                    .filter(id -> !foundIds.contains(id))
+                    .collect(Collectors.toSet());
+            throw GenreExceptions.notFound(missingIds);
+        }
+        return genres;
     }
 }
