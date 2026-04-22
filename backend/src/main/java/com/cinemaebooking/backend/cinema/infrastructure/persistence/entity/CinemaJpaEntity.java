@@ -10,12 +10,10 @@ import lombok.experimental.SuperBuilder;
 
 /**
  * CinemaJpaEntity - Persistence model for cinemas table.
- *
  * Responsibility:
  * - Map database table cinemas
  * - Handle persistence concerns only
  * - No business logic allowed
- *
  * Note:
  * - This is NOT a domain model
  * - Must be converted via Mapper
@@ -24,17 +22,28 @@ import lombok.experimental.SuperBuilder;
  * @since 2026
  */
 @Entity
-@Table(name = "cinemas")
+@Table(
+        name = "cinemas",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name="uk_cinemas_name_deleted",
+                        columnNames={"name","deleted"}
+                ),
+                @UniqueConstraint(
+                        name="uk_cinemas_address_city_deleted",
+                        columnNames={"address","city","deleted"}
+                )
+        })
 @Getter
 @Setter
 @NoArgsConstructor
 @SuperBuilder(toBuilder = true)
 public class CinemaJpaEntity extends BaseJpaEntity {
 
-    @Column(nullable = false, length = 80)
+    @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false, length = 150)
+    @Column(nullable = false)
     private String address;
 
     @Column(nullable = false, length = 50)
@@ -43,4 +52,10 @@ public class CinemaJpaEntity extends BaseJpaEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
     private CinemaStatus status;
+
+    @Override
+    protected void beforeSoftDelete() {
+        this.name = markDeleted(this.name);
+        this.address = markDeleted(this.address);
+    }
 }

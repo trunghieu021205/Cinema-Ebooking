@@ -12,5 +12,8 @@ public interface RoomJpaRepository extends SoftDeleteJpaRepository<RoomJpaEntity
     Page<RoomJpaEntity> findByCinema_Id(Long cinemaId, Pageable pageable);
 
     boolean existsByNameAndCinemaId(String name, Long cinemaId);
-    boolean existsByNameAndIdNot(String name, Long id);
+
+    boolean existsByNameAndCinemaIdAndIdNot(String name, Long cinemaId, Long roomId);
+
+
 }

@@ -34,12 +34,12 @@ public class Seat extends BaseEntity<SeatId> {
         this.status = status;
     }
 
-    public boolean isAvailable() {
-        return this.status == SeatStatus.AVAILABLE;
+    public boolean isActive() {
+        return this.status == SeatStatus.ACTIVE;
     }
 
-    public void markUnavailable() {
-        this.status = SeatStatus.BOOKED;
+    public void markInactive() {
+        this.status = SeatStatus.INACTIVE;
     }
 
     // ================== VALIDATION ==================

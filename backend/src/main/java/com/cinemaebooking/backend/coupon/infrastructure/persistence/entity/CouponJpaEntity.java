@@ -3,9 +3,7 @@ package com.cinemaebooking.backend.coupon.infrastructure.persistence.entity;
 import com.cinemaebooking.backend.coupon.domain.enums.CouponType;
 import com.cinemaebooking.backend.infrastructure.persistence.entity.BaseJpaEntity;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
@@ -25,14 +23,23 @@ import java.time.LocalDate;
  * @since 2026
  */
 @Entity
-@Table(name = "coupons")
+@Table(
+        name = "coupons",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_coupons_code_deleted",
+                        columnNames = {"code", "deleted"}
+                )
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @SuperBuilder(toBuilder = true)
 public class CouponJpaEntity extends BaseJpaEntity {
 
-    @Column(nullable = false, unique = true, length = 30)
+    @Column(nullable = false, length = 100)
     private String code;
 
     @Enumerated(EnumType.STRING)
@@ -62,4 +69,9 @@ public class CouponJpaEntity extends BaseJpaEntity {
 
     @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
+
+    @Override
+    protected void beforeSoftDelete() {
+        this.code = markDeleted(this.code);
+    }
 }

@@ -13,6 +13,6 @@ public class SeedRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        seedService.seed();
+        //seedService.seed();
     }
 }

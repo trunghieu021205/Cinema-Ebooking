@@ -1,7 +1,7 @@
 package com.cinemaebooking.backend.common.exception.domain;
 
 import com.cinemaebooking.backend.common.exception.BaseException;
-import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
+import com.cinemaebooking.backend.common.exception.ErrorCode;
 import com.cinemaebooking.backend.seat.domain.valueObject.seatType.SeatTypeId;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -15,7 +15,7 @@ public final class SeatTypeExceptions {
     // ================== NOT FOUND ==================
 
     public static BaseException notFound(SeatTypeId id) {
-        return CommonExceptions.resourceNotFound(
+        return new BaseException(ErrorCode.SEAT_TYPE_NOT_FOUND,
                 "Seat type not found with id: " + id
         );
     }
@@ -23,7 +23,7 @@ public final class SeatTypeExceptions {
     // ================== DUPLICATE ==================
 
     public static BaseException duplicateSeatTypeName(String name) {
-        return CommonExceptions.resourceAlreadyExists(
+        return new BaseException(ErrorCode.SEAT_TYPE_ALREADY_EXISTS,
                 "Seat type name already exists: " + name
         );
     }

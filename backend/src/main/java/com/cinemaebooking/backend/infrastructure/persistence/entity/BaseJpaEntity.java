@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -53,6 +52,8 @@ public abstract class BaseJpaEntity {
     @Column(name = "deleted_at")
     protected LocalDateTime deletedAt;
 
+    @Column(name = "deleted", nullable = false)
+    protected boolean deleted = false;
     // ================== Optimistic Locking ==================
     @Version
     protected Long version;
@@ -60,16 +61,21 @@ public abstract class BaseJpaEntity {
     // ================== SOFT DELETE METHODS ==================
 
     public void softDelete() {
+        beforeSoftDelete();
         this.deletedAt = LocalDateTime.now();
+        this.deleted = true;
         this.updatedAt = LocalDateTime.now();
     }
 
     public void restore() {
         this.deletedAt = null;
+        this.deleted = false;
         this.updatedAt = LocalDateTime.now();
     }
-
-    public boolean isDeleted() {
-        return deletedAt != null;
+    
+    protected String markDeleted(String value) {
+        return value + "__deleted__" + getId();
     }
+
+    protected void beforeSoftDelete() {}
 }
