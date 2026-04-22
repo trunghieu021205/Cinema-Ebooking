@@ -26,4 +26,8 @@ public interface RoomRepository {
     Page<Room> findByCinemaId(Long cinemaId, Pageable pageable);
 
     boolean existsByNameAndCinemaId(String name, Long cinemaId);
+
+    boolean existsByNameAndCinemaIdAndIdNot(String name, Long cinemaId, RoomId id);
+
+
 }

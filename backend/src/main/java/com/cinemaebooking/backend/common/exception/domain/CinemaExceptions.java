@@ -2,6 +2,7 @@ package com.cinemaebooking.backend.common.exception.domain;
 
 import com.cinemaebooking.backend.cinema.domain.valueobject.CinemaId;
 import com.cinemaebooking.backend.common.exception.BaseException;
+import com.cinemaebooking.backend.common.exception.ErrorCode;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -21,7 +22,7 @@ public final class CinemaExceptions {
     // ================== NOT FOUND ==================
 
     public static BaseException notFound(CinemaId id) {
-        return CommonExceptions.resourceNotFound(
+        return new BaseException(ErrorCode.CINEMA_NOT_FOUND,
                 "Cinema not found with id: " + id
         );
     }
@@ -29,22 +30,14 @@ public final class CinemaExceptions {
     // ================== DUPLICATE ==================
 
     public static BaseException duplicateCinemaName(String name) {
-        return CommonExceptions.resourceAlreadyExists(
+        return new BaseException(ErrorCode.CINEMA_ALREADY_EXISTS,
                 "Cinema name already exists: " + name
         );
     }
 
     public static BaseException duplicateCinemaLocation(String address, String city) {
-        return CommonExceptions.resourceAlreadyExists(
+        return new BaseException(ErrorCode.CINEMA_ALREADY_EXISTS,
                 "Cinema already exists at address: " + address + ", city: " + city
-        );
-    }
-
-    // ================== BUSINESS RULE ==================
-
-    public static BaseException inactiveCinema(CinemaId id) {
-        return CommonExceptions.invalidInput(
-                "Cinema is inactive: " + id
         );
     }
 }

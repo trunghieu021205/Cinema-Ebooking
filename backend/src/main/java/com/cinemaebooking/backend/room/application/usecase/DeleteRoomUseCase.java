@@ -1,8 +1,9 @@
 package com.cinemaebooking.backend.room.application.usecase;
 
+import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
+import com.cinemaebooking.backend.common.exception.domain.RoomExceptions;
 import com.cinemaebooking.backend.room.application.port.RoomRepository;
 import com.cinemaebooking.backend.room.domain.valueObject.RoomId;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,11 +13,18 @@ public class DeleteRoomUseCase {
 
     private final RoomRepository roomRepository;
 
-    @Transactional
     public void execute(RoomId id) {
-        if (!roomRepository.existsById(id)) {
-            throw new IllegalArgumentException("Room not found with id: " + id);
+
+        // ================== INPUT VALIDATION ==================
+        if (id == null) {
+            throw CommonExceptions.invalidInput("Room id must not be null");
         }
+
+        // ================== BUSINESS VALIDATION ==================
+        if (!roomRepository.existsById(id)) {
+            throw RoomExceptions.notFound(id);
+        }
+
         roomRepository.deleteById(id);
     }
 }

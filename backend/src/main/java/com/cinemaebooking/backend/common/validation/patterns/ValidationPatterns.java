@@ -14,5 +14,18 @@ public final class ValidationPatterns {
     public static final String ADDRESS = "^[\\p{L}0-9\\s,\\-./#]+$";
     public static final String CINEMA_NAME = "^[\\p{L}0-9\\s\\-\\(\\)\\.&']+$";
 
+    // ===================== ROOM =====================
+    public static final String ROOM_NAME = "^[\\p{L}0-9\\s\\-\\(\\)]+$";
+
+    // ===================== SEAT =====================
+
+    // Ví dụ: A, B, C, AA, BB...
+    public static final String ROW_LABEL = "^[A-Z]{1,3}$";
+
+
+
+    // ===================== SEAT TYPE =====================
+    // Ví dụ: Standard, VIP, Couple, Premium...
+    public static final String SEAT_TYPE_NAME = "^[\\p{L}0-9\\s\\-]+$";
     private ValidationPatterns() {}
 }
