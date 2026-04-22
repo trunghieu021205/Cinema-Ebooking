@@ -1,9 +1,9 @@
 package com.cinemaebooking.backend.movie.presentation;
 
-import com.cinemaebooking.backend.movie.application.dto.CreateGenreRequest;
-import com.cinemaebooking.backend.movie.application.dto.GenreResponse;
-import com.cinemaebooking.backend.movie.application.dto.UpdateGenreRequest;
-import com.cinemaebooking.backend.movie.application.usecase.*;
+import com.cinemaebooking.backend.movie.application.dto.genre.CreateGenreRequest;
+import com.cinemaebooking.backend.movie.application.dto.genre.GenreResponse;
+import com.cinemaebooking.backend.movie.application.dto.genre.UpdateGenreRequest;
+import com.cinemaebooking.backend.movie.application.usecase.genre.*;
 import com.cinemaebooking.backend.movie.domain.valueobject.GenreId;
 import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import lombok.RequiredArgsConstructor;
@@ -30,17 +30,14 @@ public class GenreController {
     }
 
     @PutMapping("/{id}")
-    public GenreResponse updateGenre(@PathVariable Long id,
-                                     @RequestBody UpdateGenreRequest request) {
-        GenreId genreId = toGenreId(id);
-        return updateGenreUseCase.execute(genreId, request);
+    public GenreResponse updateGenre(@PathVariable Long id, @RequestBody UpdateGenreRequest request) {
+        return updateGenreUseCase.execute(toGenreId(id), request);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteGenre(@PathVariable Long id) {
-        GenreId genreId = toGenreId(id);
-        deleteGenreUseCase.execute(genreId);
+        deleteGenreUseCase.execute(toGenreId(id));
     }
 
     @GetMapping
@@ -49,9 +46,7 @@ public class GenreController {
     }
 
     private GenreId toGenreId(Long id) {
-        if (id == null) {
-            throw CommonExceptions.invalidInput("Genre id must not be null");
-        }
+        if (id == null) throw CommonExceptions.invalidInput("Genre id must not be null");
         return GenreId.of(id);
     }
 }
