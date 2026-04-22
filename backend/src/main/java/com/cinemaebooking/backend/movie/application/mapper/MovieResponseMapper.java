@@ -1,11 +1,10 @@
 package com.cinemaebooking.backend.movie.application.mapper;
 
-import com.cinemaebooking.backend.movie.application.dto.MovieResponse;
+import com.cinemaebooking.backend.movie.application.dto.movie.MovieResponse;
 import com.cinemaebooking.backend.movie.domain.model.Movie;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
 import java.util.stream.Collectors;
 
 @Component
@@ -29,12 +28,9 @@ public class MovieResponseMapper {
                 movie.getBannerUrl(),
                 movie.getDirector(),
                 movie.getActors(),
-                movie.getGenres() != null ?
-                        movie.getGenres().stream()
-                                .map(genreResponseMapper::toResponse)
-                                .collect(Collectors.toSet()) : Collections.emptySet(),
-                movie.getRating(),
-                movie.getRatingCount()
+                movie.getGenres().stream()
+                        .map(genreResponseMapper::toResponse)
+                        .collect(Collectors.toSet())
         );
     }
 }
