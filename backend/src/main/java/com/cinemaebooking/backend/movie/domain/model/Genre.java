@@ -1,8 +1,8 @@
 package com.cinemaebooking.backend.movie.domain.model;
 
 import com.cinemaebooking.backend.common.domain.BaseEntity;
-import com.cinemaebooking.backend.movie.domain.valueobject.GenreId;
 import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
+import com.cinemaebooking.backend.movie.domain.valueobject.GenreId;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
@@ -11,9 +11,8 @@ import lombok.experimental.SuperBuilder;
 public class Genre extends BaseEntity<GenreId> {
 
     private String name;
-    private final Long version;
 
-    public void updateName(String name) {
+    public void update(String name) {
         validateName(name);
         this.name = name;
     }
