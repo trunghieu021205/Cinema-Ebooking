@@ -1,0 +1,46 @@
+:root {
+  /* gray */
+  --gray-950: #0f0f0f;
+  --gray-900: #141414;
+  --gray-800: #1a1a1a;
+  --gray-700: #222222;
+  --gray-600: #2e2e2e;
+  --gray-100: #f3f4f6;
+  --gray-50: #f9fafb;
+
+  /* red */
+  --red-500: #ff0000;
+
+  /* gold */
+  --gold-600: #b8963f;
+  --gold-500: #c9a74e;
+  --gold-400: #e0c46a;
+
+  /* violet */
+  --violet-500: #7c5cff;
+
+  /* font */
+  --font-roboto: 'Roboto', system-ui, -apple-system, sans-serif;
+  --font-gfs-didot: 'GFS Didot', serif;
+
+  /* FONT SIZE */
+  --font-12: 12px;
+  --font-14: 14px;
+  --font-16: 16px;
+  --font-18: 18px;
+  --font-20: 20px;
+  --font-24: 24px;
+  --font-28: 28px;
+
+  /* LINE HEIGHT */
+  --lh-tight: 1.2;
+  --lh-normal: 1.5;
+  --lh-relaxed: 1.75;
+
+  /* FONT WEIGHT */
+  --fw-400: 400;
+  --fw-500: 500;
+  --fw-600: 600;
+  --fw-700: 700;
+  --fw-800: 800;
+}

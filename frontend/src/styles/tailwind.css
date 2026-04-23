@@ -1,29 +1,72 @@
 @import 'tailwindcss';
+@import './tokens.css';
+@import './theme.css';
 
-/* Theme tùy chỉnh cho rạp phim */
+/* expose cho Tailwind */
 @theme {
-  --color-primary: #dc2626; /* Màu đỏ chủ đạo */
-  --color-dark: #09090b;
-  --color-zinc: #27272a;
+  /* colors */
+  --color-bg-base: var(--color-bg-base);
+  --color-bg-surface: var(--color-bg-surface);
+
+  --color-text-primary: var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-text-tertiary: var(--color-text-tertiary);
+  --color-text-disabled: var(--color-text-disabled);
+  --color-text-on-accent: var(--color-text-on-accent);
+
+  --color-accent: var(--color-accent);
+  --color-accent-alt: var(--color-accent-alt);
+
+  --color-border-default: var(--color-border-default);
+  --color-border-subtle: var(--color-border-subtle);
+
+  --color-disabled: var(--color-disabled);
+
+  --color-overlay-dark-70: var(--color-overlay-dark-70);
+  --color-overlay-dark-50: var(--color-overlay-dark-50);
+  --color-overlay-dark-30: var(--color-overlay-dark-30);
+
+  /* fonts */
+  --font-body: var(--font-body);
+  --font-brand: var(--font-brand);
 }
 
-/* Custom utilities (chỉ dùng tên hợp lệ) */
-@utility cinema-card {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+@utility text-display {
+  font-size: var(--text-display-size);
+  font-weight: var(--text-display-weight);
+  line-height: var(--text-display-line);
 }
 
-@utility cinema-card-hover {
-  transform: translateY(-8px);
-  box-shadow:
-    0 20px 25px -5px rgb(0 0 0 / 0.1),
-    0 8px 10px -6px rgb(0 0 0 / 0.1);
+@utility text-title {
+  font-size: var(--text-title-size);
+  font-weight: var(--text-title-weight);
+  line-height: var(--text-title-line);
 }
 
-/* Custom classes cho rạp phim */
-.cinema-title {
-  font-family:
-    system-ui,
-    -apple-system,
-    sans-serif;
+@utility text-brand {
+  font-size: var(--text-brand-size);
+  font-weight: var(--text-brand-weight);
+  line-height: var(--text-brand-line);
+}
+
+@utility text-body {
+  font-size: var(--text-body-size);
+  font-weight: var(--text-body-weight);
+  line-height: var(--text-body-line);
+}
+
+@utility text-caption {
+  font-size: var(--text-caption-size);
+  font-weight: var(--text-caption-weight);
+  line-height: var(--text-caption-line);
+}
+body {
+  font-family: var(--font-body);
+}
+button {
+  cursor: pointer;
+}
+button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
