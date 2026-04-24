@@ -4,6 +4,6 @@ import { ChevronDown } from 'lucide-vue-next'
 
 <template>
     <span>
-        <ChevronDown :size="14" :stroke-width="1.5" />
+        <ChevronDown class="w-3.5 h-3.5 stroke-[1.5px]" />
     </span>
 </template>

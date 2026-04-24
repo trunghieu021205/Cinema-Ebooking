@@ -1,8 +1,12 @@
 import { defineStore } from 'pinia'
 
 interface User {
-  id: string
+  email: string
   name: string
+  membership: 'basic' | 'silver' | 'gold';
+  points: number;
+  role: 'admin' | 'user';
+  avatarUrl: string;
 }
 
 interface AuthState {
@@ -27,4 +31,6 @@ export const useAuthStore = defineStore('auth', {
       this.token = null
     },
   },
+
+  persist:true,
 })

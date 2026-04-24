@@ -4,6 +4,6 @@ import { Search } from 'lucide-vue-next'
 
 <template>
     <span>
-        <Search :size="16" :stroke-width="1.5" />
+        <Search class="w-4 h-4 stroke-[1.5px]" />
     </span>
 </template>
