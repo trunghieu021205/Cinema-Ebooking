@@ -25,6 +25,11 @@
   --color-overlay-dark-70: var(--color-overlay-dark-70);
   --color-overlay-dark-50: var(--color-overlay-dark-50);
   --color-overlay-dark-30: var(--color-overlay-dark-30);
+  --color-overlay-dark-10: var(--color-overlay-dark-10);
+  --color-overlay-light-70: var(--color-overlay-light-70);
+  --color-overlay-light-50: var(--color-overlay-light-50);
+  --color-overlay-light-30: var(--color-overlay-light-30);
+  --color-overlay-light-10: var(--color-overlay-light-10);
 
   /* fonts */
   --font-body: var(--font-body);

@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen flex flex-col">
-    <Navbar />
+    <Header />
 
     <main class="flex-1 container mx-auto px-4">
       <router-view />
@@ -11,6 +11,6 @@
 </template>
 
 <script setup lang="ts">
-import Navbar from '@/components/common/Navbar.vue'
 import Footer from '@/components/common/Footer.vue'
+import Header from '@/components/common/Header.vue';
 </script>
