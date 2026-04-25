@@ -1,6 +1,6 @@
 <template>
   <header class="w-full bg-bg-surface text-text-primary px-16 pt-4 pb-4 flex items-center justify-between">
-    <Logo />
+    <Logo :isAdminPage="false" />
     <Navbar />
     <HeaderActions />
   </header>

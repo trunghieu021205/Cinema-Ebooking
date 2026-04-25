@@ -146,10 +146,9 @@ const closeModal = () => emit('close')
                     </div>
 
                     <!-- BUTTON ĐĂNG NHẬP -->
-                    <BaseButton @click="handleLogin('admin')" :disabled="isLoginDisabled" width="full" height="md"
-                        text="base" variant="primary" rounded="md"
-                        class="disabled:opacity-50 disabled:cursor-not-allowed">
-                        {{ loading ? 'Đang đăng nhập...' : 'Đăng Nhập' }}
+                    <BaseButton @click="handleLogin('admin')" :disabled="isLoginDisabled" variant="primary" size="md"
+                        rounded="md" class="w-full disabled:opacity-50 disabled:cursor-not-allowed">
+                        {{ loading ? 'Đang đăng nhập...' : 'ĐĂNG NHẬP' }}
                     </BaseButton>
                 </div>
 
@@ -159,8 +158,7 @@ const closeModal = () => emit('close')
 
                 <div class="pt-4 border-t border-border-subtle">
                     <h2 class="text-center text-text-primary text-body mb-1">Bạn chưa có tài khoản?</h2>
-                    <!-- Bỏ disabled ở đây -->
-                    <BaseButton width="full" height="md" text="md" variant="secondary" rounded="md">
+                    <BaseButton variant="secondary" size="sm" rounded="lg" class="w-full py-2">
                         Đăng Ký
                     </BaseButton>
                 </div>

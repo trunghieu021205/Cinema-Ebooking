@@ -1,9 +1,9 @@
 <template>
     <div class="flex items-center gap-8">
-        <BaseButton iconOnly rounded="full">
+        <BaseButton iconOnly size="sm" rounded="full">
             <SearchIcon />
         </BaseButton>
-        <BaseButton variant="primary" width="lg" height="lg" text="base" rounded="2xl">
+        <BaseButton variant="primary" size="lg" rounded="2xl">
             Đặt vé ngay
         </BaseButton>
         <AuthSection />
