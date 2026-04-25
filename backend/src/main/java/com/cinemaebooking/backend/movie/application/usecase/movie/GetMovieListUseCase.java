@@ -1,6 +1,6 @@
-package com.cinemaebooking.backend.movie.application.usecase;
+package com.cinemaebooking.backend.movie.application.usecase.movie;
 
-import com.cinemaebooking.backend.movie.application.dto.MovieResponse;
+import com.cinemaebooking.backend.movie.application.dto.movie.MovieResponse;
 import com.cinemaebooking.backend.movie.application.mapper.MovieResponseMapper;
 import com.cinemaebooking.backend.movie.application.port.MovieRepository;
 import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
@@ -14,13 +14,12 @@ import org.springframework.stereotype.Service;
 public class GetMovieListUseCase {
 
     private final MovieRepository movieRepository;
-    private final MovieResponseMapper responseMapper;
+    private final MovieResponseMapper mapper;
 
     public Page<MovieResponse> execute(Pageable pageable) {
         if (pageable == null) {
             throw CommonExceptions.invalidInput("Pageable must not be null");
         }
-        return movieRepository.findAll(pageable)
-                .map(responseMapper::toResponse);
+        return movieRepository.findAll(pageable).map(mapper::toResponse);
     }
 }

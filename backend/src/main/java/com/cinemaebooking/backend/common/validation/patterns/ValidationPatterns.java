@@ -35,4 +35,11 @@ public final class ValidationPatterns {
 
     public static final String TIME_HH_MM = "^([01]\\d|2[0-3]):[0-5]\\d$";
     private ValidationPatterns() {}
+
+
+    // ===================== MOVIE_TITLE =====================
+    public static final String MOVIE_TITLE = "^[\\p{L}0-9\\s\\-\\:\\,\\.\\!\\?\\'\\&\\\\(\\)]+$";
+
+    // ===================== GENRE_NAME =====================
+    public static final String GENRE_NAME = "^[\\p{L}0-9\\s\\-]+$";
 }

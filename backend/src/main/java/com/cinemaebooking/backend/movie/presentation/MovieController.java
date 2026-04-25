@@ -1,9 +1,9 @@
 package com.cinemaebooking.backend.movie.presentation;
 
-import com.cinemaebooking.backend.movie.application.dto.CreateMovieRequest;
-import com.cinemaebooking.backend.movie.application.dto.MovieResponse;
-import com.cinemaebooking.backend.movie.application.dto.UpdateMovieRequest;
-import com.cinemaebooking.backend.movie.application.usecase.*;
+import com.cinemaebooking.backend.movie.application.dto.movie.CreateMovieRequest;
+import com.cinemaebooking.backend.movie.application.dto.movie.MovieResponse;
+import com.cinemaebooking.backend.movie.application.dto.movie.UpdateMovieRequest;
+import com.cinemaebooking.backend.movie.application.usecase.movie.*;
 import com.cinemaebooking.backend.movie.domain.valueobject.MovieId;
 import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import lombok.RequiredArgsConstructor;
@@ -31,23 +31,19 @@ public class MovieController {
     }
 
     @PutMapping("/{id}")
-    public MovieResponse updateMovie(@PathVariable Long id,
-                                     @RequestBody UpdateMovieRequest request) {
-        MovieId movieId = toMovieId(id);
-        return updateMovieUseCase.execute(movieId, request);
+    public MovieResponse updateMovie(@PathVariable Long id, @RequestBody UpdateMovieRequest request) {
+        return updateMovieUseCase.execute(toMovieId(id), request);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteMovie(@PathVariable Long id) {
-        MovieId movieId = toMovieId(id);
-        deleteMovieUseCase.execute(movieId);
+        deleteMovieUseCase.execute(toMovieId(id));
     }
 
     @GetMapping("/{id}")
     public MovieResponse getMovieDetail(@PathVariable Long id) {
-        MovieId movieId = toMovieId(id);
-        return getMovieDetailUseCase.execute(movieId);
+        return getMovieDetailUseCase.execute(toMovieId(id));
     }
 
     @GetMapping
@@ -56,9 +52,7 @@ public class MovieController {
     }
 
     private MovieId toMovieId(Long id) {
-        if (id == null) {
-            throw CommonExceptions.invalidInput("Movie id must not be null");
-        }
+        if (id == null) throw CommonExceptions.invalidInput("Movie id must not be null");
         return MovieId.of(id);
     }
 }

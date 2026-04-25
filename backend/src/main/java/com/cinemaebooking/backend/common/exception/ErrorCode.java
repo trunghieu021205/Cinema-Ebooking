@@ -151,6 +151,9 @@ public enum ErrorCode {
     SHOWTIME_SEAT_NOT_FOUND     (3029, "Showtime seat not found",                      HttpStatus.NOT_FOUND,      ErrorType.BUSINESS),
     SHOWTIME_SEAT_ALREADY_LOCKED (3030, "Showtime seat already locked",                HttpStatus.CONFLICT,       ErrorType.BUSINESS),
     SHOWTIME_SEAT_UNAVAILABLE   (3031, "Showtime seat unavailable",                    HttpStatus.CONFLICT,       ErrorType.BUSINESS),
+    // genre: 3032–3033
+    GENRE_NOT_FOUND            (3032, "Genre not found",                               HttpStatus.NOT_FOUND,      ErrorType.BUSINESS),
+    GENRE_ALREADY_EXISTS       (3033, "Genre already exists",                          HttpStatus.CONFLICT,       ErrorType.BUSINESS),
 
     // ===================== PRODUCT =====================
     // combo: 3401–3404

@@ -1,4 +1,4 @@
-package com.cinemaebooking.backend.movie.application.dto;
+package com.cinemaebooking.backend.movie.application.dto.movie;
 
 import com.cinemaebooking.backend.movie.domain.enums.AgeRating;
 import com.fasterxml.jackson.annotation.JsonFormat;

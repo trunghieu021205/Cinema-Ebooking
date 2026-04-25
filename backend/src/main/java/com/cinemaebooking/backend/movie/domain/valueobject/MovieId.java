@@ -10,7 +10,7 @@ public final class MovieId extends BaseId {
 
     public static MovieId of(Long value) {
         if (value == null || value <= 0) {
-            throw new IllegalArgumentException("MovieId value must be positive number");
+            throw new IllegalArgumentException("MovieId must be positive");
         }
         return new MovieId(value);
     }
