@@ -41,13 +41,13 @@
   --text-display-weight: var(--fw-700);
   --text-display-line: var(--lh-tight);
 
-  --text-title-size: var(--font-24);
-  --text-title-weight: var(--fw-600);
-  --text-title-line: var(--lh-normal);
-
   --text-brand-size: var(--font-24);
   --text-brand-weight: var(--fw-500);
   --text-brand-line: var(--lh-normal);
+
+  --text-title-size: var(--font-20);
+  --text-title-weight: var(--fw-600);
+  --text-title-line: var(--lh-normal);
 
   --text-body-size: var(--font-16);
   --text-body-weight: var(--fw-400);

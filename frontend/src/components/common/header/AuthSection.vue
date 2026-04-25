@@ -2,7 +2,7 @@
     <div class="min-w-60 min-h-18 flex items-center justify-end gap-4 cursor-pointer">
         <!-- CHƯA LOGIN -->
         <template v-if="!auth.user">
-            <button @click="loginMock('user')"
+            <button @click="ui.openLoginModal()"
                 class="text-text-secondary hover:text-accent transition-colors text-body relative group">
                 Đăng nhập
                 <span class="absolute left-0 -bottom-1 w-0 h-px bg-accent transition-all group-hover:w-full"></span>
@@ -48,38 +48,12 @@
 <script setup lang="ts">
 import AwardIcon from '@/components/ui/icon/AwardIcon.vue'
 import GiftIcon from '@/components/ui/icon/GiftIcon.vue'
+import { useUIStore } from '@/store/ui.store'
 import { useAuthStore } from '@/store/auth.store'
 import { useRouter } from 'vue-router'
-
 const auth = useAuthStore()
 const router = useRouter()
-
-function loginMock(role: 'admin' | 'user') {
-    const isAdmin = role === 'admin'
-
-    const mockUser = {
-        email: isAdmin ? 'admin@gmail.com' : 'user@gmail.com',
-        name: isAdmin ? 'Admin' : 'Nguyễn Trung Hiếu',
-        membership: 'gold',
-        points: isAdmin ? 9999 : 100000000,
-        role,
-        avatarUrl: isAdmin
-            ? '/images/avatars/admin.jpg'
-            : '/images/avatar/UserAvatar.jpg',
-    }
-
-    const fakeToken = 'mock-token-123'
-
-    auth.setAuth(mockUser, fakeToken)
-
-    // redirect theo role
-    if (role === 'admin') {
-        router.push('/admin')
-    } else {
-        router.push('/')
-    }
-}
-
+const ui = useUIStore()
 function logout() {
     auth.logout()
     router.push('/')
