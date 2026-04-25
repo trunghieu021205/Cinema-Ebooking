@@ -14,7 +14,7 @@
             <img :src="auth.user.avatarUrl" class="w-10 h-10 rounded-full" />
             <div class="flex flex-col gap-2">
                 <div class="flex items-center gap-2">
-                    <AwardIcon :membership="auth.user.membership"></AwardIcon>
+                    <MembershipIcon :membership="auth.user.membership"></MembershipIcon>
                     <div class="flex flex-col">
                         <div class="truncate max-w-30 text-body font-medium" :title="auth.user.name">
                             {{ auth.user.name }}
@@ -24,7 +24,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-3">
                     <GiftIcon :membership="auth.user.membership"></GiftIcon>
                     <div class="flex max-w-30">
                         <span class="truncate" :title="auth.user.points">
@@ -46,11 +46,11 @@
     </div>
 </template>
 <script setup lang="ts">
-import AwardIcon from '@/components/ui/icon/AwardIcon.vue'
 import GiftIcon from '@/components/ui/icon/GiftIcon.vue'
 import { useUIStore } from '@/store/ui.store'
 import { useAuthStore } from '@/store/auth.store'
 import { useRouter } from 'vue-router'
+import MembershipIcon from '@/components/ui/icon/MembershipIcon.vue'
 const auth = useAuthStore()
 const router = useRouter()
 const ui = useUIStore()

@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 
 type Variant = 'primary' | 'secondary' | 'ghost'
-type Size = 'sm' | 'md' | 'lg'
+type Size = 'sm' | 'md' | 'lg' | '2xl'
 type Rounded = 'none' | 'sm' | 'md' | 'lg' | '2xl' | 'full'
 
 const props = defineProps<{
@@ -26,7 +26,8 @@ const variants: Record<Variant, string> = {
 const sizes: Record<Size, string> = {
   sm: 'px-3 py-1 text-sm',
   md: 'px-4 py-2 text-md',
-  lg: 'px-6 py-3 text-base'
+  lg: 'px-6 py-3 text-base',
+  '2xl': 'px-8 py-4 text-lg'
 }
 
 const roundeds: Record<Rounded, string> = {
@@ -50,6 +51,7 @@ function getCompoundClasses() {
     if (props.size === 'sm') classes.push('w-8 h-8')
     if (props.size === 'md') classes.push('w-10 h-10')
     if (props.size === 'lg') classes.push('w-12 h-12')
+    if (props.size === '2xl') classes.push('w-16 h-16')
     classes.push('bg-transparent')
 
     if (props.variant === 'primary') {
