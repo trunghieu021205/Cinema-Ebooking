@@ -37,7 +37,7 @@ class UserJpaRepositoryDataJpaTest {
                 .fullName("Nguyen Van A")
                 .email("a@gmail.com")
                 .password("hash1")
-                .role(UserRole.CUSTOMER)
+                .role(UserRole.USER)
                 .status(UserStatus.ACTIVE)
                 .dateOfBirth(LocalDate.of(1995, 1, 1))
                 .build();
@@ -46,7 +46,7 @@ class UserJpaRepositoryDataJpaTest {
                 .fullName("Tran Thi B")
                 .email("b@gmail.com")
                 .password("hash2")
-                .role(UserRole.CUSTOMER)
+                .role(UserRole.USER)
                 .status(UserStatus.INACTIVE)
                 .dateOfBirth(LocalDate.of(1996, 5, 15))
                 .build();
@@ -112,7 +112,7 @@ class UserJpaRepositoryDataJpaTest {
         @Test
         @DisplayName("Should return paginated users by role")
         void shouldFindByRoleWithPagination() {
-            Page<UserJpaEntity> page = userJpaRepository.findByRole(UserRole.CUSTOMER, pageable);
+            Page<UserJpaEntity> page = userJpaRepository.findByRole(UserRole.USER, pageable);
 
             assertThat(page.getTotalElements()).isEqualTo(2);
             assertThat(page.getContent())
@@ -135,7 +135,7 @@ class UserJpaRepositoryDataJpaTest {
         @DisplayName("Should return paginated users by role and status")
         void shouldFindByRoleAndStatusWithPagination() {
             Page<UserJpaEntity> page = userJpaRepository.findByRoleAndStatus(
-                    UserRole.CUSTOMER, UserStatus.ACTIVE, pageable);
+                    UserRole.USER, UserStatus.ACTIVE, pageable);
 
             assertThat(page.getTotalElements()).isEqualTo(1);
             assertThat(page.getContent().get(0).getEmail()).isEqualTo("a@gmail.com");
@@ -166,7 +166,7 @@ class UserJpaRepositoryDataJpaTest {
             entityManager.flush();
 
             Page<UserJpaEntity> activeCustomers = userJpaRepository.findByRoleAndStatus(
-                    UserRole.CUSTOMER, UserStatus.ACTIVE, PageRequest.of(0, 10));
+                    UserRole.USER, UserStatus.ACTIVE, PageRequest.of(0, 10));
 
             assertThat(activeCustomers.getTotalElements()).isEqualTo(0);
         }

@@ -18,15 +18,21 @@ import java.util.Optional;
  */
 @Repository
 public interface UserJpaRepository extends SoftDeleteJpaRepository<UserJpaEntity> {
-
+    // ===== BASIC =====
     Optional<UserJpaEntity> findByEmail(String email);
 
     boolean existsByEmail(String email);
 
+    boolean existsByEmailAndIdNot(String email, Long id);
+
+    boolean existsByPhoneNumber(String phone);
+    // ===== LOGIN =====
+    Optional<UserJpaEntity> findByEmailAndStatus(String email, UserStatus status);
+
+    // ===== FILTERING =====
     Page<UserJpaEntity> findByRole(UserRole role, Pageable pageable);
 
     Page<UserJpaEntity> findByStatus(UserStatus status, Pageable pageable);
 
     Page<UserJpaEntity> findByRoleAndStatus(UserRole role, UserStatus status, Pageable pageable);
-
 }
