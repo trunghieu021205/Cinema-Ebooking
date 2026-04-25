@@ -23,6 +23,8 @@ public final class ValidationFactory {
     public static RoomValidationProfile   room(){ return RoomValidationProfile.INSTANCE;}
     public static SeatValidationProfile seat(){ return SeatValidationProfile.INSTANCE;}
     public static SeatTypeValidationProfile seatType(){ return SeatTypeValidationProfile.INSTANCE;}
+    public static UserValidationProfile user(){ return UserValidationProfile.INSTANCE;}
+    public static ShowtimeValidationProfile showTime() { return ShowtimeValidationProfile.INSTANCE;}
     public static MovieValidationProfile movie() { return MovieValidationProfile.INSTANCE; }
     public static GenreValidationProfile genre() { return GenreValidationProfile.INSTANCE; }
 }
