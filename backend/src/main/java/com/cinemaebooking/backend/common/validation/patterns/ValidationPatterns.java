@@ -27,5 +27,19 @@ public final class ValidationPatterns {
     // ===================== SEAT TYPE =====================
     // Ví dụ: Standard, VIP, Couple, Premium...
     public static final String SEAT_TYPE_NAME = "^[\\p{L}0-9\\s\\-]+$";
+
+    // ===================== USER =====================
+    public static final String EMAIL = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
+
+    public static final String FULLNAME = "^[A-Za-z]+( [A-Za-z]+)*$";
+
+    public static final String TIME_HH_MM = "^([01]\\d|2[0-3]):[0-5]\\d$";
     private ValidationPatterns() {}
+
+
+    // ===================== MOVIE_TITLE =====================
+    public static final String MOVIE_TITLE = "^[\\p{L}0-9\\s\\-\\:\\,\\.\\!\\?\\'\\&\\\\(\\)]+$";
+
+    // ===================== GENRE_NAME =====================
+    public static final String GENRE_NAME = "^[\\p{L}0-9\\s\\-]+$";
 }

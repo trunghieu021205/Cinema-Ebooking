@@ -10,7 +10,7 @@ public final class GenreId extends BaseId {
 
     public static GenreId of(Long value) {
         if (value == null || value <= 0) {
-            throw new IllegalArgumentException("GenreId value must be positive number");
+            throw new IllegalArgumentException("GenreId must be positive");
         }
         return new GenreId(value);
     }

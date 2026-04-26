@@ -4,6 +4,6 @@ package com.cinemaebooking.backend.user.domain.enums;
  * @since 2026
  */
 public enum UserRole {
-    CUSTOMER,
+    USER,
     ADMIN
 }
