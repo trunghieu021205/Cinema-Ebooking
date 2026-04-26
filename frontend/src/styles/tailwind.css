@@ -34,6 +34,21 @@
   /* fonts */
   --font-body: var(--font-body);
   --font-brand: var(--font-brand);
+
+  /* admin colors */
+  --color-bg-admin-base: var(--color-bg-admin-base);
+  --color-bg-admin-sidebar: var(--color-bg-admin-sidebar);
+  --color-bg-admin-topbar: var(--color-bg-admin-topbar);
+
+  --color-text-admin-primary: var(--color-text-admin-primary);
+  --color-text-admin-secondary: var(--color-text-admin-secondary);
+  --color-text-admin-tertiary: var(--color-text-admin-tertiary);
+  --color-text-admin-disabled: var(--color-text-admin-disabled);
+
+  --color-text-on-admin-topbar: var(--color-text-on-admin-topbar);
+
+  --color-border-admin-default: var(--color-border-admin-default);
+  --color-border-admin-subtle: var(--color-border-admin-subtle);
 }
 
 @utility text-display {

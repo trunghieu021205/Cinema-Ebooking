@@ -76,3 +76,23 @@
   /* state */
   --color-disabled: var(--gray-300);
 }
+
+.admin-theme {
+  /* bg */
+  --color-bg-admin-base: var(--gray-50);
+  --color-bg-admin-sidebar: var(--gray-100);
+  --color-bg-admin-topbar: var(--gray-800);
+
+  /* text (light) */
+  --color-text-admin-primary: rgba(0, 0, 0, 0.87);
+  --color-text-admin-secondary: rgba(0, 0, 0, 0.6);
+  --color-text-admin-tertiary: rgba(0, 0, 0, 0.45);
+  --color-text-admin-disabled: rgba(0, 0, 0, 0.38);
+
+  /* text on topbar (dark) */
+  --color-text-on-admin-topbar: rgba(255, 255, 255, 0.87);
+
+  /* border */
+  --color-border-admin-default: rgba(0, 0, 0, 0.2);
+  --color-border-admin-subtle: rgba(0, 0, 0, 0.12);
+}
