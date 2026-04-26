@@ -31,4 +31,5 @@ public interface CouponJpaRepository extends SoftDeleteJpaRepository<CouponJpaEn
 
     boolean existsByCodeAndEndDateAfterAndUsageLimitGreaterThan(
             String code, LocalDate currentDate, Integer usedCount);
+
 }
