@@ -26,4 +26,6 @@ public final class ValidationFactory {
     public static UserValidationProfile user(){ return UserValidationProfile.INSTANCE;}
     public static MovieValidationProfile movie() { return MovieValidationProfile.INSTANCE; }
     public static GenreValidationProfile genre() { return GenreValidationProfile.INSTANCE; }
+    public static CouponValidationProfile coupon() {return CouponValidationProfile.INSTANCE;}
+    public static ComboValidationProfile combo() {return ComboValidationProfile.INSTANCE;}
 }
