@@ -48,7 +48,7 @@ const handleLogin = async (role: 'admin' | 'user' = 'user') => {
         }
 
         auth.setAuth(mockUser, 'mock-token-123')
-        router.push(isAdmin ? '/admin' : '/')
+        router.push(isAdmin ? '/admin/analystics/dashboard' : '/')
         emit('close')
     } catch (err: any) {
         // Map lỗi từ backend vào đúng field
