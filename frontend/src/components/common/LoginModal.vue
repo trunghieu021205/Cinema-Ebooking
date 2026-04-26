@@ -3,6 +3,8 @@ import { ref, computed } from 'vue'
 import { useAuthStore } from '@/store/auth.store'
 import { useRouter } from 'vue-router'
 import BaseButton from '../ui/button/BaseButton.vue'
+import { authApi } from '@/api/auth.api'
+import { userApi } from '@/api/user.api'
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -13,53 +15,63 @@ const password = ref('')
 const loading = ref(false)
 const showPassword = ref(false)
 const fieldErrors = ref({ email: '', password: '' })
-
-// Chỉ disable khi đang loading — không làm khó người dùng
+const generalError = ref('')
+const loginFailed = ref(false)
 const isLoginDisabled = computed(() => loading.value)
 
-// Clear lỗi của field khi người dùng bắt đầu gõ lại
 const clearError = (field: 'email' | 'password') => {
     fieldErrors.value[field] = ''
+    generalError.value = ''
+    loginFailed.value = false  // ← reset highlight
 }
 
-const handleLogin = async (role: 'admin' | 'user' = 'user') => {
-    // Reset lỗi cũ
-    fieldErrors.value = { email: '', password: '' }
+const validateEmail = () => {
+    if (!email.value) {
+        fieldErrors.value.email = 'Vui lòng nhập email'
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
+        fieldErrors.value.email = 'Email không hợp lệ'
+    }
+}
 
-    // Chỉ check empty — đủ để block call vô nghĩa
+const validatePassword = () => {
+    if (!password.value) {
+        fieldErrors.value.password = 'Vui lòng nhập mật khẩu'
+    }
+}
+
+const handleLogin = async () => {
+    fieldErrors.value = { email: '', password: '' }
+    generalError.value = ''
+
     if (!email.value) fieldErrors.value.email = 'Vui lòng nhập email'
     if (!password.value) fieldErrors.value.password = 'Vui lòng nhập mật khẩu'
     if (fieldErrors.value.email || fieldErrors.value.password) return
 
     loading.value = true
     try {
-        await new Promise(resolve => setTimeout(resolve, 800))
+        // STEP 1: Login
+        const { data: loginData } = await authApi.login({
+            email: email.value,
+            password: password.value,
+        })
 
-        const isAdmin = role === 'admin'
-        const mockUser = {
-            email: isAdmin ? 'admin@gmail.com' : email.value,
-            name: isAdmin ? 'Admin' : 'User',
-            membership: 'gold',
-            points: isAdmin ? 9999 : 100,
-            role,
-            avatarUrl: isAdmin
-                ? '/images/avatars/admin.jpg'
-                : '/images/avatars/UserAvatar.jpg',
-        }
+        // STEP 2: Lưu token
+        localStorage.setItem('token', loginData.accessToken)
 
-        auth.setAuth(mockUser, 'mock-token-123')
-        router.push(isAdmin ? '/admin/analystics/dashboard' : '/')
+        // STEP 3: Gọi /me — truyền token 
+        const { data: userProfile } = await userApi.getMe(loginData.accessToken)
+
+        // STEP 4: Lưu store + redirect
+        auth.setAuth(userProfile, loginData.accessToken)
+        router.push(loginData.role === 'ADMIN' ? '/admin/analystics/dashboard' : '/')
         emit('close')
-    } catch (err: any) {
-        // Map lỗi từ backend vào đúng field
-        const code = err?.code
 
-        if (code === 'USER_NOT_FOUND') {
-            fieldErrors.value.email = 'Email không tồn tại trong hệ thống'
-        } else if (code === 'WRONG_PASSWORD') {
-            fieldErrors.value.password = 'Mật khẩu không chính xác'
+    } catch (err: any) {
+        if (err.code === 2003) {
+            generalError.value = 'Email hoặc mật khẩu không chính xác'
+            loginFailed.value = true
         } else {
-            fieldErrors.value.email = err?.message ?? 'Đã có lỗi xảy ra, thử lại sau'
+            generalError.value = err.message ?? 'Không thể kết nối đến máy chủ, thử lại sau'
         }
     } finally {
         loading.value = false
@@ -98,7 +110,7 @@ const closeModal = () => emit('close')
                             <input v-model="email" type="email" placeholder="Nhập Email" @blur="validateEmail"
                                 @input="clearError('email')" :class="[
                                     'w-full text-body text-text-primary placeholder-text-secondary mt-0.5 px-3 py-2 border rounded-md focus:ring-2 outline-none',
-                                    fieldErrors.email
+                                    fieldErrors.email || loginFailed
                                         ? 'border-red-400 focus:ring-red-300'
                                         : 'border-border-subtle focus:ring-blue-500'
                                 ]" />
@@ -115,7 +127,7 @@ const closeModal = () => emit('close')
                                     placeholder="Nhập Mật khẩu" @blur="validatePassword" @input="clearError('password')"
                                     :class="[
                                         'w-full text-body text-text-primary placeholder-text-secondary px-3 py-2 pr-10 border rounded-md focus:ring-2 outline-none',
-                                        fieldErrors.password
+                                        fieldErrors.password || loginFailed
                                             ? 'border-red-400 focus:ring-red-300'
                                             : 'border-border-subtle focus:ring-blue-500'
                                     ]" />
@@ -146,13 +158,27 @@ const closeModal = () => emit('close')
                     </div>
 
                     <!-- BUTTON ĐĂNG NHẬP -->
-                    <BaseButton @click="handleLogin('admin')" :disabled="isLoginDisabled" variant="primary" size="md"
-                        rounded="md" class="w-full disabled:opacity-50 disabled:cursor-not-allowed">
-                        {{ loading ? 'Đang đăng nhập...' : 'ĐĂNG NHẬP' }}
-                    </BaseButton>
+                    <div class="flex flex-col gap-3">
+                        <!-- General Error Banner — chỉ hiện khi có lỗi chung -->
+                        <div v-if="generalError"
+                            class="flex items-start gap-2 px-3 py-2.5 rounded-md border border-border-admin-subtle text-red-500 text-[12px]">
+                            <!-- Icon cảnh báo -->
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mt-0.5 shrink-0" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                            </svg>
+                            <span>{{ generalError }}</span>
+                        </div>
+
+                        <BaseButton @click="handleLogin" :disabled="isLoginDisabled" variant="primary" size="md"
+                            rounded="md" class="w-full disabled:opacity-50 disabled:cursor-not-allowed">
+                            {{ loading ? 'Đang đăng nhập...' : 'ĐĂNG NHẬP' }}
+                        </BaseButton>
+                    </div>
                 </div>
 
-                <p class="text-caption text-left cursor-pointer text-text-secondary hover:text-accent mb-4">
+                <p class="text-caption text-left w-fit cursor-pointer text-text-secondary hover:text-accent mb-4">
                     Quên mật khẩu?
                 </p>
 

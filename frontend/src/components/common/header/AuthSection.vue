@@ -11,24 +11,28 @@
 
         <!-- ĐÃ LOGIN -->
         <template v-else>
-            <img :src="auth.user.avatarUrl" class="w-10 h-10 rounded-full" />
+            <div v-if="!auth.user.avatarUrl"
+                class="w-10 h-10 rounded-full bg-gray-500 flex items-center justify-center text-body font-semibold">
+                {{ auth.user.fullName?.charAt(0) }}
+            </div>
+            <img v-else :src="auth.user.avatarUrl" class="w-10 h-10 rounded-full" />
             <div class="flex flex-col gap-2">
                 <div class="flex items-center gap-2">
-                    <MembershipIcon :membership="auth.user.membership"></MembershipIcon>
+                    <MembershipIcon :membership="null"></MembershipIcon>
                     <div class="flex flex-col">
-                        <div class="truncate max-w-30 text-body font-medium" :title="auth.user.name">
-                            {{ auth.user.name }}
+                        <div class="truncate max-w-30 text-body font-medium" :title="auth.user.fullName">
+                            {{ auth.user.fullName }}
                         </div>
-                        <div class="text-[10px] text-text-secondary uppercase" :title="auth.user.membership">
-                            {{ auth.user.membership }}
+                        <div class="text-[10px] text-text-secondary uppercase" :title="null">
+                            BASIC
                         </div>
                     </div>
                 </div>
                 <div class="flex items-center gap-3">
-                    <GiftIcon :membership="auth.user.membership"></GiftIcon>
+                    <GiftIcon :membership="null"></GiftIcon>
                     <div class="flex max-w-30">
                         <span class="truncate" :title="auth.user.points">
-                            {{ auth.user.points }}
+                            9999
                         </span>
 
                         <!-- chữ Points (fixed) -->

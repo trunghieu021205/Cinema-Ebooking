@@ -1,36 +1,26 @@
+
 import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
+import type { UserProfile } from '@/types/auth.types'
 
-interface User {
-  email: string
-  name: string
-  membership: 'basic' | 'silver' | 'gold';
-  points: number;
-  role: 'admin' | 'user';
-  avatarUrl: string;
-}
+export const useAuthStore = defineStore('auth', () => {
+    const user = ref<UserProfile | null>(null)
+    const token = ref<string | null>(localStorage.getItem('token'))
 
-interface AuthState {
-  user: User | null
-  token: string | null
-}
+    const setAuth = (userProfile: UserProfile, accessToken: string) => {
+        user.value = userProfile
+        token.value = accessToken
+    }
 
-export const useAuthStore = defineStore('auth', {
-  state: (): AuthState => ({
-    user: null,
-    token: null,
-  }),
+    const logout = () => {
+        user.value = null
+        token.value = null
+        localStorage.removeItem('token')
+    }
 
-  actions: {
-    setAuth(user: User, token: string) {
-      this.user = user
-      this.token = token
-    },
+    // Helper — dùng ở template thay vì check role thủ công
+    const isAdmin = computed(() => user.value?.role === 'ADMIN')
+    const isActive = computed(() => user.value?.status === 'ACTIVE')
 
-    logout() {
-      this.user = null
-      this.token = null
-    },
-  },
-
-  persist:true,
+    return { user, token, setAuth, logout, isAdmin, isActive }
 })

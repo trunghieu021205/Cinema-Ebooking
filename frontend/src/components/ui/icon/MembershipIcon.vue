@@ -13,7 +13,7 @@ const props = defineProps<{
 }>()
 
 // ===== SAFE TIER =====
-const tier = computed<Membership>(() => props.membership ?? 'silver')
+const tier = computed<Membership>(() => props.membership ?? 'basic')
 
 // ===== CONFIG =====
 const membershipConfig: Record<Membership, {
