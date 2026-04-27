@@ -29,7 +29,7 @@ public class CinemaValidationProfile {
                 .length(3, 80)
                 .pattern(
                         ValidationPatterns.CINEMA_NAME,
-                        "contains invalid characters"
+                        "chứa kí tự không hợp lệ"
                 )
                 .containsLetter()
                 .build();
@@ -41,7 +41,7 @@ public class CinemaValidationProfile {
                 .length(2, 50)
                 .pattern(
                         ValidationPatterns.CITY,
-                        "contains invalid characters"
+                        "chứa kí tự không hợp lệ"
                 )
                 .containsLetter()
                 .build();
@@ -53,7 +53,7 @@ public class CinemaValidationProfile {
                 .length(5, 150)
                 .pattern(
                         ValidationPatterns.ADDRESS,
-                        "format is invalid"
+                        "chứa kí tự không hợp lệ"
                 )
                 .build();
     }

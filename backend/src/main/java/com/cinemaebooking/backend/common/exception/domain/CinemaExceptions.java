@@ -2,9 +2,13 @@ package com.cinemaebooking.backend.common.exception.domain;
 
 import com.cinemaebooking.backend.cinema.domain.valueobject.CinemaId;
 import com.cinemaebooking.backend.common.exception.BaseException;
+import com.cinemaebooking.backend.common.exception.ErrorCategory;
 import com.cinemaebooking.backend.common.exception.ErrorCode;
+import com.cinemaebooking.backend.common.exception.ErrorDetail;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 /**
  * CinemaExceptions - Domain-specific exceptions for Cinema.
@@ -19,25 +23,20 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class CinemaExceptions {
 
-    // ================== NOT FOUND ==================
-
     public static BaseException notFound(CinemaId id) {
         return new BaseException(ErrorCode.CINEMA_NOT_FOUND,
-                "Cinema not found with id: " + id
-        );
+                "Không tìm thấy rạp với id: " + id);           // debugMessage
     }
 
-    // ================== DUPLICATE ==================
-
-    public static BaseException duplicateCinemaName(String name) {
+    public static BaseException duplicateName(String name) {
         return new BaseException(ErrorCode.CINEMA_ALREADY_EXISTS,
-                "Cinema name already exists: " + name
-        );
+                List.of(new ErrorDetail("name", ErrorCategory.DUPLICATE,
+                        "tên rạp '" + name + "' đã tồn tại")));
     }
 
-    public static BaseException duplicateCinemaLocation(String address, String city) {
+    public static BaseException duplicateLocation(String address, String city) {
         return new BaseException(ErrorCode.CINEMA_ALREADY_EXISTS,
-                "Cinema already exists at address: " + address + ", city: " + city
-        );
+                List.of(new ErrorDetail("address", ErrorCategory.DUPLICATE,
+                        "đã có rạp tại địa chỉ này trong thành phố " + city)));
     }
 }

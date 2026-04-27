@@ -84,9 +84,9 @@ public class CinemaCommandValidator {
 
         var profile = ValidationFactory.cinema();
 
-        ValidationEngine.validate(name, "Cinema name", profile.nameRules());
-        ValidationEngine.validate(address, "Cinema address", profile.addressRules());
-        ValidationEngine.validate(city, "City", profile.cityRules());
+        ValidationEngine.validate(name, "name", profile.nameRules());
+        ValidationEngine.validate(address, "address", profile.addressRules());
+        ValidationEngine.validate(city, "city", profile.cityRules());
     }
 
     // ================== BUSINESS - CREATE ==================
@@ -95,7 +95,7 @@ public class CinemaCommandValidator {
 
         if (name != null) {
             if (cinemaRepository.existsByName(name)) {
-                throw CinemaExceptions.duplicateCinemaName(name);
+                throw CinemaExceptions.duplicateName(name);
             }
         }
 
@@ -103,7 +103,7 @@ public class CinemaCommandValidator {
             boolean exists = cinemaRepository.existsByAddressAndCity(address, city);
 
             if (exists) {
-                throw CinemaExceptions.duplicateCinemaLocation(address, city);
+                throw CinemaExceptions.duplicateLocation(address, city);
             }
         }
     }
@@ -119,13 +119,13 @@ public class CinemaCommandValidator {
 
         if (name != null) {
             if (cinemaRepository.existsByNameAndIdNot(name, id)) {
-                throw CinemaExceptions.duplicateCinemaName(name);
+                throw CinemaExceptions.duplicateName(name);
             }
         }
 
         if (address != null && city != null) {
             if (cinemaRepository.existsByAddressAndCityAndIdNot(address, city, id)) {
-                throw CinemaExceptions.duplicateCinemaLocation(address, city);
+                throw CinemaExceptions.duplicateLocation(address, city);
             }
         }
     }
