@@ -1,6 +1,6 @@
 package com.cinemaebooking.backend.common.validation.domain;
 
-import com.cinemaebooking.backend.common.validation.builder.ValidationBuilder;
+import com.cinemaebooking.backend.common.validation.builder.StringValidationBuilder;
 import com.cinemaebooking.backend.common.validation.engine.ValidationRule;
 import com.cinemaebooking.backend.common.validation.patterns.ValidationPatterns;
 
@@ -24,36 +24,36 @@ public class CinemaValidationProfile {
     private CinemaValidationProfile() {}
 
     public List<ValidationRule<String>> nameRules() {
-        return ValidationBuilder.create()
+        return StringValidationBuilder.create()
                 .notBlank()
                 .length(3, 80)
                 .pattern(
                         ValidationPatterns.CINEMA_NAME,
-                        "contains invalid characters"
+                        "chứa kí tự không hợp lệ"
                 )
                 .containsLetter()
                 .build();
     }
 
     public List<ValidationRule<String>> cityRules() {
-        return ValidationBuilder.create()
+        return StringValidationBuilder.create()
                 .notBlank()
                 .length(2, 50)
                 .pattern(
                         ValidationPatterns.CITY,
-                        "contains invalid characters"
+                        "chứa kí tự không hợp lệ"
                 )
                 .containsLetter()
                 .build();
     }
 
     public List<ValidationRule<String>> addressRules() {
-        return ValidationBuilder.create()
+        return StringValidationBuilder.create()
                 .notBlank()
                 .length(5, 150)
                 .pattern(
                         ValidationPatterns.ADDRESS,
-                        "format is invalid"
+                        "chứa kí tự không hợp lệ"
                 )
                 .build();
     }

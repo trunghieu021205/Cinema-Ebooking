@@ -25,16 +25,14 @@ public class RegisterValidator {
 
         // ================== FORMAT VALIDATION ==================
 
-        ValidationEngine.validate(request.getFullName(), "Full name", profile.fullNameRules());
-
-        ValidationEngine.validate(request.getEmail(), "Email", profile.emailRules());
-
-        ValidationEngine.validate(request.getPhoneNumber(), "Phone number", profile.phoneRules());
-
-        ValidationEngine.validate(request.getFullName(), "Username", profile.fullNameRules());
-
-        ValidationEngine.validate(request.getPassword(), "Password", profile.passwordRules());
-
+        ValidationEngine.of()
+                .validate(request.getFullName(), "fullName", profile.fullNameRules())
+                .validate(request.getEmail(), "email", profile.emailRules())
+                .validate(request.getPhoneNumber(), "phoneNumber", profile.phoneRules())
+                .validate(request.getDateOfBirth(), "dateOfBirth", profile.dobRules())
+                .validate(request.getGender(), "gender", profile.genderRules())
+                .validate(request.getPassword(), "password", profile.passwordRules())
+                .throwIfInvalid();
         // ================== BUSINESS RULES ==================
 
         validateUniqueEmail(request.getEmail());

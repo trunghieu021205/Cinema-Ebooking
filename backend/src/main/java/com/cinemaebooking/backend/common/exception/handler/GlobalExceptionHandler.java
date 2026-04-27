@@ -4,6 +4,7 @@ import com.cinemaebooking.backend.common.api.response.ApiError;
 import com.cinemaebooking.backend.common.api.response.ApiResponse;
 import com.cinemaebooking.backend.common.exception.BaseException;
 import com.cinemaebooking.backend.common.exception.ErrorCode;
+import com.cinemaebooking.backend.common.exception.ErrorDetail;
 import com.cinemaebooking.backend.common.exception.ErrorType;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -23,49 +24,52 @@ public class GlobalExceptionHandler {
     private static final String TRACE_ID_KEY = "traceId";
 
     // ================== BUSINESS / DOMAIN EXCEPTION ==================
+
     @ExceptionHandler(BaseException.class)
     public ResponseEntity<ApiResponse<?>> handleBaseException(
             BaseException ex,
             HttpServletRequest request
     ) {
-
         String traceId = getTraceId();
         ErrorCode errorCode = ex.getErrorCode();
 
-        String message = resolveMessage(ex, errorCode);
+        // message luôn lấy từ ErrorCode — debugMessage chỉ dùng để log
+        logByType(traceId, errorCode, request, ex);
 
-        logByType(traceId, errorCode, request, message, ex);
+        List<ErrorDetail> details = ex.getDetails();
 
         ApiError error = new ApiError(
                 errorCode.getCode(),
-                message,
+                errorCode.getMessage(),             // ← không bao giờ dùng ex.getMessage()
                 errorCode.getType(),
-                null
+                details.isEmpty() ? null : details  // null nếu không có detail
         );
-
-        ApiResponse<?> response = buildResponse(error, traceId, request);
 
         return ResponseEntity
                 .status(errorCode.getHttpStatus())
-                .body(response);
+                .body(buildResponse(error, traceId, request));
     }
 
-    // ================== VALIDATION ERROR ==================
+    // ================== SPRING VALIDATION (@Valid) ==================
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<?>> handleValidationException(
+    public ResponseEntity<ApiResponse<?>> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex,
             HttpServletRequest request
     ) {
-
         String traceId = getTraceId();
+        ErrorCode errorCode = ErrorCode.INVALID_INPUT;
 
-        List<String> details = ex.getBindingResult()
+        // Map Spring FieldError → ErrorDetail
+        List<ErrorDetail> details = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
-                .map(e -> e.getField() + ": " + e.getDefaultMessage())
+                .map(e -> new ErrorDetail(
+                        e.getField(),
+                        null,                        // Spring không có ErrorCategory
+                        e.getDefaultMessage()
+                ))
                 .toList();
-
-        ErrorCode errorCode = ErrorCode.INVALID_INPUT;
 
         log.warn("[{}] Validation failed | path={} | details={}",
                 traceId,
@@ -75,25 +79,23 @@ public class GlobalExceptionHandler {
 
         ApiError error = new ApiError(
                 errorCode.getCode(),
-                "Request validation failed",
+                errorCode.getMessage(),
                 errorCode.getType(),
                 details
         );
 
-        ApiResponse<?> response = buildResponse(error, traceId, request);
-
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(response);
+                .body(buildResponse(error, traceId, request));
     }
 
     // ================== GENERIC / UNEXPECTED ERROR ==================
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<?>> handleGenericException(
             Exception ex,
             HttpServletRequest request
     ) {
-
         String traceId = getTraceId();
         ErrorCode errorCode = ErrorCode.UNCATEGORIZED_EXCEPTION;
 
@@ -110,52 +112,42 @@ public class GlobalExceptionHandler {
                 null
         );
 
-        ApiResponse<?> response = buildResponse(error, traceId, request);
-
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(response);
+                .body(buildResponse(error, traceId, request));
     }
 
-    // ================== HELPER METHODS ==================
+    // ================== HELPER ==================
 
-    /**
-     * Always get traceId from MDC (set by TraceIdFilter)
-     */
     private String getTraceId() {
         String traceId = MDC.get(TRACE_ID_KEY);
-        return (traceId != null && !traceId.isBlank())
-                ? traceId
-                : "UNKNOWN"; // fallback (should not happen if filter works correctly)
-    }
-
-    private String resolveMessage(BaseException ex, ErrorCode errorCode) {
-        return (ex.getMessage() != null && !ex.getMessage().isBlank())
-                ? ex.getMessage()
-                : errorCode.getMessage();
+        return (traceId != null && !traceId.isBlank()) ? traceId : "UNKNOWN";
     }
 
     private void logByType(
             String traceId,
             ErrorCode errorCode,
             HttpServletRequest request,
-            String message,
-            Exception ex
+            BaseException ex
     ) {
+        String debugInfo = ex.getDebugMessage() != null
+                ? " | debug: " + ex.getDebugMessage()
+                : "";
+
         if (errorCode.getType() == ErrorType.TECHNICAL) {
-            log.error("[{}] Technical error | code={} | path={} | message={}",
+            log.error("[{}] Technical error | code={} | path={}{}",
                     traceId,
                     errorCode.getCode(),
                     request.getRequestURI(),
-                    message,
+                    debugInfo,
                     ex
             );
         } else {
-            log.warn("[{}] Business error | code={} | path={} | message={}",
+            log.warn("[{}] Business error | code={} | path={}{}",
                     traceId,
                     errorCode.getCode(),
                     request.getRequestURI(),
-                    message
+                    debugInfo
             );
         }
     }
@@ -165,10 +157,6 @@ public class GlobalExceptionHandler {
             String traceId,
             HttpServletRequest request
     ) {
-        return ApiResponse.error(
-                error,
-                traceId,
-                request.getRequestURI()
-        );
+        return ApiResponse.error(error, traceId, request.getRequestURI());
     }
 }

@@ -70,8 +70,10 @@ public class SeatTypeCommandValidator {
 
         var profile = ValidationFactory.seatType();
 
-        ValidationEngine.validate(name, "Seat type name", profile.nameRules());
-        ValidationEngine.validate(basePrice, "Base price", profile.basePriceRules());
+        ValidationEngine.of()
+                .validate(name, "Seat type name", profile.nameRules())
+                .validate(basePrice, "Base price", profile.basePriceRules())
+                .throwIfInvalid();
     }
 
     // ================== BUSINESS ==================

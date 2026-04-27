@@ -31,7 +31,9 @@ public final class ValidationPatterns {
     // ===================== USER =====================
     public static final String EMAIL = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
 
-    public static final String FULLNAME = "^[A-Za-z]+( [A-Za-z]+)*$";
+    public static final String FULLNAME = "^\\p{L}+( \\p{L}+)*$";
+
+    public static final String PHONE = "^\\+?\\d{7,15}$";
 
     public static final String TIME_HH_MM = "^([01]\\d|2[0-3]):[0-5]\\d$";
     private ValidationPatterns() {}

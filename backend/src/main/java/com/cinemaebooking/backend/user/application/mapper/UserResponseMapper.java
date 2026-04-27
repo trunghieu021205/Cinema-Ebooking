@@ -16,6 +16,8 @@ public class UserResponseMapper {
                 user.getFullName(),
                 user.getEmail(),
                 user.getPhoneNumber(),
+                user.getDateOfBirth(),
+                user.getGender(),
                 user.getAvatarUrl(),
                 user.getRole(),
                 user.getStatus()

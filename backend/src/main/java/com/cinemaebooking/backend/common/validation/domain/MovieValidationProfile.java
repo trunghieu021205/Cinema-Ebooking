@@ -1,10 +1,14 @@
 package com.cinemaebooking.backend.common.validation.domain;
 
+import com.cinemaebooking.backend.common.exception.ErrorCategory;
+import com.cinemaebooking.backend.common.exception.ErrorDetail;
+import com.cinemaebooking.backend.common.validation.builder.StringValidationBuilder;
 import com.cinemaebooking.backend.common.validation.builder.ValidationBuilder;
 import com.cinemaebooking.backend.common.validation.engine.ValidationRule;
 import com.cinemaebooking.backend.common.validation.patterns.ValidationPatterns;
 
 import java.util.List;
+import java.util.Optional;
 
 public class MovieValidationProfile {
 
@@ -12,35 +16,45 @@ public class MovieValidationProfile {
 
     private MovieValidationProfile() {}
 
+    // ================== TITLE ==================
+
     public List<ValidationRule<String>> titleRules() {
-        return ValidationBuilder.create()
+        return StringValidationBuilder.create()
                 .notBlank()
                 .length(1, 255)
-                .pattern(ValidationPatterns.MOVIE_TITLE, "contains invalid characters")
+                .pattern(
+                        ValidationPatterns.MOVIE_TITLE,
+                        "INVALID_TITLE"
+                )
                 .build();
     }
+
+    // ================== DESCRIPTION ==================
 
     public List<ValidationRule<String>> descriptionRules() {
-        return ValidationBuilder.create()
-                .notNull()
-                .length(0, 1000)
+        return StringValidationBuilder.create()
+                .notBlank()
+                .length(10, 1000)
                 .build();
     }
 
-    public List<ValidationRule<String>> durationRules() {
-        return ValidationBuilder.create()
+    // ================== DURATION ==================
+
+    public List<ValidationRule<Integer>> durationRules() {
+        return ValidationBuilder.<Integer>create()
                 .notNull()
-                .custom((ctx) -> {
-                    String val = ctx.trimmed();
-                    if (val != null) {
-                        try {
-                            int d = Integer.parseInt(val);
-                            if (d <= 0) throw new IllegalArgumentException();
-                        } catch (Exception e) {
-                            throw com.cinemaebooking.backend.common.exception.domain.CommonExceptions.invalidInput(
-                                    ctx.fieldName() + " must be a positive integer");
-                        }
+                .custom(context -> {
+                    Integer value = context.getValue();
+                    if (value != null && value <= 0) {
+                        return Optional.of(
+                                new ErrorDetail(
+                                        context.getField(),
+                                        ErrorCategory.INVALID_VALUE,
+                                        "duration must be a positive number"
+                                )
+                        );
                     }
+                    return Optional.empty();
                 })
                 .build();
     }

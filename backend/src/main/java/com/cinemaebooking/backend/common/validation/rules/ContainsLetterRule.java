@@ -1,9 +1,12 @@
 package com.cinemaebooking.backend.common.validation.rules;
 
+import com.cinemaebooking.backend.common.exception.ErrorCategory;
+import com.cinemaebooking.backend.common.exception.ErrorDetail;
 import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import com.cinemaebooking.backend.common.validation.engine.ValidationContext;
 import com.cinemaebooking.backend.common.validation.engine.ValidationRule;
 
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 /**
@@ -24,14 +27,17 @@ public class ContainsLetterRule implements ValidationRule<String> {
     private static final Pattern LETTER_PATTERN = Pattern.compile(".*\\p{L}+.*");
 
     @Override
-    public void validate(ValidationContext<String> context) {
+    public Optional<ErrorDetail> validate(ValidationContext<String> context) {
         String value = context.trimmed();
-        if (value == null) return;
+        if (value == null) return Optional.empty();
 
         if (!LETTER_PATTERN.matcher(value).matches()) {
-            throw CommonExceptions.invalidInput(
-                    context.fieldName() + " must contain at least one letter"
-            );
+            return Optional.of(new ErrorDetail(
+                    context.fieldName(),
+                    ErrorCategory.INVALID_VALUE,
+                    "phải chứa ít nhất một ký tự chữ cái"
+            ));
         }
+        return Optional.empty();
     }
 }

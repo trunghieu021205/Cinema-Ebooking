@@ -4,9 +4,12 @@ import com.cinemaebooking.backend.common.domain.BaseEntity;
 import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import com.cinemaebooking.backend.user.domain.enums.UserRole;
 import com.cinemaebooking.backend.user.domain.enums.UserStatus;
+import com.cinemaebooking.backend.user.domain.valueObject.UserGender;
 import com.cinemaebooking.backend.user.domain.valueObject.UserId;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
+
+import java.time.LocalDate;
 
 @Getter
 @SuperBuilder(toBuilder = true)
@@ -16,6 +19,8 @@ public class User extends BaseEntity<UserId> {
     private String email;
     private String password;  // hashed password
     private String phoneNumber;
+    private LocalDate dateOfBirth;
+    private UserGender gender;
     private String avatarUrl;
     private UserRole role;
     private UserStatus status;

@@ -1,13 +1,13 @@
 package com.cinemaebooking.backend.common.validation.engine;
 
+import com.cinemaebooking.backend.common.exception.ErrorDetail;
+
+import java.util.Optional;
+
 /**
- * ValidationRule - Contract for implementing validation logic.
- * Responsibility:
- * - Define a single validation rule behavior
- * - Allow pluggable validation logic via implementations
- * @author Hieu Nguyen
- * @since 2026
+ * ValidationRule — Mỗi rule trả về Optional<ErrorDetail> thay vì throw.
+ * Engine sẽ là nơi duy nhất quyết định có throw hay không.
  */
 public interface ValidationRule<T> {
-    void validate(ValidationContext<T> context);
+    Optional<ErrorDetail> validate(ValidationContext<T> context);
 }

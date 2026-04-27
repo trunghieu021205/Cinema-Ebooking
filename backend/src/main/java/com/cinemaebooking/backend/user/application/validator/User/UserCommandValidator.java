@@ -9,9 +9,12 @@ import com.cinemaebooking.backend.user.application.dto.UserDTO.AdminUpdateUserRe
 import com.cinemaebooking.backend.user.application.dto.UserDTO.CreateUserRequest;
 import com.cinemaebooking.backend.user.application.dto.UserDTO.UpdateUserRequest;
 import com.cinemaebooking.backend.user.application.port.UserRepository;
+import com.cinemaebooking.backend.user.domain.valueObject.UserGender;
 import com.cinemaebooking.backend.user.domain.valueObject.UserId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDate;
 
 @Component
 @RequiredArgsConstructor
@@ -28,7 +31,9 @@ public class UserCommandValidator {
         validateBaseFields(
                 request.getFullName(),
                 request.getEmail(),
-                request.getPhoneNumber()
+                request.getPhoneNumber(),
+                request.getDateOfBirth(),
+                request.getGender()
         );
 
         validatePasswordField(request.getPassword());
@@ -45,8 +50,10 @@ public class UserCommandValidator {
 
         var profile = ValidationFactory.user();
 
-        ValidationEngine.validate(request.getFullName(), "Full name", profile.fullNameRules());
-        ValidationEngine.validate(request.getPhoneNumber(), "Phone number", profile.phoneRules());
+        ValidationEngine.of()
+                .validate(request.getFullName(), "fullName", profile.fullNameRules())
+                .validate(request.getPhoneNumber(), "phoneNumber", profile.phoneRules())
+                .throwIfInvalid();
     }
 
     // ================== UPDATE (ADMIN) ==================
@@ -58,10 +65,12 @@ public class UserCommandValidator {
 
         var profile = ValidationFactory.user();
 
-        ValidationEngine.validate(request.getFullName(), "Full name", profile.fullNameRules());
-        ValidationEngine.validate(request.getPhoneNumber(), "Phone number", profile.phoneRules());
-        ValidationEngine.validate(request.getRole(), "Role", profile.roleRules());
-        ValidationEngine.validate(request.getStatus(), "Status", profile.statusRules());
+        ValidationEngine.of()
+                .validate(request.getFullName(), "fullName", profile.fullNameRules())
+                .validate(request.getPhoneNumber(), "phoneNumber", profile.phoneRules())
+                .validate(request.getRole(), "role", profile.roleRules())
+                .validate(request.getStatus(), "status", profile.statusRules())
+                .throwIfInvalid();
     }
 
     // ================== CHANGE PASSWORD ==================
@@ -76,21 +85,23 @@ public class UserCommandValidator {
 
     // ================== FIELD VALIDATION ==================
 
-    private void validateBaseFields(String fullName, String email, String phone) {
+    private void validateBaseFields(String fullName, String email, String phone, LocalDate dateOfBirth, UserGender gender) {
         var profile = ValidationFactory.user();
 
-        ValidationEngine.validate(fullName, "Full name", profile.fullNameRules());
-
-        if (email != null) {
-            ValidationEngine.validate(email, "Email", profile.emailRules());
-        }
-
-        ValidationEngine.validate(phone, "Phone number", profile.phoneRules());
+        ValidationEngine.of()
+                .validate(fullName, "fullName", profile.fullNameRules())
+                .validate(email, "email", profile.emailRules())
+                .validate(dateOfBirth, "dateOfBirth", profile.dobRules())
+                .validate(gender, "gender", profile.genderRules())
+                .validate(phone, "phoneNumber", profile.phoneRules())
+                .throwIfInvalid();
     }
 
     private void validatePasswordField(String password) {
         var profile = ValidationFactory.user();
-        ValidationEngine.validate(password, "Password", profile.passwordRules());
+        ValidationEngine.of()
+                .validate(password, "password", profile.passwordRules())
+                .throwIfInvalid();
     }
 
     // ================== BUSINESS RULES ==================

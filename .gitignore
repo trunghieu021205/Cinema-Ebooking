@@ -8,8 +8,7 @@ Thumbs.db
 # IDE / Editor
 ############################
 .idea/
-.vscode/*
-!.vscode/extensions.json
+.vscode/
 
 *.iws
 *.iml
@@ -88,3 +87,6 @@ __screenshots__/
 
 # Vite
 *.timestamp-*-*.mjs
+
+# Tailwind
+tailwind.config.js
