@@ -7,6 +7,7 @@ import com.cinemaebooking.backend.cinema.domain.valueobject.CinemaId;
 import com.cinemaebooking.backend.common.exception.domain.CinemaExceptions;
 import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import com.cinemaebooking.backend.common.validation.engine.ValidationEngine;
+import com.cinemaebooking.backend.common.validation.engine.ValidationRule;
 import com.cinemaebooking.backend.common.validation.factory.ValidationFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -84,9 +85,11 @@ public class CinemaCommandValidator {
 
         var profile = ValidationFactory.cinema();
 
-        ValidationEngine.validate(name, "name", profile.nameRules());
-        ValidationEngine.validate(address, "address", profile.addressRules());
-        ValidationEngine.validate(city, "city", profile.cityRules());
+        ValidationEngine.of()
+                .validate(name,"name", profile.nameRules())
+                .validate(address,"address",profile.addressRules())
+                .validate(city,"city",profile.cityRules())
+                .throwIfInvalid();
     }
 
     // ================== BUSINESS - CREATE ==================

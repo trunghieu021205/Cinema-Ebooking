@@ -1,6 +1,6 @@
 package com.cinemaebooking.backend.common.validation.domain;
 
-import com.cinemaebooking.backend.common.validation.builder.ValidationBuilder;
+import com.cinemaebooking.backend.common.validation.builder.StringValidationBuilder;
 import com.cinemaebooking.backend.common.validation.engine.ValidationRule;
 import com.cinemaebooking.backend.common.validation.patterns.ValidationPatterns;
 
@@ -13,7 +13,7 @@ public class ComboValidationProfile {
     private ComboValidationProfile() {}
 
     public List<ValidationRule<String>> nameRules() {
-        return ValidationBuilder.create()
+        return StringValidationBuilder.create()
                 .notBlank()
                 .length(3, 150)
                 .pattern(ValidationPatterns.CINEMA_NAME, "contains invalid characters")

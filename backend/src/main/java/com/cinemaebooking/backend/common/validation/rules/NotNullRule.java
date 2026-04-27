@@ -1,9 +1,12 @@
 package com.cinemaebooking.backend.common.validation.rules;
 
 import com.cinemaebooking.backend.common.exception.ErrorCategory;
+import com.cinemaebooking.backend.common.exception.ErrorDetail;
 import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import com.cinemaebooking.backend.common.validation.engine.ValidationContext;
 import com.cinemaebooking.backend.common.validation.engine.ValidationRule;
+
+import java.util.Optional;
 
 /**
  * NotNullRule - Validation rule to ensure input value is not null.
@@ -18,13 +21,14 @@ import com.cinemaebooking.backend.common.validation.engine.ValidationRule;
 public class NotNullRule<T> implements ValidationRule<T> {
 
     @Override
-    public void validate(ValidationContext<T> context) {
+    public Optional<ErrorDetail> validate(ValidationContext<T> context) {
         if (context.value() == null) {
-            throw CommonExceptions.invalidInput(
+            return Optional.of(new ErrorDetail(
                     context.fieldName(),
                     ErrorCategory.REQUIRED,
                     "không được để trống"
-            );
+            ));
         }
+        return Optional.empty();
     }
 }

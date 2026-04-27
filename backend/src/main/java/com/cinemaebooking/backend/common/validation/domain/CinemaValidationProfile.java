@@ -1,6 +1,6 @@
 package com.cinemaebooking.backend.common.validation.domain;
 
-import com.cinemaebooking.backend.common.validation.builder.ValidationBuilder;
+import com.cinemaebooking.backend.common.validation.builder.StringValidationBuilder;
 import com.cinemaebooking.backend.common.validation.engine.ValidationRule;
 import com.cinemaebooking.backend.common.validation.patterns.ValidationPatterns;
 
@@ -24,7 +24,7 @@ public class CinemaValidationProfile {
     private CinemaValidationProfile() {}
 
     public List<ValidationRule<String>> nameRules() {
-        return ValidationBuilder.create()
+        return StringValidationBuilder.create()
                 .notBlank()
                 .length(3, 80)
                 .pattern(
@@ -36,7 +36,7 @@ public class CinemaValidationProfile {
     }
 
     public List<ValidationRule<String>> cityRules() {
-        return ValidationBuilder.create()
+        return StringValidationBuilder.create()
                 .notBlank()
                 .length(2, 50)
                 .pattern(
@@ -48,7 +48,7 @@ public class CinemaValidationProfile {
     }
 
     public List<ValidationRule<String>> addressRules() {
-        return ValidationBuilder.create()
+        return StringValidationBuilder.create()
                 .notBlank()
                 .length(5, 150)
                 .pattern(

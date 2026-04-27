@@ -1,9 +1,12 @@
 package com.cinemaebooking.backend.common.validation.rules;
 
 import com.cinemaebooking.backend.common.exception.ErrorCategory;
+import com.cinemaebooking.backend.common.exception.ErrorDetail;
 import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import com.cinemaebooking.backend.common.validation.engine.ValidationContext;
 import com.cinemaebooking.backend.common.validation.engine.ValidationRule;
+
+import java.util.Optional;
 
 /**
  * LengthRule - Validation rule to check string length constraint.
@@ -27,24 +30,25 @@ public class LengthRule implements ValidationRule<String> {
     }
 
     @Override
-    public void validate(ValidationContext<String> context) {
+    public Optional<ErrorDetail> validate(ValidationContext<String> context) {
         String v = context.trimmed();
-        if (v == null) return;
+        if (v == null) return Optional.empty();
 
         if (v.length() < min) {
-            throw CommonExceptions.invalidInput(
+            return Optional.of(new ErrorDetail(
                     context.fieldName(),
                     ErrorCategory.INVALID_LENGTH_MIN,
-                    "tối thiểu " + min + " ký tự"
-            );
+                    "tối thiểu " + min +" ký tự"
+            ));
         }
 
         if (v.length() > max) {
-            throw CommonExceptions.invalidInput(
+            return Optional.of(new ErrorDetail(
                     context.fieldName(),
                     ErrorCategory.INVALID_LENGTH_MAX,
-                    "tối đa " + max + " ký tự"
-            );
+                    "tối đa " + min +" ký tự"
+            ));
         }
+        return Optional.empty();
     }
 }

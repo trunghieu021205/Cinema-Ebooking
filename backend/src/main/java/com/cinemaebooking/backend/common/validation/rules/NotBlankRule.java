@@ -1,9 +1,12 @@
 package com.cinemaebooking.backend.common.validation.rules;
 
 import com.cinemaebooking.backend.common.exception.ErrorCategory;
+import com.cinemaebooking.backend.common.exception.ErrorDetail;
 import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import com.cinemaebooking.backend.common.validation.engine.ValidationContext;
 import com.cinemaebooking.backend.common.validation.engine.ValidationRule;
+
+import java.util.Optional;
 
 /**
  * NotBlankRule - Validation rule to ensure a string value is not blank.
@@ -18,14 +21,15 @@ import com.cinemaebooking.backend.common.validation.engine.ValidationRule;
 public class NotBlankRule implements ValidationRule<String> {
 
     @Override
-    public void validate(ValidationContext<String> context) {
+    public Optional<ErrorDetail> validate(ValidationContext<String> context) {
         String v = context.trimmed();
         if (v == null || v.isEmpty()) {
-            throw CommonExceptions.invalidInput(
+            return Optional.of(new ErrorDetail(
                     context.fieldName(),
                     ErrorCategory.REQUIRED,
                     "không được để trống"
-            );
+            ));
         }
+        return Optional.empty();
     }
 }
