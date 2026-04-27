@@ -1,5 +1,6 @@
 package com.cinemaebooking.backend.common.validation.rules;
 
+import com.cinemaebooking.backend.common.exception.ErrorCategory;
 import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import com.cinemaebooking.backend.common.validation.engine.ValidationContext;
 import com.cinemaebooking.backend.common.validation.engine.ValidationRule;
@@ -30,7 +31,9 @@ public class ContainsLetterRule implements ValidationRule<String> {
 
         if (!LETTER_PATTERN.matcher(value).matches()) {
             throw CommonExceptions.invalidInput(
-                    context.fieldName() + " must contain at least one letter"
+                    context.fieldName(),
+                    ErrorCategory.INVALID_VALUE,
+                    "phải chứa ít nhất một ký tự chữ cái"
             );
         }
     }

@@ -1,5 +1,6 @@
 package com.cinemaebooking.backend.common.validation.rules;
 
+import com.cinemaebooking.backend.common.exception.ErrorCategory;
 import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import com.cinemaebooking.backend.common.validation.engine.ValidationContext;
 import com.cinemaebooking.backend.common.validation.engine.ValidationRule;
@@ -35,7 +36,9 @@ public record PatternRule(Pattern pattern, String message)
 
         if (!pattern.matcher(v).matches()) {
             throw CommonExceptions.invalidInput(
-                    context.fieldName() + " " + message
+                    context.fieldName(),
+                    ErrorCategory.INVALID_FORMAT,
+                    message   // message ở đây là do caller truyền khi khởi tạo rule, không phải runtime dev
             );
         }
     }

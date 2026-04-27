@@ -1,5 +1,6 @@
 package com.cinemaebooking.backend.common.validation.rules;
 
+import com.cinemaebooking.backend.common.exception.ErrorCategory;
 import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import com.cinemaebooking.backend.common.validation.engine.ValidationContext;
 import com.cinemaebooking.backend.common.validation.engine.ValidationRule;
@@ -30,11 +31,19 @@ public class LengthRule implements ValidationRule<String> {
         String v = context.trimmed();
         if (v == null) return;
 
-        int len = v.length();
-
-        if (len < min || len > max) {
+        if (v.length() < min) {
             throw CommonExceptions.invalidInput(
-                    context.fieldName() + " length must be between " + min + " and " + max
+                    context.fieldName(),
+                    ErrorCategory.INVALID_LENGTH_MIN,
+                    "tối thiểu " + min + " ký tự"
+            );
+        }
+
+        if (v.length() > max) {
+            throw CommonExceptions.invalidInput(
+                    context.fieldName(),
+                    ErrorCategory.INVALID_LENGTH_MAX,
+                    "tối đa " + max + " ký tự"
             );
         }
     }

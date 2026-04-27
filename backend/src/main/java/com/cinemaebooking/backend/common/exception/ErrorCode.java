@@ -59,185 +59,170 @@ import org.springframework.http.HttpStatus;
  * • Messages ngắn gọn, rõ ràng
  * • Added ErrorType: BUSINESS / TECHNICAL
  * • Loại bỏ ambiguity, validation naming thống nhất
- *
+ * V3 IMPROVEMENTS:
+ * • chuyển toàn bộ message sang tiếng Việt
  * @author Hieu Nguyen
- * @since 2026 (V2 Clean Refactored)
+ * @since 2026 (V3 Clean Refactored)
  */
 @Getter
 public enum ErrorCode {
 
     // ===================== SYSTEM =====================
-    // audit_log: 1001–1099
-    AUDIT_LOG_NOT_FOUND         (1001, "Audit log not found",                          HttpStatus.NOT_FOUND,      ErrorType.TECHNICAL),
-    AUDIT_LOG_WRITE_FAILED      (1002, "Failed to write audit log",                    HttpStatus.INTERNAL_SERVER_ERROR, ErrorType.TECHNICAL),
-    AUDIT_LOG_INVALID_TYPE      (1003, "Invalid audit log type",                       HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
+    AUDIT_LOG_NOT_FOUND         (1001, "Không tìm thấy audit log",                         HttpStatus.NOT_FOUND,             ErrorType.TECHNICAL),
+    AUDIT_LOG_WRITE_FAILED      (1002, "Ghi audit log thất bại",                           HttpStatus.INTERNAL_SERVER_ERROR, ErrorType.TECHNICAL),
+    AUDIT_LOG_INVALID_TYPE      (1003, "Loại audit log không hợp lệ",                      HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
 
     // ===================== COMMON =====================
-    // common: 1100–1199
-    // ⚠️ ONLY use when no domain-specific error exists
-    UNCATEGORIZED_EXCEPTION     (1100, "Uncategorized error",                          HttpStatus.INTERNAL_SERVER_ERROR, ErrorType.TECHNICAL),
-    INVALID_INPUT               (1101, "Invalid input",                                HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
-    INVALID_REQUEST             (1102, "Invalid request",                              HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
-    UNAUTHORIZED                (1103, "Unauthorized",                                 HttpStatus.UNAUTHORIZED,   ErrorType.BUSINESS),
-    FORBIDDEN                   (1104, "Forbidden",                                    HttpStatus.FORBIDDEN,      ErrorType.BUSINESS),
-    RESOURCE_NOT_FOUND          (1105, "Resource not found",                           HttpStatus.NOT_FOUND,      ErrorType.BUSINESS),
-    RESOURCE_ALREADY_EXISTS     (1106, "Resource already exists",                      HttpStatus.CONFLICT,       ErrorType.BUSINESS),
-    CONCURRENCY_CONFLICT        (1107, "Concurrency conflict, please try again",       HttpStatus.CONFLICT,       ErrorType.BUSINESS),
+    UNCATEGORIZED_EXCEPTION     (1100, "Lỗi hệ thống không xác định",                      HttpStatus.INTERNAL_SERVER_ERROR, ErrorType.TECHNICAL),
+    INVALID_INPUT               (1101, "Dữ liệu đầu vào không hợp lệ",                    HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
+    INVALID_REQUEST             (1102, "Yêu cầu không hợp lệ",                            HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
+    UNAUTHORIZED                (1103, "Chưa xác thực",                                    HttpStatus.UNAUTHORIZED,          ErrorType.BUSINESS),
+    FORBIDDEN                   (1104, "Không có quyền thực hiện thao tác này",            HttpStatus.FORBIDDEN,             ErrorType.BUSINESS),
+    RESOURCE_NOT_FOUND          (1105, "Không tìm thấy tài nguyên",                        HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
+    RESOURCE_ALREADY_EXISTS     (1106, "Tài nguyên đã tồn tại",                            HttpStatus.CONFLICT,              ErrorType.BUSINESS),
+    CONCURRENCY_CONFLICT        (1107, "Xung đột đồng thời, vui lòng thử lại",             HttpStatus.CONFLICT,              ErrorType.BUSINESS),
 
     // ===================== CORE =====================
     // user: 2001–2008
-    USER_NOT_FOUND              (2001, "User not found",                               HttpStatus.NOT_FOUND,      ErrorType.BUSINESS),
-    USER_ALREADY_EXISTS         (2002, "User already exists",                          HttpStatus.CONFLICT,       ErrorType.BUSINESS),
-    USER_INVALID_CREDENTIALS    (2003, "Invalid username or password",                 HttpStatus.UNAUTHORIZED,   ErrorType.BUSINESS),
-    USER_ACCOUNT_DISABLED       (2004, "User account is disabled",                     HttpStatus.FORBIDDEN,      ErrorType.BUSINESS),
-    USER_INVALID_STATUS         (2005, "Invalid user status",                          HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
-    USER_INVALID_EMAIL          (2006, "Invalid email format",                         HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
-    USER_INVALID_PASSWORD       (2007, "Password does not meet requirements",          HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
-    USER_NOT_VERIFIED           (2008, "User account is not verified",                 HttpStatus.FORBIDDEN,      ErrorType.BUSINESS),
+    USER_NOT_FOUND              (2001, "Không tìm thấy người dùng",                        HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
+    USER_ALREADY_EXISTS         (2002, "Người dùng đã tồn tại",                            HttpStatus.CONFLICT,              ErrorType.BUSINESS),
+    USER_INVALID_CREDENTIALS    (2003, "Tên đăng nhập hoặc mật khẩu không đúng",           HttpStatus.UNAUTHORIZED,          ErrorType.BUSINESS),
+    USER_ACCOUNT_DISABLED       (2004, "Tài khoản người dùng đã bị vô hiệu hóa",           HttpStatus.FORBIDDEN,             ErrorType.BUSINESS),
+    USER_INVALID_STATUS         (2005, "Trạng thái người dùng không hợp lệ",               HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
+    USER_INVALID_EMAIL          (2006, "Định dạng email không hợp lệ",                     HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
+    USER_INVALID_PASSWORD       (2007, "Mật khẩu không đáp ứng yêu cầu",                  HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
+    USER_NOT_VERIFIED           (2008, "Tài khoản người dùng chưa được xác minh",          HttpStatus.FORBIDDEN,             ErrorType.BUSINESS),
 
     // loyalty: 2009–2019
-    LOYALTY_ACCOUNT_NOT_FOUND   (2009, "Loyalty account not found",                    HttpStatus.NOT_FOUND,      ErrorType.BUSINESS),
-    LOYALTY_ACCOUNT_ALREADY_EXISTS (2010, "Loyalty account already exists",            HttpStatus.CONFLICT,       ErrorType.BUSINESS),
-    LOYALTY_ACCOUNT_LOCKED      (2011, "Loyalty account is locked",                    HttpStatus.FORBIDDEN,      ErrorType.BUSINESS),
-    LOYALTY_INSUFFICIENT_POINTS (2012, "Insufficient loyalty points",                  HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
-    LOYALTY_POINTS_EXPIRED      (2013, "Loyalty points have expired",                  HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
-    LOYALTY_TIER_INVALID        (2014, "Invalid loyalty tier",                         HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
-    LOYALTY_TIER_NOT_ELIGIBLE   (2015, "User is not eligible for this loyalty tier",   HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
-    LOYALTY_RULE_INVALID        (2016, "Invalid loyalty earning rule",                 HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
-    LOYALTY_RULE_CONFLICT       (2017, "Loyalty earning rule conflict",                HttpStatus.CONFLICT,       ErrorType.BUSINESS),
+    LOYALTY_ACCOUNT_NOT_FOUND      (2009, "Không tìm thấy tài khoản tích điểm",            HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
+    LOYALTY_ACCOUNT_ALREADY_EXISTS (2010, "Tài khoản tích điểm đã tồn tại",                HttpStatus.CONFLICT,              ErrorType.BUSINESS),
+    LOYALTY_ACCOUNT_LOCKED         (2011, "Tài khoản tích điểm đang bị khóa",              HttpStatus.FORBIDDEN,             ErrorType.BUSINESS),
+    LOYALTY_INSUFFICIENT_POINTS    (2012, "Điểm tích lũy không đủ",                        HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
+    LOYALTY_POINTS_EXPIRED         (2013, "Điểm tích lũy đã hết hạn",                      HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
+    LOYALTY_TIER_INVALID           (2014, "Hạng thành viên không hợp lệ",                  HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
+    LOYALTY_TIER_NOT_ELIGIBLE      (2015, "Người dùng không đủ điều kiện cho hạng này",    HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
+    LOYALTY_RULE_INVALID           (2016, "Quy tắc tích điểm không hợp lệ",                HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
+    LOYALTY_RULE_CONFLICT          (2017, "Quy tắc tích điểm bị xung đột",                 HttpStatus.CONFLICT,              ErrorType.BUSINESS),
 
     // ===================== CATALOG =====================
     // movie: 3001–3004
-    MOVIE_NOT_FOUND             (3001, "Movie not found",                              HttpStatus.NOT_FOUND,      ErrorType.BUSINESS),
-    MOVIE_ALREADY_EXISTS        (3002, "Movie already exists",                         HttpStatus.CONFLICT,       ErrorType.BUSINESS),
-    MOVIE_INVALID_STATUS        (3003, "Invalid movie status",                         HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
-    MOVIE_INVALID_RELEASE_DATE  (3004, "Invalid movie release date",                   HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
+    MOVIE_NOT_FOUND             (3001, "Không tìm thấy phim",                              HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
+    MOVIE_ALREADY_EXISTS        (3002, "Phim đã tồn tại",                                  HttpStatus.CONFLICT,              ErrorType.BUSINESS),
+    MOVIE_INVALID_STATUS        (3003, "Trạng thái phim không hợp lệ",                     HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
+    MOVIE_INVALID_RELEASE_DATE  (3004, "Ngày phát hành phim không hợp lệ",                 HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
 
     // cinema: 3005–3007
-    CINEMA_NOT_FOUND            (3005, "Cinema not found",                             HttpStatus.NOT_FOUND,      ErrorType.BUSINESS),
-    CINEMA_ALREADY_EXISTS       (3006, "Cinema already exists",                        HttpStatus.CONFLICT,       ErrorType.BUSINESS),
-    CINEMA_INVALID_STATUS       (3007, "Invalid cinema status",                        HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
+    CINEMA_NOT_FOUND            (3005, "Không tìm thấy rạp chiếu",                         HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
+    CINEMA_ALREADY_EXISTS       (3006, "Rạp chiếu đã tồn tại",                             HttpStatus.CONFLICT,              ErrorType.BUSINESS),
+    CINEMA_INVALID_STATUS       (3007, "Trạng thái rạp chiếu không hợp lệ",                HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
 
     // room: 3008–3011
-    ROOM_NOT_FOUND              (3008, "Room not found",                               HttpStatus.NOT_FOUND,      ErrorType.BUSINESS),
-    ROOM_ALREADY_EXISTS         (3009, "Room already exists in this cinema",           HttpStatus.CONFLICT,       ErrorType.BUSINESS),
-    ROOM_INVALID_STATUS         (3010, "Invalid room status",                          HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
-    ROOM_INVALID_CAPACITY       (3011, "Invalid room capacity",                        HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
+    ROOM_NOT_FOUND              (3008, "Không tìm thấy phòng chiếu",                       HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
+    ROOM_ALREADY_EXISTS         (3009, "Phòng chiếu đã tồn tại trong rạp này",             HttpStatus.CONFLICT,              ErrorType.BUSINESS),
+    ROOM_INVALID_STATUS         (3010, "Trạng thái phòng chiếu không hợp lệ",              HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
+    ROOM_INVALID_CAPACITY       (3011, "Sức chứa phòng chiếu không hợp lệ",                HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
 
     // seat: 3012–3020
-    SEAT_NOT_FOUND              (3012, "Seat not found",                               HttpStatus.NOT_FOUND,      ErrorType.BUSINESS),
-    SEAT_ALREADY_EXISTS         (3013, "Seat already exists in this room",             HttpStatus.CONFLICT,       ErrorType.BUSINESS),
-    SEAT_INVALID_STATUS         (3014, "Invalid seat status",                          HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
-    SEAT_ALREADY_BOOKED         (3015, "Seat already booked",                          HttpStatus.CONFLICT,       ErrorType.BUSINESS),
-    SEAT_NOT_AVAILABLE          (3016, "Seat not available",                           HttpStatus.CONFLICT,       ErrorType.BUSINESS),
-    SEAT_ALREADY_SELECTED_BY_USER (3017, "Seat already selected by user",              HttpStatus.CONFLICT,       ErrorType.BUSINESS),
-
-    SEAT_TYPE_NOT_FOUND         (3018, "Seat type not found",                          HttpStatus.NOT_FOUND,      ErrorType.BUSINESS),
-    SEAT_TYPE_ALREADY_EXISTS    (3019, "Seat type already exists",                     HttpStatus.CONFLICT,       ErrorType.BUSINESS),
-    SEAT_TYPE_INVALID           (3020, "Invalid seat type",                            HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
+    SEAT_NOT_FOUND              (3012, "Không tìm thấy ghế",                               HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
+    SEAT_ALREADY_EXISTS         (3013, "Ghế đã tồn tại trong phòng chiếu này",             HttpStatus.CONFLICT,              ErrorType.BUSINESS),
+    SEAT_INVALID_STATUS         (3014, "Trạng thái ghế không hợp lệ",                      HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
+    SEAT_ALREADY_BOOKED         (3015, "Ghế đã được đặt",                                  HttpStatus.CONFLICT,              ErrorType.BUSINESS),
+    SEAT_NOT_AVAILABLE          (3016, "Ghế không còn khả dụng",                           HttpStatus.CONFLICT,              ErrorType.BUSINESS),
+    SEAT_ALREADY_SELECTED_BY_USER (3017, "Ghế đã được người dùng chọn",                   HttpStatus.CONFLICT,              ErrorType.BUSINESS),
+    SEAT_TYPE_NOT_FOUND         (3018, "Không tìm thấy loại ghế",                          HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
+    SEAT_TYPE_ALREADY_EXISTS    (3019, "Loại ghế đã tồn tại",                              HttpStatus.CONFLICT,              ErrorType.BUSINESS),
+    SEAT_TYPE_INVALID           (3020, "Loại ghế không hợp lệ",                            HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
 
     // showtime: 3021–3028
-    SHOWTIME_NOT_FOUND          (3021, "Showtime not found",                           HttpStatus.NOT_FOUND,      ErrorType.BUSINESS),
-    SHOWTIME_ALREADY_EXISTS     (3022, "Showtime already exists for this time slot",   HttpStatus.CONFLICT,       ErrorType.BUSINESS),
-    SHOWTIME_INVALID_STATUS     (3023, "Invalid showtime status",                      HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
-    SHOWTIME_EXPIRED            (3024, "Showtime has expired",                         HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
-    SHOWTIME_ROOM_CONFLICT      (3025, "Room already booked for this time slot",       HttpStatus.CONFLICT,       ErrorType.BUSINESS),
-    SHOWTIME_NOT_BOOKABLE       (3026, "Showtime is not bookable",                     HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
-
-    SHOWTIME_FORMAT_NOT_FOUND   (3027, "Showtime format not found",                    HttpStatus.NOT_FOUND,      ErrorType.BUSINESS),
-    SHOWTIME_FORMAT_INVALID     (3028, "Invalid showtime format",                      HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
+    SHOWTIME_NOT_FOUND          (3021, "Không tìm thấy suất chiếu",                        HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
+    SHOWTIME_ALREADY_EXISTS     (3022, "Suất chiếu đã tồn tại trong khung giờ này",        HttpStatus.CONFLICT,              ErrorType.BUSINESS),
+    SHOWTIME_INVALID_STATUS     (3023, "Trạng thái suất chiếu không hợp lệ",               HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
+    SHOWTIME_EXPIRED            (3024, "Suất chiếu đã kết thúc",                           HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
+    SHOWTIME_ROOM_CONFLICT      (3025, "Phòng chiếu đã được đặt trong khung giờ này",      HttpStatus.CONFLICT,              ErrorType.BUSINESS),
+    SHOWTIME_NOT_BOOKABLE       (3026, "Suất chiếu không thể đặt vé",                      HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
+    SHOWTIME_FORMAT_NOT_FOUND   (3027, "Không tìm thấy định dạng suất chiếu",              HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
+    SHOWTIME_FORMAT_INVALID     (3028, "Định dạng suất chiếu không hợp lệ",                HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
 
     // showtime_seat: 3029–3031
-    SHOWTIME_SEAT_NOT_FOUND     (3029, "Showtime seat not found",                      HttpStatus.NOT_FOUND,      ErrorType.BUSINESS),
-    SHOWTIME_SEAT_ALREADY_LOCKED (3030, "Showtime seat already locked",                HttpStatus.CONFLICT,       ErrorType.BUSINESS),
-    SHOWTIME_SEAT_UNAVAILABLE   (3031, "Showtime seat unavailable",                    HttpStatus.CONFLICT,       ErrorType.BUSINESS),
+    SHOWTIME_SEAT_NOT_FOUND      (3029, "Không tìm thấy ghế trong suất chiếu",             HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
+    SHOWTIME_SEAT_ALREADY_LOCKED (3030, "Ghế trong suất chiếu đã bị khóa",                 HttpStatus.CONFLICT,              ErrorType.BUSINESS),
+    SHOWTIME_SEAT_UNAVAILABLE    (3031, "Ghế trong suất chiếu không khả dụng",             HttpStatus.CONFLICT,              ErrorType.BUSINESS),
+
     // genre: 3032–3033
-    GENRE_NOT_FOUND            (3032, "Genre not found",                               HttpStatus.NOT_FOUND,      ErrorType.BUSINESS),
-    GENRE_ALREADY_EXISTS       (3033, "Genre already exists",                          HttpStatus.CONFLICT,       ErrorType.BUSINESS),
+    GENRE_NOT_FOUND             (3032, "Không tìm thấy thể loại phim",                     HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
+    GENRE_ALREADY_EXISTS        (3033, "Thể loại phim đã tồn tại",                         HttpStatus.CONFLICT,              ErrorType.BUSINESS),
 
     // ===================== PRODUCT =====================
-    // combo: 3401–3404
-    COMBO_NOT_FOUND             (3401, "Combo not found",                              HttpStatus.NOT_FOUND,      ErrorType.BUSINESS),
-    COMBO_ALREADY_EXISTS        (3402, "Combo already exists",                         HttpStatus.CONFLICT,       ErrorType.BUSINESS),
-    COMBO_INVALID_STATUS        (3403, "Invalid combo status",                         HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
-    COMBO_OUT_OF_STOCK          (3404, "Combo out of stock",                           HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
+    COMBO_NOT_FOUND             (3401, "Không tìm thấy combo",                             HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
+    COMBO_ALREADY_EXISTS        (3402, "Combo đã tồn tại",                                 HttpStatus.CONFLICT,              ErrorType.BUSINESS),
+    COMBO_INVALID_STATUS        (3403, "Trạng thái combo không hợp lệ",                    HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
+    COMBO_OUT_OF_STOCK          (3404, "Combo đã hết hàng",                                HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
 
-    // coupon: 3405–3409
-    COUPON_NOT_FOUND            (3405, "Coupon not found",                             HttpStatus.NOT_FOUND,      ErrorType.BUSINESS),
-    COUPON_ALREADY_EXISTS       (3406, "Coupon with this code already exists",         HttpStatus.CONFLICT,       ErrorType.BUSINESS),
-    COUPON_EXPIRED              (3407, "Coupon has expired",                           HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
-    COUPON_INVALID              (3408, "Coupon not valid for this booking",            HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
-    COUPON_MAX_USAGE_REACHED    (3409, "Coupon has reached maximum usage limit",       HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
+    COUPON_NOT_FOUND            (3405, "Không tìm thấy mã giảm giá",                       HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
+    COUPON_ALREADY_EXISTS       (3406, "Mã giảm giá đã tồn tại",                           HttpStatus.CONFLICT,              ErrorType.BUSINESS),
+    COUPON_EXPIRED              (3407, "Mã giảm giá đã hết hạn",                           HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
+    COUPON_INVALID              (3408, "Mã giảm giá không áp dụng được cho đơn này",       HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
+    COUPON_MAX_USAGE_REACHED    (3409, "Mã giảm giá đã đạt giới hạn sử dụng",              HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
 
     // ===================== BOOKING =====================
-    // booking: 4001–4009
-    BOOKING_NOT_FOUND           (4001, "Booking not found",                            HttpStatus.NOT_FOUND,      ErrorType.BUSINESS),
-    BOOKING_ALREADY_EXISTS      (4002, "Booking already exists",                       HttpStatus.CONFLICT,       ErrorType.BUSINESS),
-    BOOKING_INVALID_STATUS      (4003, "Invalid booking status",                       HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
-    BOOKING_CANCELLED           (4004, "Booking has been cancelled",                   HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
-    BOOKING_EXPIRED             (4005, "Booking session has expired",                  HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
-    BOOKING_PROCESS_FAILED      (4006, "Booking process failed",                       HttpStatus.INTERNAL_SERVER_ERROR, ErrorType.TECHNICAL),
-    BOOKING_ALREADY_PAID        (4007, "Booking already paid",                         HttpStatus.CONFLICT,       ErrorType.BUSINESS),
-    BOOKING_NOT_OWNED_BY_USER   (4008, "Booking does not belong to current user",      HttpStatus.FORBIDDEN,      ErrorType.BUSINESS),
-    BOOKING_TIMEOUT             (4009, "Booking has timed out",                        HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
+    BOOKING_NOT_FOUND           (4001, "Không tìm thấy đặt vé",                            HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
+    BOOKING_ALREADY_EXISTS      (4002, "Đặt vé đã tồn tại",                                HttpStatus.CONFLICT,              ErrorType.BUSINESS),
+    BOOKING_INVALID_STATUS      (4003, "Trạng thái đặt vé không hợp lệ",                   HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
+    BOOKING_CANCELLED           (4004, "Đặt vé đã bị hủy",                                 HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
+    BOOKING_EXPIRED             (4005, "Phiên đặt vé đã hết hạn",                          HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
+    BOOKING_PROCESS_FAILED      (4006, "Xử lý đặt vé thất bại",                            HttpStatus.INTERNAL_SERVER_ERROR, ErrorType.TECHNICAL),
+    BOOKING_ALREADY_PAID        (4007, "Đặt vé đã được thanh toán",                        HttpStatus.CONFLICT,              ErrorType.BUSINESS),
+    BOOKING_NOT_OWNED_BY_USER   (4008, "Đặt vé không thuộc về người dùng hiện tại",        HttpStatus.FORBIDDEN,             ErrorType.BUSINESS),
+    BOOKING_TIMEOUT             (4009, "Đặt vé đã hết thời gian chờ",                      HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
 
-    // booking_combo: 4010–4011
-    BOOKING_COMBO_NOT_FOUND           (4010, "Booking combo not found",                HttpStatus.NOT_FOUND,      ErrorType.BUSINESS),
-    BOOKING_COMBO_INVALID_QUANTITY    (4011, "Invalid booking combo quantity",         HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
+    BOOKING_COMBO_NOT_FOUND        (4010, "Không tìm thấy combo trong đặt vé",             HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
+    BOOKING_COMBO_INVALID_QUANTITY (4011, "Số lượng combo trong đặt vé không hợp lệ",      HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
 
-    // booking_coupon: 4012–4014
-    BOOKING_COUPON_NOT_FOUND          (4012, "Booking coupon not found",               HttpStatus.NOT_FOUND,      ErrorType.BUSINESS),
-    BOOKING_COUPON_ALREADY_APPLIED    (4013, "Coupon already applied to booking",      HttpStatus.CONFLICT,       ErrorType.BUSINESS),
-    BOOKING_COUPON_NOT_APPLICABLE     (4014, "Coupon not applicable for this booking", HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
+    BOOKING_COUPON_NOT_FOUND       (4012, "Không tìm thấy mã giảm giá trong đặt vé",       HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
+    BOOKING_COUPON_ALREADY_APPLIED (4013, "Mã giảm giá đã được áp dụng cho đặt vé này",   HttpStatus.CONFLICT,              ErrorType.BUSINESS),
+    BOOKING_COUPON_NOT_APPLICABLE  (4014, "Mã giảm giá không áp dụng được cho đặt vé này",HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
 
-    // seat_lock: 4015–4018
-    SEAT_LOCK_NOT_FOUND         (4015, "Seat lock not found",                          HttpStatus.NOT_FOUND,      ErrorType.BUSINESS),
-    SEAT_LOCK_EXPIRED           (4016, "Seat lock has expired",                        HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
-    SEAT_LOCK_CONFLICT          (4017, "Seat already locked by another user",          HttpStatus.CONFLICT,       ErrorType.BUSINESS),
-    SEAT_LOCK_FAILED            (4018, "Failed to lock seat",                          HttpStatus.INTERNAL_SERVER_ERROR, ErrorType.TECHNICAL),
+    SEAT_LOCK_NOT_FOUND         (4015, "Không tìm thấy khóa ghế",                          HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
+    SEAT_LOCK_EXPIRED           (4016, "Khóa ghế đã hết hạn",                              HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
+    SEAT_LOCK_CONFLICT          (4017, "Ghế đã được người khác khóa",                      HttpStatus.CONFLICT,              ErrorType.BUSINESS),
+    SEAT_LOCK_FAILED            (4018, "Khóa ghế thất bại",                                HttpStatus.INTERNAL_SERVER_ERROR, ErrorType.TECHNICAL),
 
-    // ticket: 4019–4022
-    TICKET_NOT_FOUND            (4019, "Ticket not found",                             HttpStatus.NOT_FOUND,      ErrorType.BUSINESS),
-    TICKET_ALREADY_USED         (4020, "Ticket already used",                          HttpStatus.CONFLICT,       ErrorType.BUSINESS),
-    TICKET_INVALID_STATUS       (4021, "Invalid ticket status",                        HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
-    TICKET_GENERATION_FAILED    (4022, "Failed to generate ticket",                    HttpStatus.INTERNAL_SERVER_ERROR, ErrorType.TECHNICAL),
+    TICKET_NOT_FOUND            (4019, "Không tìm thấy vé",                                HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
+    TICKET_ALREADY_USED         (4020, "Vé đã được sử dụng",                               HttpStatus.CONFLICT,              ErrorType.BUSINESS),
+    TICKET_INVALID_STATUS       (4021, "Trạng thái vé không hợp lệ",                       HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
+    TICKET_GENERATION_FAILED    (4022, "Tạo vé thất bại",                                  HttpStatus.INTERNAL_SERVER_ERROR, ErrorType.TECHNICAL),
 
     // ===================== PAYMENT =====================
-    // payment: 4501–4509
-    PAYMENT_NOT_FOUND           (4501, "Payment not found",                            HttpStatus.NOT_FOUND,      ErrorType.BUSINESS),
-    PAYMENT_ALREADY_EXISTS      (4502, "Payment already exists for this booking",      HttpStatus.CONFLICT,       ErrorType.BUSINESS),
-    PAYMENT_FAILED              (4503, "Payment processing failed",                    HttpStatus.BAD_GATEWAY,    ErrorType.TECHNICAL),
-    PAYMENT_INVALID_AMOUNT      (4504, "Invalid payment amount",                       HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
-    PAYMENT_EXPIRED             (4505, "Payment session has expired",                  HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
-    PAYMENT_INVALID_STATUS      (4506, "Invalid payment status",                       HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
-    PAYMENT_METHOD_NOT_SUPPORTED(4507, "Payment method not supported",                 HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
-    PAYMENT_DUPLICATE_REQUEST   (4508, "Duplicate payment request",                    HttpStatus.CONFLICT,       ErrorType.BUSINESS),
-    PAYMENT_GATEWAY_TIMEOUT     (4509, "Payment gateway timeout",                      HttpStatus.BAD_GATEWAY,    ErrorType.TECHNICAL),
+    PAYMENT_NOT_FOUND           (4501, "Không tìm thấy thanh toán",                        HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
+    PAYMENT_ALREADY_EXISTS      (4502, "Thanh toán đã tồn tại cho đặt vé này",             HttpStatus.CONFLICT,              ErrorType.BUSINESS),
+    PAYMENT_FAILED              (4503, "Xử lý thanh toán thất bại",                        HttpStatus.BAD_GATEWAY,           ErrorType.TECHNICAL),
+    PAYMENT_INVALID_AMOUNT      (4504, "Số tiền thanh toán không hợp lệ",                  HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
+    PAYMENT_EXPIRED             (4505, "Phiên thanh toán đã hết hạn",                      HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
+    PAYMENT_INVALID_STATUS      (4506, "Trạng thái thanh toán không hợp lệ",               HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
+    PAYMENT_METHOD_NOT_SUPPORTED(4507, "Phương thức thanh toán không được hỗ trợ",         HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
+    PAYMENT_DUPLICATE_REQUEST   (4508, "Yêu cầu thanh toán bị trùng lặp",                  HttpStatus.CONFLICT,              ErrorType.BUSINESS),
+    PAYMENT_GATEWAY_TIMEOUT     (4509, "Cổng thanh toán không phản hồi",                   HttpStatus.BAD_GATEWAY,           ErrorType.TECHNICAL),
 
-    // refund: 4510–4513
-    REFUND_NOT_FOUND            (4510, "Refund not found",                             HttpStatus.NOT_FOUND,      ErrorType.BUSINESS),
-    REFUND_ALREADY_PROCESSED    (4511, "Refund already processed",                     HttpStatus.CONFLICT,       ErrorType.BUSINESS),
-    REFUND_FAILED               (4512, "Refund processing failed",                     HttpStatus.INTERNAL_SERVER_ERROR, ErrorType.TECHNICAL),
-    REFUND_NOT_ELIGIBLE         (4513, "Booking not eligible for refund",              HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
+    REFUND_NOT_FOUND            (4510, "Không tìm thấy yêu cầu hoàn tiền",                 HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
+    REFUND_ALREADY_PROCESSED    (4511, "Yêu cầu hoàn tiền đã được xử lý",                  HttpStatus.CONFLICT,              ErrorType.BUSINESS),
+    REFUND_FAILED               (4512, "Xử lý hoàn tiền thất bại",                         HttpStatus.INTERNAL_SERVER_ERROR, ErrorType.TECHNICAL),
+    REFUND_NOT_ELIGIBLE         (4513, "Đặt vé không đủ điều kiện hoàn tiền",              HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
 
     // ===================== INTERACTION =====================
-    // review: 4701–4704
-    REVIEW_NOT_FOUND            (4701, "Review not found",                             HttpStatus.NOT_FOUND,      ErrorType.BUSINESS),
-    REVIEW_ALREADY_EXISTS       (4702, "Review already exists for this booking",       HttpStatus.CONFLICT,       ErrorType.BUSINESS),
-    REVIEW_INVALID_RATING       (4703, "Invalid review rating",                        HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
-    REVIEW_NOT_ELIGIBLE         (4704, "User not eligible to review this movie",       HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
+    REVIEW_NOT_FOUND            (4701, "Không tìm thấy đánh giá",                          HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
+    REVIEW_ALREADY_EXISTS       (4702, "Đánh giá đã tồn tại cho đặt vé này",               HttpStatus.CONFLICT,              ErrorType.BUSINESS),
+    REVIEW_INVALID_RATING       (4703, "Điểm đánh giá không hợp lệ",                       HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
+    REVIEW_NOT_ELIGIBLE         (4704, "Người dùng không đủ điều kiện đánh giá phim này",  HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
 
-    // notification: 4705–4707
-    NOTIFICATION_NOT_FOUND      (4705, "Notification not found",                       HttpStatus.NOT_FOUND,      ErrorType.BUSINESS),
-    NOTIFICATION_SEND_FAILED    (4706, "Failed to send notification",                  HttpStatus.INTERNAL_SERVER_ERROR, ErrorType.TECHNICAL),
-    NOTIFICATION_INVALID_TYPE   (4707, "Invalid notification type",                    HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
+    NOTIFICATION_NOT_FOUND      (4705, "Không tìm thấy thông báo",                         HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
+    NOTIFICATION_SEND_FAILED    (4706, "Gửi thông báo thất bại",                           HttpStatus.INTERNAL_SERVER_ERROR, ErrorType.TECHNICAL),
+    NOTIFICATION_INVALID_TYPE   (4707, "Loại thông báo không hợp lệ",                      HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
 
     // ===================== SUPPORTING =====================
-    // user_coupon: 4901–4904
-    USER_COUPON_NOT_FOUND       (4901, "User coupon not found",                        HttpStatus.NOT_FOUND,      ErrorType.BUSINESS),
-    USER_COUPON_ALREADY_EXISTS  (4902, "User already has this coupon",                 HttpStatus.CONFLICT,       ErrorType.BUSINESS),
-    USER_COUPON_EXPIRED         (4903, "User coupon has expired",                      HttpStatus.BAD_REQUEST,    ErrorType.BUSINESS),
-    USER_COUPON_ALREADY_USED    (4904, "User coupon already used",                     HttpStatus.CONFLICT,       ErrorType.BUSINESS);
+    USER_COUPON_NOT_FOUND       (4901, "Không tìm thấy mã giảm giá của người dùng",        HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
+    USER_COUPON_ALREADY_EXISTS  (4902, "Người dùng đã có mã giảm giá này",                 HttpStatus.CONFLICT,              ErrorType.BUSINESS),
+    USER_COUPON_EXPIRED         (4903, "Mã giảm giá của người dùng đã hết hạn",            HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
+    USER_COUPON_ALREADY_USED    (4904, "Mã giảm giá của người dùng đã được sử dụng",       HttpStatus.CONFLICT,              ErrorType.BUSINESS);
 
     private final int code;
     private final String message;
