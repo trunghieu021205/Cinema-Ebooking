@@ -35,6 +35,8 @@ public class UserRepositoryImpl implements UserRepository {
         oldEntity.setEmail(user.getEmail());
         oldEntity.setPassword(user.getPassword());
         oldEntity.setPhoneNumber(user.getPhoneNumber());
+        oldEntity.setDateOfBirth(user.getDateOfBirth());
+        oldEntity.setGender(user.getGender());
         oldEntity.setAvatarUrl(user.getAvatarUrl());
         oldEntity.setRole(user.getRole());
         oldEntity.setStatus(user.getStatus());

@@ -7,8 +7,11 @@ import com.cinemaebooking.backend.user.domain.enums.UserRole;
 import com.cinemaebooking.backend.user.domain.enums.UserStatus;
 import com.cinemaebooking.backend.user.domain.model.User;
 import com.cinemaebooking.backend.user.application.port.PasswordEncoder;
+import com.cinemaebooking.backend.user.domain.valueObject.UserGender;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
 
 
 @Service
@@ -35,6 +38,8 @@ public class SeedServiceImpl implements SeedService {
                 .email(adminEmail)
                 .password(passwordEncoder.encode("123456"))
                 .phoneNumber("0708378286")
+                .dateOfBirth(LocalDate.of(2005,12,2))
+                .gender(UserGender.MALE)
                 .avatarUrl(null)
                 .role(UserRole.ADMIN)
                 .status(UserStatus.ACTIVE)

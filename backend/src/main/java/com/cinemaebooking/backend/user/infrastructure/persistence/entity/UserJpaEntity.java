@@ -3,6 +3,7 @@ package com.cinemaebooking.backend.user.infrastructure.persistence.entity;
 import com.cinemaebooking.backend.infrastructure.persistence.entity.BaseJpaEntity;
 import com.cinemaebooking.backend.user.domain.enums.UserRole;
 import com.cinemaebooking.backend.user.domain.enums.UserStatus;
+import com.cinemaebooking.backend.user.domain.valueObject.UserGender;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -53,6 +54,10 @@ public class UserJpaEntity extends BaseJpaEntity {
 
     @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "gender",nullable = false)
+    private UserGender gender;
 
     @Column(name = "avatar_url", length = 500)
     private String avatarUrl;

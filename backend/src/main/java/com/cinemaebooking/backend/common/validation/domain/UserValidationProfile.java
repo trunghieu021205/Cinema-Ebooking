@@ -25,7 +25,7 @@ public class UserValidationProfile {
                 .length(2, 100)
                 .pattern(
                         ValidationPatterns.FULLNAME,
-                        "contains invalid characters"
+                        "chứa kí tự không hợp lệ"
                 )
                 .containsLetter()
                 .build();
@@ -39,7 +39,7 @@ public class UserValidationProfile {
                 .length(5, 150)
                 .pattern(
                         ValidationPatterns.EMAIL,
-                        "invalid email format"
+                        "không đúng định dạng"
                 )
                 .build();
     }
@@ -53,20 +53,42 @@ public class UserValidationProfile {
                 .build();
     }
 
-    // ================== PHONE ==================
+    // ================== DATEOFBIRTH ==================
 
-    public List<ValidationRule<String>> phoneRules() {
+    public List<ValidationRule<Object>> dobRules() {
         return List.of(
-                context -> {
-                    String value = context.value();
-
-                    if (value == null) return; // optional field
-
-                    if (value.length() > 15) {
-                        throw UserExceptions.invalidEmail(value); // bạn có thể tạo riêng invalidPhone nếu muốn
+                value -> {
+                    if (value == null) {
+                        throw UserExceptions.invalidDOB();
                     }
                 }
         );
+    }
+
+    // ================== GENDER ==================
+
+    public List<ValidationRule<Object>> genderRules() {
+        return List.of(
+                value -> {
+                    if (value == null) {
+                        throw UserExceptions.invalidGender();
+                    }
+                }
+        );
+    }
+
+
+    // ================== PHONE ==================
+
+    public List<ValidationRule<String>> phoneRules() {
+        return ValidationBuilder.create()
+                .notBlank()
+                .length(7,15)
+                .pattern(
+                        ValidationPatterns.PHONE,
+                        "không đúng định dạng"
+                )
+                .build();
     }
 
     // ================== ROLE ==================
