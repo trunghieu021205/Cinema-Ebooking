@@ -18,9 +18,7 @@ const CATEGORY_MESSAGES: Record<string, MessageFn> = {
 // ─── Error code map ────────────────────────────────────────────
 const ERROR_CODE_MESSAGES: Record<number, string> = {
     1001: 'Dữ liệu không hợp lệ',
-    2001: 'Email này đã được sử dụng',
-    2002: 'Số điện thoại đã được đăng ký',
-    2003: 'Email hoặc mật khẩu không đúng',
+    2002: 'Email hoặc mật khẩu không đúng',
 }
 
 // ─── Resolve message cho 1 detail ─────────────────────────────
