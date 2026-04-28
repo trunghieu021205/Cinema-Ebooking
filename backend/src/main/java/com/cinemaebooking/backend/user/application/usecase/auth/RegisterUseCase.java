@@ -28,10 +28,6 @@ public class RegisterUseCase {
 
         registerValidator.validate(request);
 
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw UserExceptions.duplicateEmail(request.getEmail());
-        }
-
         User user = User.builder()
                 .email(request.getEmail())
                 .fullName(request.getFullName())

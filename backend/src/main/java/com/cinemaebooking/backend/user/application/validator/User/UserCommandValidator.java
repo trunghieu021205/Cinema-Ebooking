@@ -1,7 +1,6 @@
 package com.cinemaebooking.backend.user.application.validator.User;
 
 import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
-import com.cinemaebooking.backend.common.exception.domain.UserExceptions;
 import com.cinemaebooking.backend.common.validation.engine.ValidationEngine;
 import com.cinemaebooking.backend.common.validation.factory.ValidationFactory;
 import com.cinemaebooking.backend.user.application.dto.ChangeDTO.ChangePasswordRequest;
@@ -9,12 +8,9 @@ import com.cinemaebooking.backend.user.application.dto.UserDTO.AdminUpdateUserRe
 import com.cinemaebooking.backend.user.application.dto.UserDTO.CreateUserRequest;
 import com.cinemaebooking.backend.user.application.dto.UserDTO.UpdateUserRequest;
 import com.cinemaebooking.backend.user.application.port.UserRepository;
-import com.cinemaebooking.backend.user.domain.valueObject.UserGender;
 import com.cinemaebooking.backend.user.domain.valueObject.UserId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-
-import java.time.LocalDate;
 
 @Component
 @RequiredArgsConstructor
@@ -24,21 +20,36 @@ public class UserCommandValidator {
 
     // ================== CREATE ==================
     public void validateCreateRequest(CreateUserRequest request) {
+
         if (request == null) {
             throw CommonExceptions.invalidInput("Request must not be null");
         }
 
-        validateBaseFields(
-                request.getFullName(),
-                request.getEmail(),
-                request.getPhoneNumber(),
-                request.getDateOfBirth(),
-                request.getGender()
-        );
+        var profile = ValidationFactory.user();
 
-        validatePasswordField(request.getPassword());
+        ValidationEngine engine = ValidationEngine.of()
+                // ================== PHASE 1: FORMAT ==================
+                .validate(request.getFullName(), "fullName", profile.fullNameRules())
+                .validate(request.getEmail(), "email", profile.emailRules())
+                .validate(request.getPhoneNumber(), "phoneNumber", profile.phoneRules())
+                .validate(request.getDateOfBirth(), "dateOfBirth", profile.dobRules())
+                .validate(request.getGender(), "gender", profile.genderRules())
+                .validate(request.getPassword(), "password", profile.passwordRules());
 
-        validateDuplicateEmail(request.getEmail(), null);
+        // nếu format fail → stop, không query DB
+        if (engine.hasErrors()) {
+            engine.throwIfInvalid();
+            return;
+        }
+
+        // ================== PHASE 2: BUSINESS ==================
+        engine
+                .validateUnique(
+                        request.getEmail(),
+                        "email",
+                        this::emailExists
+                )
+                .throwIfInvalid();
     }
 
     // ================== UPDATE (USER SELF) ==================
@@ -80,43 +91,16 @@ public class UserCommandValidator {
             throw CommonExceptions.invalidInput("User id and request must not be null");
         }
 
-        validatePasswordField(request.getNewPassword());
-    }
-
-    // ================== FIELD VALIDATION ==================
-
-    private void validateBaseFields(String fullName, String email, String phone, LocalDate dateOfBirth, UserGender gender) {
         var profile = ValidationFactory.user();
 
         ValidationEngine.of()
-                .validate(fullName, "fullName", profile.fullNameRules())
-                .validate(email, "email", profile.emailRules())
-                .validate(dateOfBirth, "dateOfBirth", profile.dobRules())
-                .validate(gender, "gender", profile.genderRules())
-                .validate(phone, "phoneNumber", profile.phoneRules())
+                .validate(request.getNewPassword(), "password", profile.passwordRules())
                 .throwIfInvalid();
     }
 
-    private void validatePasswordField(String password) {
-        var profile = ValidationFactory.user();
-        ValidationEngine.of()
-                .validate(password, "password", profile.passwordRules())
-                .throwIfInvalid();
-    }
+    // ================== BUSINESS CHECKS ==================
 
-    // ================== BUSINESS RULES ==================
-
-    private void validateDuplicateEmail(String email, UserId id) {
-        if (email == null) return;
-
-        if (id == null) {
-            if (userRepository.existsByEmail(email)) {
-                throw UserExceptions.duplicateEmail(email);
-            }
-        } else {
-            if (userRepository.existsByEmailAndIdNot(email, id)) {
-                throw UserExceptions.duplicateEmail(email);
-            }
-        }
+    private boolean emailExists(String email) {
+        return userRepository.existsByEmail(email);
     }
 }
