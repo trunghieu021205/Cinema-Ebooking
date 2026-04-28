@@ -1,4 +1,3 @@
-
 // Wrapper chung cho MỌI response từ backend
 export interface ApiResponse<T> {
     success: boolean
@@ -9,11 +8,18 @@ export interface ApiResponse<T> {
     path: string
 }
 
+export interface ApiErrorDetail {
+    field: string       // "email", "phoneNumber"...
+    category: string    // "DUPLICATE", "INVALID"...
+    reason: string
+    params?: Record<string, any> // "email 'user7@gmail.com' đã được sử dụng"
+}
+
 export interface ApiError {
-    code: number        // 2003, 2004... — số, không phải string
-    message: string     // "Invalid email or password"
-    type: string        // "BUSINESS"
-    details: null
+    code: number
+    message: string
+    type: string
+    details: ApiErrorDetail[] | null 
 }
 
 export type UserRole = 'ADMIN' | 'USER'
@@ -37,4 +43,13 @@ export interface UserProfile {
 export interface LoginRequest {
     email: string
     password: string
+}
+
+export interface RegisterRequest {
+    fullName: string
+    email: string
+    password: string
+    phoneNumber: string
+    dateOfBirth: string
+    gender: 'MALE'|'FEMALE'
 }

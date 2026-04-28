@@ -1,6 +1,6 @@
-
 import axios from 'axios'
 import type { ApiResponse } from '@/types/auth.types'
+import { mapFieldErrors } from '@/utils/errorMapper'
 
 const apiClient = axios.create({
     baseURL: 'http://localhost:8080/api/v1',
@@ -8,39 +8,62 @@ const apiClient = axios.create({
     headers: { 'Content-Type': 'application/json' },
 })
 
+// ================= REQUEST =================
 apiClient.interceptors.request.use((config) => {
     const token = localStorage.getItem('token')
     if (token) config.headers.Authorization = `Bearer ${token}`
     return config
 })
 
+// ================= RESPONSE =================
 apiClient.interceptors.response.use(
     (response) => {
-        if (response.data?.success !== undefined) {
-            response.data = response.data.data
+        const res: ApiResponse<any> = response.data
+
+        // 🔥 unwrap ApiResponse
+        if (res && typeof res.success === 'boolean') {
+            if (!res.success) {
+                const mapped = mapFieldErrors(res.error)
+
+                return Promise.reject({
+                    type: 'api',
+                    fieldErrors: mapped.fieldErrors,
+                    globalErrors: mapped.globalErrors,
+                    code: res.error?.code ?? null,
+                    message: res.error?.message ?? 'Lỗi từ server',
+                    raw: res.error
+                })
+            }
+
+            return res.data
         }
-        return response
+
+        return response.data
     },
 
     (error) => {
         const status = error.response?.status
         const apiError = error.response?.data?.error
 
+        // ================= 401 =================
         if (status === 401) {
             const token = localStorage.getItem('token')
-            // ✅ Chỉ redirect nếu user ĐANG đăng nhập (có token sẵn)
-            // Không redirect nếu đang trong flow login (chưa có token)
             if (token) {
                 localStorage.removeItem('token')
                 window.location.href = '/'
             }
         }
 
-        // Ném lỗi về component để tự xử lý
+        const mapped = mapFieldErrors(apiError)
+
         return Promise.reject({
-            status,
+            type: 'http',
+            fieldErrors: mapped.fieldErrors,
+            globalErrors: mapped.globalErrors,
             code: apiError?.code ?? null,
-            message: apiError?.message ?? error.message ?? 'Đã có lỗi xảy ra',
+            message: apiError?.message ?? 'Đã có lỗi xảy ra',
+            status,
+            raw: apiError
         })
     }
 )
