@@ -29,7 +29,7 @@ public class UserValidationProfile {
                 .length(2, 100)
                 .pattern(
                         ValidationPatterns.FULLNAME,
-                        "INVALID_FULLNAME"
+                        "chứa kí tự không hợp lệ"
                 )
                 .containsLetter()
                 .build();
@@ -43,7 +43,7 @@ public class UserValidationProfile {
                 .length(5, 150)
                 .pattern(
                         ValidationPatterns.EMAIL,
-                        "INVALID_EMAIL"
+                        "email không đúng định dạng"
                 )
                 .build();
     }
@@ -90,7 +90,7 @@ public class UserValidationProfile {
                 .length(7, 15)
                 .pattern(
                         ValidationPatterns.PHONE,
-                        "INVALID_PHONE"
+                        "Số điện thoại không đúng định dạng"
                 )
                 .build();
     }
