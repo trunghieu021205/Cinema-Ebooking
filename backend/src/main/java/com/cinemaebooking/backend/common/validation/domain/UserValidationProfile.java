@@ -1,15 +1,19 @@
 package com.cinemaebooking.backend.common.validation.domain;
 
-import com.cinemaebooking.backend.common.exception.domain.UserExceptions;
+import com.cinemaebooking.backend.common.exception.ErrorCategory;
+import com.cinemaebooking.backend.common.exception.ErrorDetail;
+import com.cinemaebooking.backend.common.validation.builder.StringValidationBuilder;
 import com.cinemaebooking.backend.common.validation.builder.ValidationBuilder;
 import com.cinemaebooking.backend.common.validation.engine.ValidationRule;
 import com.cinemaebooking.backend.common.validation.patterns.ValidationPatterns;
+import com.cinemaebooking.backend.user.domain.enums.UserRole;
+import com.cinemaebooking.backend.user.domain.enums.UserStatus;
+import com.cinemaebooking.backend.user.domain.valueObject.UserGender;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
-/**
- * UserValidationProfile - Collection of validation rule sets for User domain.
- */
 public class UserValidationProfile {
 
     public static final UserValidationProfile INSTANCE =
@@ -20,12 +24,12 @@ public class UserValidationProfile {
     // ================== FULL NAME ==================
 
     public List<ValidationRule<String>> fullNameRules() {
-        return ValidationBuilder.create()
+        return StringValidationBuilder.create()
                 .notBlank()
                 .length(2, 100)
                 .pattern(
                         ValidationPatterns.FULLNAME,
-                        "contains invalid characters"
+                        "chứa kí tự không hợp lệ"
                 )
                 .containsLetter()
                 .build();
@@ -34,12 +38,12 @@ public class UserValidationProfile {
     // ================== EMAIL ==================
 
     public List<ValidationRule<String>> emailRules() {
-        return ValidationBuilder.create()
+        return StringValidationBuilder.create()
                 .notBlank()
                 .length(5, 150)
                 .pattern(
                         ValidationPatterns.EMAIL,
-                        "invalid email format"
+                        "email không đúng định dạng"
                 )
                 .build();
     }
@@ -47,49 +51,63 @@ public class UserValidationProfile {
     // ================== PASSWORD ==================
 
     public List<ValidationRule<String>> passwordRules() {
-        return ValidationBuilder.create()
+        return StringValidationBuilder.create()
                 .notBlank()
                 .length(6, 100)
+                .build();
+    }
+
+    // ================== DATE OF BIRTH ==================
+
+    public List<ValidationRule<LocalDate>> dobRules() {
+        return ValidationBuilder.<LocalDate>create()
+                .notNull()
+                .custom(context -> {
+                    LocalDate dob = context.getValue();
+                    if (dob != null && dob.isAfter(LocalDate.now())) {
+                        return Optional.of(
+                                new ErrorDetail(context.getField(), ErrorCategory.INVALID_VALUE, "ngày sinh không hợp lệ")
+                        );
+                    }
+                    return Optional.empty();
+                })
+                .build();
+    }
+
+    // ================== GENDER ==================
+
+    public List<ValidationRule<UserGender>> genderRules() {
+        return ValidationBuilder.<UserGender>create()
+                .notNull()
                 .build();
     }
 
     // ================== PHONE ==================
 
     public List<ValidationRule<String>> phoneRules() {
-        return List.of(
-                context -> {
-                    String value = context.value();
-
-                    if (value == null) return; // optional field
-
-                    if (value.length() > 15) {
-                        throw UserExceptions.invalidEmail(value); // bạn có thể tạo riêng invalidPhone nếu muốn
-                    }
-                }
-        );
+        return StringValidationBuilder.create()
+                .notBlank()
+                .length(7, 15)
+                .pattern(
+                        ValidationPatterns.PHONE,
+                        "Số điện thoại không đúng định dạng"
+                )
+                .build();
     }
 
     // ================== ROLE ==================
 
-    public List<ValidationRule<Object>> roleRules() {
-        return List.of(
-                value -> {
-                    if (value == null) {
-                        throw UserExceptions.invalidRole();
-                    }
-                }
-        );
+    public List<ValidationRule<UserRole>> roleRules() {
+        return ValidationBuilder.<UserRole>create()
+                .notNull()
+                .build();
     }
 
     // ================== STATUS ==================
 
-    public List<ValidationRule<Object>> statusRules() {
-        return List.of(
-                value -> {
-                    if (value == null) {
-                        throw UserExceptions.invalidStatus();
-                    }
-                }
-        );
+    public List<ValidationRule<UserStatus>> statusRules() {
+        return ValidationBuilder.<UserStatus>create()
+                .notNull()
+                .build();
     }
 }

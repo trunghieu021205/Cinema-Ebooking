@@ -138,7 +138,7 @@ class CreateCinemaUseCaseTest {
     @Test
     @DisplayName("Should throw duplicate name exception from validator")
     void shouldThrowDuplicateNameException() {
-        willThrow(CinemaExceptions.duplicateCinemaName(request.getName()))
+        willThrow(CinemaExceptions.duplicateName(request.getName()))
                 .given(validator).validateCreateRequest(request);
 
         RuntimeException ex = assertThrows(RuntimeException.class, () -> useCase.execute(request));

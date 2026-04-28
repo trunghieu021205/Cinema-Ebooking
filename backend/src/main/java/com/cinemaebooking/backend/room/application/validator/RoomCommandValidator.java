@@ -87,13 +87,12 @@ public class RoomCommandValidator {
 
         var profile = ValidationFactory.room(); // bạn cần tạo profile này
 
-        ValidationEngine.validate(name, "Room name", profile.nameRules());
-        ValidationEngine.validate(totalSeats, "Total seats", profile.capacityRules());
-        ValidationEngine.validate(roomType, "Room type", profile.typeRules());
-
-        if (cinemaId != null) {
-            ValidationEngine.validate(cinemaId, "Cinema id", profile.cinemaIdRules());
-        }
+        ValidationEngine.of()
+                .validate(name, "name", profile.nameRules())
+                .validate(totalSeats, "totalSeats", profile.capacityRules())
+                .validate(roomType, "roomType", profile.typeRules())
+                .validate(cinemaId, "cinemaId", profile.cinemaIdRules())
+                .throwIfInvalid();
     }
 
     // ================== BUSINESS - CREATE ==================

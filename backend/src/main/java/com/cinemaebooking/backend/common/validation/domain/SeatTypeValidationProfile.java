@@ -1,10 +1,14 @@
 package com.cinemaebooking.backend.common.validation.domain;
 
+import com.cinemaebooking.backend.common.exception.ErrorCategory;
+import com.cinemaebooking.backend.common.exception.ErrorDetail;
+import com.cinemaebooking.backend.common.validation.builder.StringValidationBuilder;
 import com.cinemaebooking.backend.common.validation.builder.ValidationBuilder;
 import com.cinemaebooking.backend.common.validation.engine.ValidationRule;
 import com.cinemaebooking.backend.common.validation.patterns.ValidationPatterns;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * SeatTypeValidationProfile - Validation rules for SeatType domain.
@@ -19,12 +23,12 @@ public class SeatTypeValidationProfile {
     // ================== NAME ==================
 
     public List<ValidationRule<String>> nameRules() {
-        return ValidationBuilder.create()
+        return StringValidationBuilder.create()
                 .notBlank()
                 .length(2, 50)
                 .pattern(
                         ValidationPatterns.SEAT_TYPE_NAME,
-                        "contains invalid characters"
+                        "INVALID_SEAT_TYPE_NAME"
                 )
                 .containsLetter()
                 .build();
@@ -33,17 +37,23 @@ public class SeatTypeValidationProfile {
     // ================== BASE PRICE ==================
 
     public List<ValidationRule<Long>> basePriceRules() {
-        return List.of(
-                context -> {
-                    Long value = context.value();
+        return ValidationBuilder.<Long>create()
+                .notNull()
+                .custom(context -> {
+                    Long value = context.getValue();
 
-                    if (value == null) {
-                        throw new RuntimeException("Base price must not be null");
+                    if (value != null && value <= 0) {
+                        return Optional.of(
+                                new ErrorDetail(
+                                        context.getField(),
+                                        ErrorCategory.INVALID_VALUE,
+                                        "basePrice must be positive"
+                                )
+                        );
                     }
-                    if (value <= 0) {
-                        throw new RuntimeException("Base price must be positive");
-                    }
-                }
-        );
+
+                    return Optional.empty();
+                })
+                .build();
     }
 }

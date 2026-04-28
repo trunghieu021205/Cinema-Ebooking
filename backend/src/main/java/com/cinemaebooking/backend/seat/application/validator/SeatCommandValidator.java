@@ -7,6 +7,7 @@ import com.cinemaebooking.backend.common.validation.factory.ValidationFactory;
 import com.cinemaebooking.backend.seat.application.dto.seat.CreateSeatRequest;
 import com.cinemaebooking.backend.seat.application.dto.seat.UpdateSeatRequest;
 import com.cinemaebooking.backend.seat.application.port.seat.SeatRepository;
+import com.cinemaebooking.backend.seat.domain.enums.SeatStatus;
 import com.cinemaebooking.backend.seat.domain.model.seat.Seat;
 import com.cinemaebooking.backend.seat.domain.valueObject.seat.SeatId;
 import lombok.RequiredArgsConstructor;
@@ -85,27 +86,21 @@ public class SeatCommandValidator {
     private void validateFields(
             String rowLabel,
             Integer columnNumber,
-            Object status,
+            SeatStatus status,
             Long seatTypeId,
             Long roomId
     ) {
 
         var profile = ValidationFactory.seat();
 
-        ValidationEngine.validate(rowLabel, "Row label", profile.rowLabelRules());
-        ValidationEngine.validate(columnNumber, "Column number", profile.columnNumberRules());
+        ValidationEngine.of()
+                .validate(rowLabel, "rowLabel", profile.rowLabelRules())
+                .validate(columnNumber, "columnNumber", profile.columnNumberRules())
+                .validate(status, "status", profile.statusRules())
+                .validate(seatTypeId, "seatTypeId", profile.seatTypeIdRules())
+                .validate(roomId, "roomId", profile.roomIdRules())
+                .throwIfInvalid();
 
-        if (status != null) {
-            ValidationEngine.validate(status, "Seat status", profile.statusRules());
-        }
-
-        if (seatTypeId != null) {
-            ValidationEngine.validate(seatTypeId, "Seat type id", profile.seatTypeIdRules());
-        }
-
-        if (roomId != null) {
-            ValidationEngine.validate(roomId, "Room id", profile.roomIdRules());
-        }
     }
 
     // ================== BUSINESS - CREATE ==================

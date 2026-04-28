@@ -23,45 +23,25 @@ import java.util.List;
  * @author Hieu Nguyen
  * @since 2026
  */
-public class ValidationBuilder {
+public class ValidationBuilder<T> {
 
-    private final List<ValidationRule<String>> rules = new ArrayList<>();
+    private final List<ValidationRule<T>> rules = new ArrayList<>();
 
-    public static ValidationBuilder create() {
-        return new ValidationBuilder();
+    public static <T> ValidationBuilder<T> create() {
+        return new ValidationBuilder<>();
     }
 
-    public ValidationBuilder notBlank() {
-        rules.add(new NotBlankRule());
-        return this;
-    }
-
-    public ValidationBuilder notNull() {
+    public ValidationBuilder<T> notNull() {
         rules.add(new NotNullRule<>());
         return this;
     }
 
-    public ValidationBuilder length(int min, int max) {
-        rules.add(new LengthRule(min, max));
-        return this;
-    }
-
-    public ValidationBuilder pattern(String regex, String message) {
-        rules.add(new PatternRule(regex, message));
-        return this;
-    }
-
-    public ValidationBuilder containsLetter() {
-        rules.add(new ContainsLetterRule());
-        return this;
-    }
-
-    public ValidationBuilder custom(ValidationRule<String> rule) {
+    public ValidationBuilder<T> custom(ValidationRule<T> rule) {
         rules.add(rule);
         return this;
     }
 
-    public List<ValidationRule<String>> build() {
-        return rules;
+    public List<ValidationRule<T>> build() {
+        return List.copyOf(rules);
     }
 }

@@ -1,11 +1,15 @@
 package com.cinemaebooking.backend.common.validation.domain;
 
-import com.cinemaebooking.backend.common.exception.domain.RoomExceptions;
+import com.cinemaebooking.backend.common.exception.ErrorCategory;
+import com.cinemaebooking.backend.common.exception.ErrorDetail;
+import com.cinemaebooking.backend.common.validation.builder.StringValidationBuilder;
 import com.cinemaebooking.backend.common.validation.builder.ValidationBuilder;
 import com.cinemaebooking.backend.common.validation.engine.ValidationRule;
 import com.cinemaebooking.backend.common.validation.patterns.ValidationPatterns;
+import com.cinemaebooking.backend.room.domain.enums.RoomType;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * RoomValidationProfile - Collection of validation rule sets for Room domain.
@@ -20,7 +24,7 @@ public class RoomValidationProfile {
     // ================== NAME ==================
 
     public List<ValidationRule<String>> nameRules() {
-        return ValidationBuilder.create()
+        return StringValidationBuilder.create()
                 .notBlank()
                 .length(2, 50)
                 .pattern(
@@ -34,45 +38,50 @@ public class RoomValidationProfile {
     // ================== TOTAL SEATS ==================
 
     public List<ValidationRule<Integer>> capacityRules() {
-        return List.of(
-                context -> {
-                    Integer value = context.value(); // ✅ lấy value đúng cách
-                    if (value == null) {
-                        throw RoomExceptions.invalidCapacity(value);
+        return ValidationBuilder.<Integer>create()
+                .notNull()
+                .custom(context -> {
+                    Integer value = context.getValue();
+                    if (value != null && value <= 0) {
+                        return Optional.of(
+                                new ErrorDetail(
+                                        context.getField(),
+                                        ErrorCategory.INVALID_VALUE,
+                                        "capacity must be greater than 0"
+                                )
+                        );
                     }
-                    if (value <= 0) {
-                        throw RoomExceptions.invalidCapacity(value);
-                    }
-                }
-        );
+                    return Optional.empty();
+                })
+                .build();
     }
 
-    // ================== ROOM TYPE ==================
+// ================== ROOM TYPE ==================
 
-    public List<ValidationRule<Object>> typeRules() {
-        return List.of(
-                value -> {
-                    if (value == null) {
-                        throw new RuntimeException("Room type must not be null");
-                    }
-                }
-        );
+    public List<ValidationRule<RoomType>> typeRules() {
+        return ValidationBuilder.<RoomType>create()
+                .notNull()
+                .build();
     }
 
-    // ================== CINEMA ID ==================
+// ================== CINEMA ID ==================
 
     public List<ValidationRule<Long>> cinemaIdRules() {
-        return List.of(
-                context -> {
-                    Long value = context.value(); // ✅ lấy value đúng cách
-
-                    if (value == null) {
-                        throw new RuntimeException("Cinema id must not be null");
+        return ValidationBuilder.<Long>create()
+                .notNull()
+                .custom(context -> {
+                    Long value = context.getValue();
+                    if (value != null && value <= 0) {
+                        return Optional.of(
+                                new ErrorDetail(
+                                        context.getField(),
+                                        ErrorCategory.INVALID_VALUE,
+                                        "cinemaId must be positive"
+                                )
+                        );
                     }
-                    if (value <= 0) {
-                        throw new RuntimeException("Cinema id must be positive");
-                    }
-                }
-        );
+                    return Optional.empty();
+                })
+                .build();
     }
 }

@@ -46,6 +46,8 @@ public class ComboCommandValidator {
 
     private void validateFields(String name) {
         var profile = ValidationFactory.combo();
-        ValidationEngine.validate(name, "Combo name", profile.nameRules());
+        ValidationEngine.of()
+                .validate(name, "Combo name", profile.nameRules())
+                .throwIfInvalid();
     }
 }

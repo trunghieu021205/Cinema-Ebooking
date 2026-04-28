@@ -22,4 +22,12 @@ public record ValidationContext<T>(
         String v = asString();
         return v == null ? null : v.trim();
     }
+
+    public T getValue() {
+        return value;
+    }
+
+    public String getField() {
+        return fieldName;
+    }
 }

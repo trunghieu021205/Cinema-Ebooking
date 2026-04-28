@@ -43,9 +43,13 @@ public class CouponCommandValidator {
         var profile = ValidationFactory.coupon();
 
         if (request instanceof CreateCouponRequest req) {
-            ValidationEngine.validate(req.getCode(), "Coupon code", profile.codeRules());
+            ValidationEngine.of()
+                    .validate(req.getCode(), "Coupon code", profile.codeRules())
+                    .throwIfInvalid();
         } else if (request instanceof UpdateCouponRequest req) {
-            ValidationEngine.validate(req.getCode(), "Coupon code", profile.codeRules());
+            ValidationEngine.of()
+                    .validate(req.getCode(), "Coupon code", profile.codeRules())
+                    .throwIfInvalid();
         }
         // Các field khác như value, limit sẽ được validate ở domain model
     }

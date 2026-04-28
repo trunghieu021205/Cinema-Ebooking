@@ -60,19 +60,11 @@ public class MovieCommandValidator {
 
     private void validateFields(String title, String description, Integer duration, java.time.LocalDate releaseDate) {
         var profile = ValidationFactory.movie();
-
-        if (title != null) {
-            ValidationEngine.validate(title, "Movie title", profile.titleRules());
-        }
-        if (description != null) {
-            ValidationEngine.validate(description, "Movie description", profile.descriptionRules());
-        }
-        if (duration != null) {
-            ValidationEngine.validate(duration.toString(), "Duration", profile.durationRules());
-        }
-        if (releaseDate != null) {
-            // release date validation can be added if needed
-        }
+        ValidationEngine.of()
+                .validate(title, "title", profile.titleRules())
+                .validate(description, "description", profile.descriptionRules())
+                .validate(duration, "duration", profile.durationRules())
+                .throwIfInvalid();
     }
 
     private String normalize(String value) {

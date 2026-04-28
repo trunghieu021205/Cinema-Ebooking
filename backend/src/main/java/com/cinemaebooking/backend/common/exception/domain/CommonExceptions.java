@@ -1,15 +1,17 @@
 package com.cinemaebooking.backend.common.exception.domain;
 
 import com.cinemaebooking.backend.common.exception.BaseException;
+import com.cinemaebooking.backend.common.exception.ErrorCategory;
 import com.cinemaebooking.backend.common.exception.ErrorCode;
+import com.cinemaebooking.backend.common.exception.ErrorDetail;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 /**
  * CommonExceptions - System-wide generic exceptions.
- * Responsibility:
- * - Handle non-domain-specific errors
- * - Validation, security, and infrastructure-related exceptions
+ *
  * @author Hieu Nguyen
  * @since 2026
  */
@@ -22,18 +24,45 @@ public final class CommonExceptions {
         return new BaseException(ErrorCode.RESOURCE_NOT_FOUND);
     }
 
-    public static BaseException resourceNotFound(String message) {
-        return new BaseException(ErrorCode.RESOURCE_NOT_FOUND, message);
+    public static BaseException resourceNotFound(String debugMessage) {
+        return new BaseException(ErrorCode.RESOURCE_NOT_FOUND, debugMessage);
     }
 
-    public static BaseException resourceAlreadyExists(String message) {
-        return new BaseException(ErrorCode.RESOURCE_ALREADY_EXISTS, message);
+    public static BaseException resourceAlreadyExists(String debugMessage) {
+        return new BaseException(ErrorCode.RESOURCE_ALREADY_EXISTS, debugMessage);
     }
 
-    // ================== VALIDATION ==================
+    // ================== VALIDATION — unstructured (backward-compatible) ==================
 
-    public static BaseException invalidInput(String message) {
-        return new BaseException(ErrorCode.INVALID_INPUT, message);
+    /**
+     * @deprecated Dùng invalidInput(field, category, reason) để FE parse được chính xác hơn.
+     */
+    @Deprecated
+    public static BaseException invalidInput(String debugMessage) {
+        return new BaseException(ErrorCode.INVALID_INPUT, debugMessage);
+    }
+
+    // ================== VALIDATION — structured (preferred) ==================
+
+    /**
+     * Single field validation error — FE đọc được field + category + reason.
+     */
+    public static BaseException invalidInput(
+            String field,
+            ErrorCategory category,
+            String reason
+    ) {
+        return new BaseException(
+                ErrorCode.INVALID_INPUT,
+                List.of(new ErrorDetail(field, category, reason))
+        );
+    }
+
+    /**
+     * Multi-field validation error — dùng khi validate batch nhiều field cùng lúc.
+     */
+    public static BaseException invalidInput(List<ErrorDetail> details) {
+        return new BaseException(ErrorCode.INVALID_INPUT, details);
     }
 
     // ================== SECURITY ==================

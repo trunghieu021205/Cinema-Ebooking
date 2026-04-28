@@ -1,7 +1,6 @@
 package com.cinemaebooking.backend.user.application.validator.User;
 
 import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
-import com.cinemaebooking.backend.common.exception.domain.UserExceptions;
 import com.cinemaebooking.backend.common.validation.engine.ValidationEngine;
 import com.cinemaebooking.backend.common.validation.factory.ValidationFactory;
 import com.cinemaebooking.backend.user.application.dto.ChangeDTO.ChangePasswordRequest;
@@ -21,19 +20,36 @@ public class UserCommandValidator {
 
     // ================== CREATE ==================
     public void validateCreateRequest(CreateUserRequest request) {
+
         if (request == null) {
             throw CommonExceptions.invalidInput("Request must not be null");
         }
 
-        validateBaseFields(
-                request.getFullName(),
-                request.getEmail(),
-                request.getPhoneNumber()
-        );
+        var profile = ValidationFactory.user();
 
-        validatePasswordField(request.getPassword());
+        ValidationEngine engine = ValidationEngine.of()
+                // ================== PHASE 1: FORMAT ==================
+                .validate(request.getFullName(), "fullName", profile.fullNameRules())
+                .validate(request.getEmail(), "email", profile.emailRules())
+                .validate(request.getPhoneNumber(), "phoneNumber", profile.phoneRules())
+                .validate(request.getDateOfBirth(), "dateOfBirth", profile.dobRules())
+                .validate(request.getGender(), "gender", profile.genderRules())
+                .validate(request.getPassword(), "password", profile.passwordRules());
 
-        validateDuplicateEmail(request.getEmail(), null);
+        // nếu format fail → stop, không query DB
+        if (engine.hasErrors()) {
+            engine.throwIfInvalid();
+            return;
+        }
+
+        // ================== PHASE 2: BUSINESS ==================
+        engine
+                .validateUnique(
+                        request.getEmail(),
+                        "email",
+                        this::emailExists
+                )
+                .throwIfInvalid();
     }
 
     // ================== UPDATE (USER SELF) ==================
@@ -45,8 +61,10 @@ public class UserCommandValidator {
 
         var profile = ValidationFactory.user();
 
-        ValidationEngine.validate(request.getFullName(), "Full name", profile.fullNameRules());
-        ValidationEngine.validate(request.getPhoneNumber(), "Phone number", profile.phoneRules());
+        ValidationEngine.of()
+                .validate(request.getFullName(), "fullName", profile.fullNameRules())
+                .validate(request.getPhoneNumber(), "phoneNumber", profile.phoneRules())
+                .throwIfInvalid();
     }
 
     // ================== UPDATE (ADMIN) ==================
@@ -58,10 +76,12 @@ public class UserCommandValidator {
 
         var profile = ValidationFactory.user();
 
-        ValidationEngine.validate(request.getFullName(), "Full name", profile.fullNameRules());
-        ValidationEngine.validate(request.getPhoneNumber(), "Phone number", profile.phoneRules());
-        ValidationEngine.validate(request.getRole(), "Role", profile.roleRules());
-        ValidationEngine.validate(request.getStatus(), "Status", profile.statusRules());
+        ValidationEngine.of()
+                .validate(request.getFullName(), "fullName", profile.fullNameRules())
+                .validate(request.getPhoneNumber(), "phoneNumber", profile.phoneRules())
+                .validate(request.getRole(), "role", profile.roleRules())
+                .validate(request.getStatus(), "status", profile.statusRules())
+                .throwIfInvalid();
     }
 
     // ================== CHANGE PASSWORD ==================
@@ -71,41 +91,16 @@ public class UserCommandValidator {
             throw CommonExceptions.invalidInput("User id and request must not be null");
         }
 
-        validatePasswordField(request.getNewPassword());
-    }
-
-    // ================== FIELD VALIDATION ==================
-
-    private void validateBaseFields(String fullName, String email, String phone) {
         var profile = ValidationFactory.user();
 
-        ValidationEngine.validate(fullName, "Full name", profile.fullNameRules());
-
-        if (email != null) {
-            ValidationEngine.validate(email, "Email", profile.emailRules());
-        }
-
-        ValidationEngine.validate(phone, "Phone number", profile.phoneRules());
+        ValidationEngine.of()
+                .validate(request.getNewPassword(), "password", profile.passwordRules())
+                .throwIfInvalid();
     }
 
-    private void validatePasswordField(String password) {
-        var profile = ValidationFactory.user();
-        ValidationEngine.validate(password, "Password", profile.passwordRules());
-    }
+    // ================== BUSINESS CHECKS ==================
 
-    // ================== BUSINESS RULES ==================
-
-    private void validateDuplicateEmail(String email, UserId id) {
-        if (email == null) return;
-
-        if (id == null) {
-            if (userRepository.existsByEmail(email)) {
-                throw UserExceptions.duplicateEmail(email);
-            }
-        } else {
-            if (userRepository.existsByEmailAndIdNot(email, id)) {
-                throw UserExceptions.duplicateEmail(email);
-            }
-        }
+    private boolean emailExists(String email) {
+        return userRepository.existsByEmail(email);
     }
 }

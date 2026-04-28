@@ -1,7 +1,6 @@
 package com.cinemaebooking.backend.user.application.validator.Auth;
 
 import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
-import com.cinemaebooking.backend.common.exception.domain.UserExceptions;
 import com.cinemaebooking.backend.common.validation.engine.ValidationEngine;
 import com.cinemaebooking.backend.common.validation.factory.ValidationFactory;
 import com.cinemaebooking.backend.user.application.dto.AuthDTO.RegisterRequest;
@@ -23,30 +22,45 @@ public class RegisterValidator {
 
         var profile = ValidationFactory.user();
 
-        // ================== FORMAT VALIDATION ==================
+        // ================== PHASE 1: FORMAT VALIDATION ==================
 
-        ValidationEngine.validate(request.getFullName(), "Full name", profile.fullNameRules());
+        ValidationEngine engine = ValidationEngine.of()
+                .validate(request.getFullName(), "fullName", profile.fullNameRules())
+                .validate(request.getEmail(), "email", profile.emailRules())
+                .validate(request.getPhoneNumber(), "phoneNumber", profile.phoneRules())
+                .validate(request.getDateOfBirth(), "dateOfBirth", profile.dobRules())
+                .validate(request.getGender(), "gender", profile.genderRules())
+                .validate(request.getPassword(), "password", profile.passwordRules());
 
-        ValidationEngine.validate(request.getEmail(), "Email", profile.emailRules());
+        // nếu format lỗi → dừng luôn (KHÔNG query DB)
+        if (engine.hasErrors()) {
+            engine.throwIfInvalid();
+            return;
+        }
 
-        ValidationEngine.validate(request.getPhoneNumber(), "Phone number", profile.phoneRules());
+        // ================== PHASE 2: BUSINESS VALIDATION ==================
 
-        ValidationEngine.validate(request.getFullName(), "Username", profile.fullNameRules());
-
-        ValidationEngine.validate(request.getPassword(), "Password", profile.passwordRules());
-
-        // ================== BUSINESS RULES ==================
-
-        validateUniqueEmail(request.getEmail());
+        engine
+                .validateUnique(
+                        request.getEmail(),
+                        "email",
+                        this::emailExists
+                )
+                .validateUnique(
+                        request.getPhoneNumber(),
+                        "phoneNumber",
+                        this::phoneExists
+                )
+                .throwIfInvalid();
     }
 
-    // ================== UNIQUE CHECKS ==================
+    // ================== DB CHECK (RETURN TRUE IF EXISTS) ==================
 
-    private void validateUniqueEmail(String email) {
-        if (email == null) return;
+    public boolean emailExists(String email) {
+        return userRepository.existsByEmail(email);
+    }
 
-        if (userRepository.existsByEmail(email)) {
-            throw UserExceptions.duplicateEmail(email);
-        }
+    public boolean phoneExists(String phoneNumber) {
+        return userRepository.existsByPhoneNumber(phoneNumber);
     }
 }

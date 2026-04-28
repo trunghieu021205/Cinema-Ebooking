@@ -1,9 +1,12 @@
 package com.cinemaebooking.backend.common.validation.rules;
 
+import com.cinemaebooking.backend.common.exception.ErrorCategory;
+import com.cinemaebooking.backend.common.exception.ErrorDetail;
 import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import com.cinemaebooking.backend.common.validation.engine.ValidationContext;
 import com.cinemaebooking.backend.common.validation.engine.ValidationRule;
 
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 /**
@@ -29,14 +32,17 @@ public record PatternRule(Pattern pattern, String message)
     }
 
     @Override
-    public void validate(ValidationContext<String> context) {
+    public Optional<ErrorDetail> validate(ValidationContext<String> context) {
         String v = context.trimmed();
-        if (v == null) return;
+        if (v == null) return Optional.empty();
 
         if (!pattern.matcher(v).matches()) {
-            throw CommonExceptions.invalidInput(
-                    context.fieldName() + " " + message
-            );
+            return Optional.of(new ErrorDetail(
+                    context.fieldName(),
+                    ErrorCategory.INVALID_FORMAT,
+                    message
+            ));
         }
+        return Optional.empty();
     }
 }

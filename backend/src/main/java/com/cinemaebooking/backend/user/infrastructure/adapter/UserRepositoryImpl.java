@@ -35,6 +35,8 @@ public class UserRepositoryImpl implements UserRepository {
         oldEntity.setEmail(user.getEmail());
         oldEntity.setPassword(user.getPassword());
         oldEntity.setPhoneNumber(user.getPhoneNumber());
+        oldEntity.setDateOfBirth(user.getDateOfBirth());
+        oldEntity.setGender(user.getGender());
         oldEntity.setAvatarUrl(user.getAvatarUrl());
         oldEntity.setRole(user.getRole());
         oldEntity.setStatus(user.getStatus());
@@ -80,5 +82,16 @@ public class UserRepositoryImpl implements UserRepository {
     public boolean existsByEmailAndIdNot(String email, UserId id) {
         if (email == null || id == null) return false;
         return userJpaRepository.existsByEmailAndIdNot(email, id.getValue());
+    }
+
+    @Override
+    public boolean existsByPhoneNumber(String phoneNumber) {
+        return userJpaRepository.existsByPhoneNumber(phoneNumber);
+    }
+
+    @Override
+    public boolean existsByPhoneNumberAndIdNot(String phoneNumber, UserId id) {
+        if (phoneNumber == null || id == null) return false;
+        return userJpaRepository.existsByPhoneNumberAndIdNot(phoneNumber, id.getValue());
     }
 }

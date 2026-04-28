@@ -23,7 +23,9 @@ public class GenreCommandValidator {
         }
 
         String name = normalize(request.getName());
-        ValidationEngine.validate(name, "Genre name", ValidationFactory.genre().nameRules());
+        ValidationEngine.of()
+                .validate(name, "name", ValidationFactory.genre().nameRules())
+                .throwIfInvalid();
 
         if (genreRepository.existsByName(name)) {
             throw GenreExceptions.duplicateName(name);
@@ -37,7 +39,9 @@ public class GenreCommandValidator {
 
         String name = normalize(request.getName());
         if (name != null) {
-            ValidationEngine.validate(name, "Genre name", ValidationFactory.genre().nameRules());
+            ValidationEngine.of()
+                    .validate(name, "name", ValidationFactory.genre().nameRules())
+                    .throwIfInvalid();
 
             if (genreRepository.existsByNameAndIdNot(name, id)) {
                 throw GenreExceptions.duplicateName(name);

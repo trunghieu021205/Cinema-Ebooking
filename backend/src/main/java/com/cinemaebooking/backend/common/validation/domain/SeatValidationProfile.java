@@ -1,10 +1,15 @@
 package com.cinemaebooking.backend.common.validation.domain;
 
+import com.cinemaebooking.backend.common.exception.ErrorCategory;
+import com.cinemaebooking.backend.common.exception.ErrorDetail;
+import com.cinemaebooking.backend.common.validation.builder.StringValidationBuilder;
 import com.cinemaebooking.backend.common.validation.builder.ValidationBuilder;
 import com.cinemaebooking.backend.common.validation.engine.ValidationRule;
 import com.cinemaebooking.backend.common.validation.patterns.ValidationPatterns;
+import com.cinemaebooking.backend.seat.domain.enums.SeatStatus;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * SeatValidationProfile - Validation rules for Seat domain.
@@ -19,12 +24,12 @@ public class SeatValidationProfile {
     // ================== ROW LABEL ==================
 
     public List<ValidationRule<String>> rowLabelRules() {
-        return ValidationBuilder.create()
+        return StringValidationBuilder.create()
                 .notBlank()
                 .length(1, 3)
                 .pattern(
                         ValidationPatterns.ROW_LABEL,
-                        "must be uppercase letters (e.g., A, B, AA)"
+                        "INVALID_ROW_LABEL"
                 )
                 .build();
     }
@@ -32,63 +37,74 @@ public class SeatValidationProfile {
     // ================== COLUMN NUMBER ==================
 
     public List<ValidationRule<Integer>> columnNumberRules() {
-        return List.of(
-                context -> {
-                    Integer value = context.value();
+        return ValidationBuilder.<Integer>create()
+                .notNull()
+                .custom(context -> {
+                    Integer value = context.getValue();
 
-                    if (value == null) {
-                        throw new RuntimeException("Column number must not be null");
+                    if (value != null && value <= 0) {
+                        return Optional.of(
+                                new ErrorDetail(
+                                        context.getField(),
+                                        ErrorCategory.INVALID_VALUE,
+                                        "columnNumber must be greater than 0"
+                                )
+                        );
                     }
-                    if (value <= 0) {
-                        throw new RuntimeException("Column number must be greater than 0");
-                    }
-                }
-        );
+                    return Optional.empty();
+                })
+                .build();
     }
 
     // ================== STATUS ==================
 
-    public List<ValidationRule<Object>> statusRules() {
-        return List.of(
-                context -> {
-                    if (context.value() == null) {
-                        throw new RuntimeException("Seat status must not be null");
-                    }
-                }
-        );
+    public List<ValidationRule<SeatStatus>> statusRules() {
+        return ValidationBuilder.<SeatStatus>create()
+                .notNull()
+                .build();
     }
 
     // ================== ROOM ID ==================
 
     public List<ValidationRule<Long>> roomIdRules() {
-        return List.of(
-                context -> {
-                    Long value = context.value();
+        return ValidationBuilder.<Long>create()
+                .notNull()
+                .custom(context -> {
+                    Long value = context.getValue();
 
-                    if (value == null) {
-                        throw new RuntimeException("Room id must not be null");
+                    if (value != null && value <= 0) {
+                        return Optional.of(
+                                new ErrorDetail(
+                                        context.getField(),
+                                        ErrorCategory.INVALID_VALUE,
+                                        "roomId must be positive"
+                                )
+                        );
                     }
-                    if (value <= 0) {
-                        throw new RuntimeException("Room id must be positive");
-                    }
-                }
-        );
+                    return Optional.empty();
+                })
+                .build();
     }
 
     // ================== SEAT TYPE ID ==================
 
     public List<ValidationRule<Long>> seatTypeIdRules() {
-        return List.of(
-                context -> {
-                    Long value = context.value();
+        return ValidationBuilder.<Long>create()
+                .notNull()
+                .custom(context -> {
+                    Long value = context.getValue();
 
-                    if (value == null) {
-                        throw new RuntimeException("Seat type id must not be null");
+                    if (value != null && value <= 0) {
+                        return Optional.of(
+                                new ErrorDetail(
+                                        context.getField(),
+                                        ErrorCategory.INVALID_VALUE,
+                                        "seatTypeId must be positive"
+                                )
+                        );
                     }
-                    if (value <= 0) {
-                        throw new RuntimeException("Seat type id must be positive");
-                    }
-                }
-        );
+                    return Optional.empty();
+                })
+                .build();
     }
 }

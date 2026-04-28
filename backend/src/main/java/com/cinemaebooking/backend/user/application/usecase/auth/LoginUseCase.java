@@ -7,6 +7,7 @@ import com.cinemaebooking.backend.user.application.dto.Response.LoginResponse;
 import com.cinemaebooking.backend.user.application.port.JwtProvider;
 import com.cinemaebooking.backend.user.application.port.PasswordEncoder;
 import com.cinemaebooking.backend.user.application.port.UserRepository;
+import com.cinemaebooking.backend.user.application.validator.Auth.LoginValidator;
 import com.cinemaebooking.backend.user.domain.enums.UserStatus;
 import com.cinemaebooking.backend.user.domain.model.User;
 import lombok.RequiredArgsConstructor;
@@ -19,12 +20,15 @@ public class LoginUseCase {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
+    private final LoginValidator  loginValidator;
 
     public LoginResponse execute(LoginRequest request) {
 
         if (request == null) {
             throw CommonExceptions.invalidInput("Login request must not be null");
         }
+
+        loginValidator.validate(request);
 
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(UserExceptions::invalidCredentials);

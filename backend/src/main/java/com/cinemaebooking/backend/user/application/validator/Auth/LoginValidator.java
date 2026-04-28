@@ -19,10 +19,10 @@ public class LoginValidator {
 
         var profile = ValidationFactory.user();
 
-        // Email format check
-        ValidationEngine.validate(request.getEmail(), "Email", profile.emailRules());
-
-        // Password basic validation (format/length)
-        ValidationEngine.validate(request.getPassword(), "Password", profile.passwordRules());
+        // Email format and password format check
+        ValidationEngine.of()
+                .validate(request.getEmail(), "email", profile.emailRules())
+                .validate(request.getPassword(), "password", profile.passwordRules())
+                .throwIfInvalid();
     }
 }
