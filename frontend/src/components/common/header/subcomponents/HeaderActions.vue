@@ -12,6 +12,6 @@
 <script setup lang="ts">
 import BaseButton from '@/components/ui/button/BaseButton.vue'
 import { Search } from 'lucide-vue-next'
-import AuthSection from '@/components/common/header/AuthSection.vue'
+import AuthSection from '@/components/common/header/subcomponents/AuthSection.vue'
 import BaseIcon from '@/components/ui/icon/BaseIcon.vue';
 </script>

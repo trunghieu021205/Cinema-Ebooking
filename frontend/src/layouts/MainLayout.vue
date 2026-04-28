@@ -12,8 +12,8 @@
 
 <script setup lang="ts">
 import Footer from '@/components/common/Footer.vue'
-import Header from '@/components/common/Header.vue';
-import LoginModal from '@/components/common/LoginModal.vue';
+import Header from '@/components/common/header/Header.vue';
+import LoginModal from '@/components/common/login/LoginModal.vue';
 import { useUIStore } from '@/store/ui.store';
 import { ref } from 'vue';
 

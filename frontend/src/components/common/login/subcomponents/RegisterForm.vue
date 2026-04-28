@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import BaseButton from '@/components/ui/button/BaseButton.vue'
-import CalendarPicker from '@/components/common/login/CalenderPicker.vue'
+import CalendarPicker from '@/components/common/login/subcomponents/CalenderPicker.vue'
 import { useRegisterForm } from '@/composables/useRegisterForm'
 
 const emit = defineEmits<{
@@ -50,7 +50,7 @@ const {
             <!-- EMAIL -->
             <div>
                 <label class="text-[12px] text-text-secondary">Email</label>
-                <input v-model="form.email" type="email" placeholder="Nhập email" @input="handleInput('email')" :class="[
+                <input v-model="form.email" type="text" placeholder="Nhập email" @input="handleInput('email')" :class="[
                     'w-full text-body text-text-primary placeholder-text-secondary mt-0.5 px-3 py-2 border rounded-md focus:ring-2 outline-none',
                     errors.email
                         ? 'border-red-400 focus:ring-red-300'

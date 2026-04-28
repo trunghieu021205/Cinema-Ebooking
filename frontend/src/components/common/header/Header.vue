@@ -9,9 +9,9 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useTheme } from '@/composables/useTheme'
-import Logo from '@/components/common/header/Logo.vue'
-import Navbar from '@/components/common/header/Navbar.vue'
-import HeaderActions from '@/components/common/header/HeaderActions.vue'
+import Logo from '@/components/ui/logo/Logo.vue'
+import Navbar from '@/components/common/header/subcomponents/Navbar.vue'
+import HeaderActions from '@/components/common/header/subcomponents/HeaderActions.vue'
 
 const { toggleTheme, initTheme } = useTheme()
 

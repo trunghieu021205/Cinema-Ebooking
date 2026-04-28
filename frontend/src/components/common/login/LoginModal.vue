@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import LoginForm from '@/components/common/login/LoginForm.vue'
-import RegisterForm from '@/components/common/login/RegisterForm.vue'
+import LoginForm from '@/components/common/login/subcomponents/LoginForm.vue'
+import RegisterForm from '@/components/common/login/subcomponents/RegisterForm.vue'
 
 const emit = defineEmits<{ close: [] }>()
 
