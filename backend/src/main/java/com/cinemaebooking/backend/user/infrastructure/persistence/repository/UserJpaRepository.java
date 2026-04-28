@@ -26,6 +26,8 @@ public interface UserJpaRepository extends SoftDeleteJpaRepository<UserJpaEntity
     boolean existsByEmailAndIdNot(String email, Long id);
 
     boolean existsByPhoneNumber(String phone);
+
+    boolean existsByPhoneNumberAndIdNot(String phone, Long id);
     // ===== LOGIN =====
     Optional<UserJpaEntity> findByEmailAndStatus(String email, UserStatus status);
 

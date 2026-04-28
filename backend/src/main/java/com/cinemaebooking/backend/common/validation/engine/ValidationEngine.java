@@ -1,11 +1,14 @@
 package com.cinemaebooking.backend.common.validation.engine;
 
+import com.cinemaebooking.backend.common.exception.ErrorCategory;
 import com.cinemaebooking.backend.common.exception.ErrorDetail;
 import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
+
 
 /**
  * ValidationEngine — Chạy tất cả rule, gom ErrorDetail, throw một lần duy nhất.
@@ -49,6 +52,19 @@ public class ValidationEngine {
             ValidationRule<T>... rules
     ) {
         return validate(value,fieldName , List.of(rules));
+    }
+
+    public <T> ValidationEngine validateUnique(
+            T value,
+            String field,
+            Function<T, Boolean> checker
+    ) {
+        if (value != null && checker.apply(value)) {
+            errors.add(
+                    new ErrorDetail(field, ErrorCategory.DUPLICATE, field + " đã tồn tại")
+            );
+        }
+        return this;
     }
 
     /**

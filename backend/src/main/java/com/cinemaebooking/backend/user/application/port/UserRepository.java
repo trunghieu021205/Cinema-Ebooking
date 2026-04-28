@@ -26,5 +26,9 @@ public interface UserRepository {
     boolean existsByEmail(String email);
 
     boolean existsByEmailAndIdNot(String email, UserId id);
+
+    boolean existsByPhoneNumber(String phoneNumber);
+
+    boolean existsByPhoneNumberAndIdNot(String phoneNumber, UserId id);
 }
 

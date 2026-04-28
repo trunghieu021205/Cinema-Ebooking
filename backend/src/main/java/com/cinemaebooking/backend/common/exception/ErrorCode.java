@@ -83,15 +83,14 @@ public enum ErrorCode {
     CONCURRENCY_CONFLICT        (1107, "Xung đột đồng thời, vui lòng thử lại",             HttpStatus.CONFLICT,              ErrorType.BUSINESS),
 
     // ===================== CORE =====================
-    // user: 2001–2008
+    // user: 2001–2007
     USER_NOT_FOUND              (2001, "Không tìm thấy người dùng",                        HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
-    USER_ALREADY_EXISTS         (2002, "Người dùng đã tồn tại",                            HttpStatus.CONFLICT,              ErrorType.BUSINESS),
-    USER_INVALID_CREDENTIALS    (2003, "Tên đăng nhập hoặc mật khẩu không đúng",           HttpStatus.UNAUTHORIZED,          ErrorType.BUSINESS),
-    USER_ACCOUNT_DISABLED       (2004, "Tài khoản người dùng đã bị vô hiệu hóa",           HttpStatus.FORBIDDEN,             ErrorType.BUSINESS),
-    USER_INVALID_STATUS         (2005, "Trạng thái người dùng không hợp lệ",               HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
-    USER_INVALID_EMAIL          (2006, "Định dạng email không hợp lệ",                     HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
-    USER_INVALID_PASSWORD       (2007, "Mật khẩu không đáp ứng yêu cầu",                  HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
-    USER_NOT_VERIFIED           (2008, "Tài khoản người dùng chưa được xác minh",          HttpStatus.FORBIDDEN,             ErrorType.BUSINESS),
+    USER_INVALID_CREDENTIALS    (2002, "Tên đăng nhập hoặc mật khẩu không đúng",           HttpStatus.UNAUTHORIZED,          ErrorType.BUSINESS),
+    USER_ACCOUNT_DISABLED       (2003, "Tài khoản người dùng đã bị vô hiệu hóa",           HttpStatus.FORBIDDEN,             ErrorType.BUSINESS),
+    USER_INVALID_STATUS         (2004, "Trạng thái người dùng không hợp lệ",               HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
+    USER_INVALID_EMAIL          (2005, "Định dạng email không hợp lệ",                     HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
+    USER_INVALID_PASSWORD       (2006, "Mật khẩu không đáp ứng yêu cầu",                  HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
+    USER_NOT_VERIFIED           (2007, "Tài khoản người dùng chưa được xác minh",          HttpStatus.FORBIDDEN,             ErrorType.BUSINESS),
 
     // loyalty: 2009–2019
     LOYALTY_ACCOUNT_NOT_FOUND      (2009, "Không tìm thấy tài khoản tích điểm",            HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),

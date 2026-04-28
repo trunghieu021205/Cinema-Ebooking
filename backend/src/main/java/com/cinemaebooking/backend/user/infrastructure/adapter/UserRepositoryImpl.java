@@ -83,4 +83,15 @@ public class UserRepositoryImpl implements UserRepository {
         if (email == null || id == null) return false;
         return userJpaRepository.existsByEmailAndIdNot(email, id.getValue());
     }
+
+    @Override
+    public boolean existsByPhoneNumber(String phoneNumber) {
+        return userJpaRepository.existsByPhoneNumber(phoneNumber);
+    }
+
+    @Override
+    public boolean existsByPhoneNumberAndIdNot(String phoneNumber, UserId id) {
+        if (phoneNumber == null || id == null) return false;
+        return userJpaRepository.existsByPhoneNumberAndIdNot(phoneNumber, id.getValue());
+    }
 }
