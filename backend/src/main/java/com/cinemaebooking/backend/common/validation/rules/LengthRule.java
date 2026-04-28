@@ -6,6 +6,7 @@ import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import com.cinemaebooking.backend.common.validation.engine.ValidationContext;
 import com.cinemaebooking.backend.common.validation.engine.ValidationRule;
 
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -38,7 +39,8 @@ public class LengthRule implements ValidationRule<String> {
             return Optional.of(new ErrorDetail(
                     context.fieldName(),
                     ErrorCategory.INVALID_LENGTH_MIN,
-                    "tối thiểu " + min +" ký tự"
+                    "tối thiểu " + min +" ký tự",
+                    Map.of("min",min)
             ));
         }
 
@@ -46,7 +48,8 @@ public class LengthRule implements ValidationRule<String> {
             return Optional.of(new ErrorDetail(
                     context.fieldName(),
                     ErrorCategory.INVALID_LENGTH_MAX,
-                    "tối đa " + min +" ký tự"
+                    "tối đa " + min +" ký tự",
+                    Map.of("max", max)
             ));
         }
         return Optional.empty();
