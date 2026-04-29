@@ -30,7 +30,7 @@
     </header>
 </template>
 <script setup>
-import Logo from '../header/Logo.vue'
+import Logo from '@/components/ui/logo/Logo.vue'
 import BaseButton from '@/components/ui/button/BaseButton.vue'
 import BaseIcon from '@/components/ui/icon/BaseIcon.vue'
 import { ChevronLeft, ChevronRight, Search, Home, Users, Settings } from 'lucide-vue-next'

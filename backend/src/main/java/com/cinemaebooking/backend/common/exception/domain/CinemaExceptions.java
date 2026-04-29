@@ -27,16 +27,4 @@ public final class CinemaExceptions {
         return new BaseException(ErrorCode.CINEMA_NOT_FOUND,
                 "Không tìm thấy rạp với id: " + id);           // debugMessage
     }
-
-    public static BaseException duplicateName(String name) {
-        return new BaseException(ErrorCode.CINEMA_ALREADY_EXISTS,
-                List.of(new ErrorDetail("name", ErrorCategory.DUPLICATE,
-                        "tên rạp '" + name + "' đã tồn tại")));
-    }
-
-    public static BaseException duplicateLocation(String address, String city) {
-        return new BaseException(ErrorCode.CINEMA_ALREADY_EXISTS,
-                List.of(new ErrorDetail("address", ErrorCategory.DUPLICATE,
-                        "đã có rạp tại địa chỉ này trong thành phố " + city)));
-    }
 }

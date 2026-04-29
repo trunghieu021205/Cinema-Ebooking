@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import LoginForm from '@/components/common/login/LoginForm.vue'
-import RegisterForm from '@/components/common/login/RegisterForm.vue'
+import { X } from 'lucide-vue-next';
+import BaseButton from '@/components/ui/button/BaseButton.vue';
+import BaseIcon from '@/components/ui/icon/BaseIcon.vue';
+import LoginForm from '@/components/common/login/subcomponents/LoginForm.vue'
+import RegisterForm from '@/components/common/login/subcomponents/RegisterForm.vue'
 
 const emit = defineEmits<{ close: [] }>()
 
@@ -18,11 +21,10 @@ const closeModal = () => emit('close')
             <!-- HEADER IMAGE -->
             <div class="relative">
                 <img src="/images/login/LoginBanner.png" class="w-full h-50 rounded-t-lg object-cover" />
-                <button
-                    class="w-6 h-6 text-center text-black bg-overlay-dark-50 aspect-square rounded-full absolute top-2 right-2 hover:bg-overlay-dark-70 transition-colors"
-                    @click="closeModal">
-                    ✕
-                </button>
+                <BaseButton variant="ghost" size="sm" rounded="full" iconOnly @click="onClose"
+                    class="absolute right-2 top-2">
+                    <BaseIcon :icon="X" :size="16" :scale="1.2" />
+                </BaseButton>
             </div>
 
             <!-- FORM CONTENT -->

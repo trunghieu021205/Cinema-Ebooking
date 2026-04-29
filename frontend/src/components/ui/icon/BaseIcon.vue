@@ -22,7 +22,7 @@ const style = computed(() => ({
 </script>
 
 <template>
-    <span class="inline-flex items-center justify-center" :style="style">
+    <span class="inline-flex items-center justify-center [&>svg]:stroke-current" :style="style">
         <component :is="icon" :size="size" :stroke-width="strokeWidth" v-bind="attrs" class="w-full h-full" />
     </span>
 </template>

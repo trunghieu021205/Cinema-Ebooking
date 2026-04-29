@@ -1,6 +1,8 @@
 package com.cinemaebooking.backend.common.validation.domain;
 
+import com.cinemaebooking.backend.cinema.domain.enums.CinemaStatus;
 import com.cinemaebooking.backend.common.validation.builder.StringValidationBuilder;
+import com.cinemaebooking.backend.common.validation.builder.ValidationBuilder;
 import com.cinemaebooking.backend.common.validation.engine.ValidationRule;
 import com.cinemaebooking.backend.common.validation.patterns.ValidationPatterns;
 
@@ -55,6 +57,12 @@ public class CinemaValidationProfile {
                         ValidationPatterns.ADDRESS,
                         "chứa kí tự không hợp lệ"
                 )
+                .build();
+    }
+
+    public List<ValidationRule<CinemaStatus>> statusRules() {
+        return ValidationBuilder.<CinemaStatus>create()
+                .notNull()
                 .build();
     }
 }
