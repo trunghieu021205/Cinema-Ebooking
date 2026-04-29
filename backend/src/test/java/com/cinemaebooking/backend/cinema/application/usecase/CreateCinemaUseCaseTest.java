@@ -136,19 +136,6 @@ class CreateCinemaUseCaseTest {
     }
 
     @Test
-    @DisplayName("Should throw duplicate name exception from validator")
-    void shouldThrowDuplicateNameException() {
-        willThrow(CinemaExceptions.duplicateName(request.getName()))
-                .given(validator).validateCreateRequest(request);
-
-        RuntimeException ex = assertThrows(RuntimeException.class, () -> useCase.execute(request));
-
-        assertTrue(ex.getMessage().contains("duplicate") || ex.getMessage().contains(request.getName()));
-
-        then(cinemaRepository).should(never()).create(any());
-    }
-
-    @Test
     @DisplayName("Should propagate exception when repository fails")
     void shouldThrowExceptionWhenRepositoryFails() {
         willDoNothing().given(validator).validateCreateRequest(request);

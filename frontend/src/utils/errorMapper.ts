@@ -18,20 +18,30 @@ const CATEGORY_MESSAGES: Record<string, MessageFn> = {
 // ─── Error code map ────────────────────────────────────────────
 const ERROR_CODE_MESSAGES: Record<number, string> = {
     1001: 'Dữ liệu không hợp lệ',
-    2001: 'Email này đã được sử dụng',
-    2002: 'Số điện thoại đã được đăng ký',
-    2003: 'Email hoặc mật khẩu không đúng',
+    2002: 'Email hoặc mật khẩu không đúng',
+}
+
+// ─── Field + Category override ─────────────────────────────────
+// Khi cần message riêng cho field cụ thể, thêm vào đây
+// key: `${field}.${category}`
+
+const FIELD_CATEGORY_MESSAGES: Record<string, MessageFn> = {
+  'address.DUPLICATE': () => 'Địa chỉ trong thành phố này đã được sử dụng',
 }
 
 // ─── Resolve message cho 1 detail ─────────────────────────────
 function resolveMessage(detail: ApiErrorDetail): string {
-    const messageFn = CATEGORY_MESSAGES[detail.category]
+  // 1. Ưu tiên field-specific override
+  const fieldKey = `${detail.field}.${detail.category}`
+  const fieldOverride = FIELD_CATEGORY_MESSAGES[fieldKey]
+  if (fieldOverride) return fieldOverride(detail.params ?? undefined)
 
-    // category có trong map → dùng, truyền params nếu có
-    if (messageFn) return messageFn(detail.params ?? undefined)
+  // 2. Fallback về category map
+  const messageFn = CATEGORY_MESSAGES[detail.category]
+  if (messageFn) return messageFn(detail.params ?? undefined)
 
-    // category chưa map → fallback reason từ BE
-    return detail.reason
+  // 3. Fallback về reason từ backend
+  return detail.reason
 }
 
 // ─── Main export ───────────────────────────────────────────────

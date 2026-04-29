@@ -10,6 +10,7 @@ const props = defineProps<{
   size?: Size
   rounded?: Rounded
   iconOnly?: boolean
+  isAdmin?: boolean
 }>()
 
 /* ================= CONFIG ================= */
@@ -18,8 +19,8 @@ const base =
   'inline-flex items-center justify-center transition focus:outline-none'
 
 const variants: Record<Variant, string> = {
-  primary: 'bg-accent text-text-primary hover:brightness-110',
-  secondary: 'border border-accent text-text-primary hover:bg-accent',
+  primary: 'bg-accent text-text-on-accent hover:brightness-110',
+  secondary: 'border border-accent text-text-primary hover:bg-accent hover:text-text-on-accent',
   ghost: 'text-text-secondary hover:text-text-primary'
 }
 
@@ -44,6 +45,10 @@ const roundeds: Record<Rounded, string> = {
 function getCompoundClasses() {
   const classes: string[] = []
 
+  const overlay = props.isAdmin
+    ? 'hover:bg-overlay-light-10'
+    : 'hover:bg-overlay-dark-10'
+
   // iconOnly override size
   if (props.iconOnly) {
     classes.push('aspect-square')
@@ -52,30 +57,48 @@ function getCompoundClasses() {
     if (props.size === 'md') classes.push('w-10 h-10')
     if (props.size === 'lg') classes.push('w-12 h-12')
     if (props.size === '2xl') classes.push('w-16 h-16')
+
     classes.push('bg-transparent')
 
     if (props.variant === 'primary') {
-      classes.push('hover:bg-overlay-dark-10')
+      classes.push(overlay)
     }
 
     if (props.variant === 'secondary') {
-      classes.push('hover:bg-overlay-dark-10 border-none')
+      classes.push(`${overlay} border-none`)
     }
 
     if (props.variant === 'ghost' || !props.variant) {
-      classes.push('hover:bg-overlay-dark-10')
+      classes.push(overlay)
     }
   }
 
   return classes
 }
+const variantClass = computed(() => {
+  const v = props.variant ?? 'primary'
 
+  // base class từ config
+  let cls = variants[v]
+
+  if (props.isAdmin) {
+    if (v === 'secondary' || v === 'ghost') {
+      cls = cls.replace('text-text-primary', 'text-text-admin-primary')
+    }
+
+    if (v === 'ghost') {
+      cls = cls.replace('text-text-secondary', 'text-text-admin-secondary')
+    }
+  }
+
+  return cls
+})
 /* ================= FINAL CLASS ================= */
 
 const buttonClass = computed(() => [
   base,
 
-  variants[props.variant ?? 'primary'],
+  variantClass.value,
   !props.iconOnly && sizes[props.size ?? 'md'],
   roundeds[props.rounded ?? 'md'],
 

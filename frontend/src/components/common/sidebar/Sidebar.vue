@@ -15,7 +15,7 @@ const getInitial = (name: string) => {
 
 <template>
     <aside
-        class="flex h-screen fixed left-0 top-16 shrink-0 flex-col gap-8 border-r border-border-admin-default bg-bg-admin-sidebar"
+        class="flex h-screen fixed left-0 top-16 shrink-0 flex-col gap-6 border-r border-border-admin-default bg-bg-admin-sidebar"
         :class="ui.isSidebarCollapsed ? 'p-3' : 'p-6'" :style="{
             width: ui.isSidebarCollapsed
                 ? 'var(--sidebar-collapsed-width)'
@@ -52,7 +52,7 @@ const getInitial = (name: string) => {
         </div>
 
         <!-- MENU -->
-        <nav class="flex flex-1 flex-col gap-1 overflow-y-auto">
+        <nav class="flex flex-1 flex-col gap-1 overflow-y-auto hide-scrollbar">
             <SidebarMenuItem v-for="item in menu" :key="item.key" :item="item" />
         </nav>
 

@@ -3,11 +3,10 @@ package com.cinemaebooking.backend.cinema.application.validator;
 import com.cinemaebooking.backend.cinema.application.dto.CreateCinemaRequest;
 import com.cinemaebooking.backend.cinema.application.dto.UpdateCinemaRequest;
 import com.cinemaebooking.backend.cinema.application.port.CinemaRepository;
+import com.cinemaebooking.backend.cinema.domain.enums.CinemaStatus;
 import com.cinemaebooking.backend.cinema.domain.valueobject.CinemaId;
-import com.cinemaebooking.backend.common.exception.domain.CinemaExceptions;
 import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import com.cinemaebooking.backend.common.validation.engine.ValidationEngine;
-import com.cinemaebooking.backend.common.validation.engine.ValidationRule;
 import com.cinemaebooking.backend.common.validation.factory.ValidationFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -26,113 +25,100 @@ public class CinemaCommandValidator {
 
     private final CinemaRepository cinemaRepository;
 
-    // ================== CREATE ==================
+    // ================== PUBLIC API ==================
 
     public void validateCreateRequest(CreateCinemaRequest request) {
-
-        validateCreateInput(request);
-
-        validateFields(
-                request.getName(),
-                request.getAddress(),
-                request.getCity()
-        );
-
-        validateDuplicateForCreate(
-                normalize(request.getName()),
-                normalize(request.getAddress()),
-                normalize(request.getCity())
-        );
+        validateRequest(request, null, false);
     }
-
-    // ================== UPDATE ==================
 
     public void validateUpdateRequest(CinemaId id, UpdateCinemaRequest request) {
-
-        validateUpdateInput(id, request);
-
-        validateFields(
-                request.getName(),
-                request.getAddress(),
-                request.getCity()
-        );
-
-        validateDuplicateForUpdate(
-                id,
-                normalize(request.getName()),
-                normalize(request.getAddress()),
-                normalize(request.getCity())
-        );
+        validateRequest(request, id, true);
     }
 
-    // ================== INPUT VALIDATION ==================
+    // ================== CORE VALIDATION ==================
 
-    private void validateCreateInput(CreateCinemaRequest request) {
-        if (request == null) {
-            throw CommonExceptions.invalidInput("Request must not be null");
+    private void validateRequest(Object requestObj, CinemaId id, boolean isUpdate) {
+        if (requestObj == null) {
+            throw CommonExceptions.invalidInput(isUpdate
+                    ? "Cinema id and request must not be null"
+                    : "Create cinema request must not be null");
         }
-    }
 
-    private void validateUpdateInput(CinemaId id, UpdateCinemaRequest request) {
-        if (id == null || request == null) {
-            throw CommonExceptions.invalidInput("Cinema id and request must not be null");
+        String name = extractName(requestObj);
+        String address = extractAddress(requestObj);
+        String city = extractCity(requestObj);
+        CinemaStatus status = extractStatus(requestObj);
+
+        // ================== PHASE 1: FORMAT VALIDATION ==================
+        ValidationEngine engine = ValidationEngine.of()
+                .validate(name, "name", ValidationFactory.cinema().nameRules())
+                .validate(address, "address", ValidationFactory.cinema().addressRules())
+                .validate(city, "city", ValidationFactory.cinema().cityRules());
+
+        if (isUpdate) {
+            engine.validate(status, "status", ValidationFactory.cinema().statusRules());
         }
-    }
 
-    // ================== FIELD VALIDATION ==================
+        if (engine.hasErrors()) {
+            engine.throwIfInvalid();
+            return;
+        }
 
-    private void validateFields(String name, String address, String city) {
+        // ================== PHASE 2: BUSINESS VALIDATION ==================
+        String normalizedName = normalize(name);
+        String normalizedAddress = normalize(address);
+        String normalizedCity = normalize(city);
 
-        var profile = ValidationFactory.cinema();
-
-        ValidationEngine.of()
-                .validate(name,"name", profile.nameRules())
-                .validate(address,"address",profile.addressRules())
-                .validate(city,"city",profile.cityRules())
+        engine
+                .validateUnique(normalizedName, "name",
+                        value -> nameExists(value, id, isUpdate))
+                .validateUnique(normalizedAddress, "address",
+                        value -> locationExists(value, normalizedCity, id, isUpdate))
                 .throwIfInvalid();
     }
 
-    // ================== BUSINESS - CREATE ==================
+    // ================== BUSINESS CHECKS ==================
 
-    private void validateDuplicateForCreate(String name, String address, String city) {
-
-        if (name != null) {
-            if (cinemaRepository.existsByName(name)) {
-                throw CinemaExceptions.duplicateName(name);
-            }
-        }
-
-        if (address != null && city != null) {
-            boolean exists = cinemaRepository.existsByAddressAndCity(address, city);
-
-            if (exists) {
-                throw CinemaExceptions.duplicateLocation(address, city);
-            }
-        }
+    private boolean nameExists(String name, CinemaId id, boolean isUpdate) {
+        if (name == null) return false;
+        return isUpdate
+                ? cinemaRepository.existsByNameAndIdNot(name, id)
+                : cinemaRepository.existsByName(name);
     }
 
-    // ================== BUSINESS - UPDATE ==================
-
-    private void validateDuplicateForUpdate(
-            CinemaId id,
-            String name,
-            String address,
-            String city
-    ) {
-
-        if (name != null) {
-            if (cinemaRepository.existsByNameAndIdNot(name, id)) {
-                throw CinemaExceptions.duplicateName(name);
-            }
-        }
-
-        if (address != null && city != null) {
-            if (cinemaRepository.existsByAddressAndCityAndIdNot(address, city, id)) {
-                throw CinemaExceptions.duplicateLocation(address, city);
-            }
-        }
+    private boolean locationExists(String address, String city, CinemaId id, boolean isUpdate) {
+        if (address == null || city == null) return false;
+        return isUpdate
+                ? cinemaRepository.existsByAddressAndCityAndIdNot(address, city, id)
+                : cinemaRepository.existsByAddressAndCity(address, city);
     }
 
+    // ================== EXTRACTORS ==================
+
+    private String extractName(Object request) {
+        if (request instanceof CreateCinemaRequest req) return req.getName();
+        if (request instanceof UpdateCinemaRequest req) return req.getName();
+        return null;
+    }
+
+    private String extractAddress(Object request) {
+        if (request instanceof CreateCinemaRequest req) return req.getAddress();
+        if (request instanceof UpdateCinemaRequest req) return req.getAddress();
+        return null;
+    }
+
+    private String extractCity(Object request) {
+        if (request instanceof CreateCinemaRequest req) return req.getCity();
+        if (request instanceof UpdateCinemaRequest req) return req.getCity();
+        return null;
+    }
+
+    private CinemaStatus extractStatus(Object request) {
+        if (request instanceof UpdateCinemaRequest req) return req.getStatus();
+        return null;
+    }
+
+    // ================== HELPER ==================
 
     private String normalize(String value) {
         if (value == null) return null;
