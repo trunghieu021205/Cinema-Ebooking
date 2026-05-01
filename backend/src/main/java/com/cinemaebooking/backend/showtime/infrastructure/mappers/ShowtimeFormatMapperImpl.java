@@ -1,4 +1,4 @@
-package com.cinemaebooking.backend.showtime.infrastructure.mapper;
+package com.cinemaebooking.backend.showtime.infrastructure.mappers;
 
 import com.cinemaebooking.backend.showtime.domain.model.ShowtimeFormat;
 import com.cinemaebooking.backend.showtime.domain.valueobject.ShowtimeFormatId;
@@ -61,7 +61,7 @@ public class ShowtimeFormatMapperImpl implements ShowtimeFormatMapper {
         }
 
         return ShowtimeFormat.builder()
-                .id(entity.getId() != null ? new ShowtimeFormatId(entity.getId()) : null)
+                .id(ShowtimeFormatId.ofNullable(entity.getId()))
                 .name(entity.getName())
                 .extraPrice(entity.getExtraPrice())
                 .build();
