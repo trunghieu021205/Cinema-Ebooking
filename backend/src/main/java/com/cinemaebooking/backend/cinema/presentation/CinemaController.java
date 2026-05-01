@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
  * @since 2026
  */
 @RestController
-@RequestMapping("/api/v1/cinemas")
+@RequestMapping("/api/v1/admin/cinemas")
 @RequiredArgsConstructor
 public class CinemaController {
 

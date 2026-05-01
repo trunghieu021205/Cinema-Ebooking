@@ -14,8 +14,10 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/api/v1/seats")
+@RequestMapping("/api/v1/admin/seats")
 @RequiredArgsConstructor
 public class SeatController {
 
@@ -65,11 +67,10 @@ public class SeatController {
 
     // ================== LIST BY ROOM ==================
     @GetMapping("/room/{roomId}")
-    public Page<SeatResponse> getSeatsByRoomId(
-            @PathVariable Long roomId,
-            @PageableDefault(size = 8, page = 0) Pageable pageable
+    public List<SeatResponse> getSeatsByRoomId(
+            @PathVariable Long roomId
     ) {
-        return findSeatsByRoomIdUsecase.execute(roomId, pageable);
+        return findSeatsByRoomIdUsecase.execute(roomId);
     }
 
     // ================== HELPER ==================

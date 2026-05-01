@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
  * - Return proper HTTP responses
  */
 @RestController
-@RequestMapping("/api/v1/rooms")
+@RequestMapping("/api/v1/admin/rooms")
 @RequiredArgsConstructor
 public class RoomController {
 
