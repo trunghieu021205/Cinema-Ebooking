@@ -2,10 +2,12 @@ package com.cinemaebooking.backend.room.presentation;
 
 import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import com.cinemaebooking.backend.room.application.dto.CreateRoomRequest;
+import com.cinemaebooking.backend.room.application.dto.RoomLayoutResponse;
 import com.cinemaebooking.backend.room.application.dto.RoomResponse;
 import com.cinemaebooking.backend.room.application.dto.UpdateRoomRequest;
 import com.cinemaebooking.backend.room.application.usecase.*;
 import com.cinemaebooking.backend.room.domain.valueObject.RoomId;
+import com.cinemaebooking.backend.seat.application.dto.seat.SeatResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -13,6 +15,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * RoomController - REST API for Room resource.
@@ -33,6 +37,7 @@ public class RoomController {
     private final GetRoomsByCinemaIdUseCase getRoomsByCinemaIdUseCase;
     private final GetRoomByIdUseCase getRoomByIdUseCase;
     private final GenerateRoomLayoutUseCase generateRoomLayoutUseCase;
+    private final GetRoomLayoutUseCase getRoomLayoutUseCase;
 
     // ================== CREATE ==================
     @PostMapping
@@ -90,6 +95,11 @@ public class RoomController {
     @ResponseStatus(HttpStatus.CREATED)
     public void generateLayout(@PathVariable Long id) {
         generateRoomLayoutUseCase.execute(toRoomId(id));
+    }
+
+    @GetMapping("/{id}/layout")
+    public RoomLayoutResponse getLayout(@PathVariable Long id) {
+        return getRoomLayoutUseCase.execute(id);
     }
 
     // ================== HELPER ==================

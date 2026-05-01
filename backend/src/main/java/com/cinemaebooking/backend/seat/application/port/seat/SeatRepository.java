@@ -17,10 +17,12 @@ public interface SeatRepository {
     void deleteById(SeatId id);
     boolean existsById(SeatId id);
     List<Seat> findByRoomId(Long roomId);
+    List<Seat> findAllById(List<SeatId> ids);
     boolean existsByRoomId(Long roomId);
     boolean existsByRoomIdAndRowIndexAndColIndex(Long roomId, Integer rowIndex, Integer colIndex);
     boolean existsByRoomIdAndRowIndexAndColIndexAndIdNot(Long roomId, Integer rowIndex, Integer colIndex, SeatId id);
     void createBatch(List<Seat> seats);
+    void updateBatch(List<Seat> seats);
 }
 
 

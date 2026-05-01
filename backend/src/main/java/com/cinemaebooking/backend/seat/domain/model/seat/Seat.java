@@ -5,6 +5,7 @@ import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import com.cinemaebooking.backend.seat.domain.enums.SeatStatus;
 import com.cinemaebooking.backend.seat.domain.valueObject.seat.SeatId;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 @Getter
@@ -15,6 +16,7 @@ public class Seat extends BaseEntity<SeatId> {
     private Integer colIndex;   // 0-based, sync với Room.numberOfCols
     private String label;       // "A1", "B3" — generated 1 lần, readonly sau đó
     private SeatStatus status;
+    @Setter
     private Long seatTypeId;
     private Long roomId;
 
@@ -26,11 +28,6 @@ public class Seat extends BaseEntity<SeatId> {
         this.status = status;
     }
 
-    public void changeStatus(SeatStatus status) {
-        validateStatus(status);
-        this.status = status;
-    }
-
     public boolean isActive() {
         return this.status == SeatStatus.ACTIVE;
     }
@@ -38,6 +35,8 @@ public class Seat extends BaseEntity<SeatId> {
     public void markInactive() {
         this.status = SeatStatus.INACTIVE;
     }
+
+    public  void markActive() { this.status = SeatStatus.ACTIVE; }
 
     private void validateStatus(SeatStatus status) {
         if (status == null) {

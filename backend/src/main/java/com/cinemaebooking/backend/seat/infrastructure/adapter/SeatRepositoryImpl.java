@@ -18,8 +18,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -128,40 +128,95 @@ public class SeatRepositoryImpl implements SeatRepository {
     }
 
     @Override
+    public List<Seat> findAllById(List<SeatId> ids) {
+        List<Long> idValues = ids.stream()
+                .map(SeatId::getValue)
+                .toList();
+        return seatJpaRepository.findAllById(idValues)
+                .stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Override
     public boolean existsByRoomId(Long roomId) {
         return seatJpaRepository.existsByRoom_Id(roomId);
     }
-
 
     @Override
     @Transactional
     public void createBatch(List<Seat> seats) {
 
-        if (seats == null || seats.isEmpty()) return;
+        if (seats == null || seats.isEmpty()) {
+            throw new IllegalArgumentException("Seat batch must not be empty");
+        }
 
-        // ✅ lấy 1 lần thôi
-        Long roomId = seats.get(0).getRoomId();
+        Set<Long> roomIds = seats.stream()
+                .map(Seat::getRoomId)
+                .collect(Collectors.toSet());
+
+        if (roomIds.size() != 1) {
+            throw new IllegalArgumentException("All seats must belong to same room");
+        }
+
+        Long roomId = roomIds.iterator().next();
         RoomJpaEntity roomRef = entityManager.getReference(RoomJpaEntity.class, roomId);
+
+        Map<Long, SeatTypeJpaEntity> typeCache = new HashMap<>();
 
         List<SeatJpaEntity> entities = seats.stream()
                 .map(seat -> {
                     SeatJpaEntity entity = mapper.toEntity(seat);
 
-                    // ✅ set room 1 lần reuse
                     entity.setRoom(roomRef);
 
-                    // ✅ set seatType bằng reference
                     if (seat.getSeatTypeId() != null) {
-                        SeatTypeJpaEntity seatTypeRef = entityManager.getReference(
-                                SeatTypeJpaEntity.class,
-                                seat.getSeatTypeId()
+                        SeatTypeJpaEntity typeRef = typeCache.computeIfAbsent(
+                                seat.getSeatTypeId(),
+                                id -> entityManager.getReference(SeatTypeJpaEntity.class, id)
                         );
-                        entity.setSeatType(seatTypeRef);
+                        entity.setSeatType(typeRef);
                     }
 
                     return entity;
                 })
                 .toList();
+
+        seatJpaRepository.saveAll(entities);
+    }
+
+    @Override
+    @Transactional
+    public void updateBatch(List<Seat> seats) {
+
+        List<Long> ids = seats.stream()
+                .map(seat -> seat.getId().getValue())
+                .toList();
+
+        List<SeatJpaEntity> entities = seatJpaRepository.findAllById(ids);
+
+        Map<Long, Seat> seatMap = seats.stream()
+                .collect(Collectors.toMap(
+                        seat -> seat.getId().getValue(),
+                        seat -> seat
+                ));
+
+        for (SeatJpaEntity entity : entities) {
+
+            Seat seat = seatMap.get(entity.getId());
+            if (seat == null) continue;
+
+            // update fields admin được chỉnh
+            entity.setStatus(seat.getStatus());
+
+            if (seat.getSeatTypeId() != null) {
+                SeatTypeJpaEntity seatType = entityManager.getReference(
+                        SeatTypeJpaEntity.class,
+                        seat.getSeatTypeId()
+                );
+                entity.setSeatType(seatType);
+            }
+        }
 
         seatJpaRepository.saveAll(entities);
     }
