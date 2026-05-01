@@ -1,71 +1,112 @@
 package com.cinemaebooking.backend.showtime.domain.model;
 
 import com.cinemaebooking.backend.common.domain.BaseEntity;
-import com.cinemaebooking.backend.showtime.domain.enums.Language;
+import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
+import com.cinemaebooking.backend.showtime.domain.enums.ShowtimeStatus;
 import com.cinemaebooking.backend.showtime.domain.valueobject.ShowtimeId;
-import lombok.*;
+import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
-/**
- * Showtime: Domain entity đại diện cho một suất chiếu phim.
- *
- * <p>
- * Chịu trách nhiệm:
- * <ul>
- *     <li>Đại diện thông tin suất chiếu trong domain layer</li>
- *     <li>Lưu startTime, endTime, audio/subtitle language</li>
- *     <li>Chỉ giữ reference ID tới Movie, Room, ShowtimeFormat</li>
- * </ul>
- *
- * <p>
- * Lưu ý:
- * <ul>
- *     <li>Domain không phụ thuộc vào JPA Entity</li>
- *     <li>movieId/roomId/formatId là foreign identity trong domain</li>
- * </ul>
- *
- * @author Hieu Nguyen
- * @since 2026
- */
 @Getter
-@Setter
 @SuperBuilder(toBuilder = true)
 public class Showtime extends BaseEntity<ShowtimeId> {
 
-    /**
-     * Thời gian bắt đầu chiếu
-     */
-    private LocalDateTime startTime;
+    private Long movieId;
+    private Long roomId;
+    private Long formatId;
 
-    /**
-     * Thời gian kết thúc chiếu
-     */
+    private LocalDateTime startTime;
     private LocalDateTime endTime;
 
-    /**
-     * Ngôn ngữ âm thanh (EN, VI,...)
-     */
-    private Language audioLanguage;
+    private String audioLanguage;
+    private String subtitleLanguage;
 
-    /**
-     * Ngôn ngữ phụ đề (VI, EN,...)
-     */
-    private Language subtitleLanguage;
+    private ShowtimeStatus status;
 
-    /**
-     * ID của phim được chiếu
-     */
-    private Long movieId;
+    // =====================================================
+    // BUSINESS METHODS
+    // =====================================================
 
-    /**
-     * ID của phòng chiếu
-     */
-    private Long roomId;
+    public void update(LocalDateTime start,
+                       LocalDateTime end) {
 
-    /**
-     * ID của format suất chiếu (2D, 3D, IMAX,...)
-     */
-    private Long formatId;
+        validateStartEnd(start, end);
+
+        this.startTime = start;
+        this.endTime = end;
+    }
+
+    public void updateLanguage(String audio, String subtitle){
+        validateLanguages(audio, subtitle);
+        this.audioLanguage = audio;
+        this.subtitleLanguage = subtitle;
+    }
+    public void changeStatus(ShowtimeStatus newStatus) {
+        if (newStatus == null) {
+            throw CommonExceptions.invalidInput("Showtime status cannot be null");
+        }
+        this.status = newStatus;
+    }
+
+    public void cancel() {
+        this.status =ShowtimeStatus.CANCELLED;
+    }
+
+    public void validateForCreate() {
+        validateMovieId(movieId);
+        validateRoomId(roomId);
+        validateFormatId(formatId);
+
+        validateStartEnd(startTime, endTime);
+        validateLanguages(audioLanguage, subtitleLanguage);
+
+        if (status == null) {
+            throw CommonExceptions.invalidInput("Showtime status cannot be null");
+        }
+    }
+
+    // =====================================================
+    // VALIDATION
+    // =====================================================
+
+    private void validateMovieId(Long id) {
+        if (id == null || id <= 0) {
+            throw CommonExceptions.invalidInput("movieId must be a positive number");
+        }
+    }
+
+    private void validateRoomId(Long id) {
+        if (id == null || id <= 0) {
+            throw CommonExceptions.invalidInput("roomId must be a positive number");
+        }
+    }
+
+    private void validateFormatId(Long id) {
+        if (id == null || id <= 0) {
+            throw CommonExceptions.invalidInput("formatId must be a positive number");
+        }
+    }
+
+    private void validateStartEnd(LocalDateTime start, LocalDateTime end) {
+        if (start == null) {
+            throw CommonExceptions.invalidInput("startTime cannot be null");
+        }
+        if (end == null) {
+            throw CommonExceptions.invalidInput("endTime cannot be null");
+        }
+        if (end.isBefore(start)) {
+            throw CommonExceptions.invalidInput("endTime must be after startTime");
+        }
+    }
+
+    private void validateLanguages(String audio, String subtitle) {
+        if (audio == null || audio.isBlank()) {
+            throw CommonExceptions.invalidInput("Audio language cannot be empty");
+        }
+        if (subtitle == null || subtitle.isBlank()) {
+            throw CommonExceptions.invalidInput("Subtitle language cannot be empty");
+        }
+    }
 }
