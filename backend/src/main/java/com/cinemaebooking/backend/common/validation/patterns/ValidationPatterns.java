@@ -44,4 +44,6 @@ public final class ValidationPatterns {
 
     // ===================== GENRE_NAME =====================
     public static final String GENRE_NAME = "^[\\p{L}0-9\\s\\-]+$";
+
+    public static final String SEAT_LABEL = "^[A-Z][1-9][0-9]{0,1}$";
 }

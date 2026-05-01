@@ -8,28 +8,32 @@ import com.cinemaebooking.backend.seat.infrastructure.persistence.entity.SeatTyp
 import org.springframework.stereotype.Component;
 
 @Component
-public class SeatMapperImpl implements SeatMapper{
+public class SeatMapperImpl implements SeatMapper {
+
     @Override
     public Seat toDomain(SeatJpaEntity entity) {
         if (entity == null) return null;
 
         return Seat.builder()
                 .id(entity.getId() != null ? new SeatId(entity.getId()) : null)
-                .rowLabel(entity.getRowLabel())
-                .columnNumber(entity.getColumnNumber())
+                .rowIndex(entity.getRowIndex())
+                .colIndex(entity.getColIndex())
+                .label(entity.getLabel())
                 .status(entity.getStatus())
                 .seatTypeId(entity.getSeatType() != null ? entity.getSeatType().getId() : null)
                 .roomId(entity.getRoom() != null ? entity.getRoom().getId() : null)
                 .build();
     }
+
     @Override
     public SeatJpaEntity toEntity(Seat seat) {
         if (seat == null) return null;
 
         return SeatJpaEntity.builder()
                 .id(seat.getId() != null ? seat.getId().getValue() : null)
-                .rowLabel(seat.getRowLabel())
-                .columnNumber(seat.getColumnNumber())
+                .rowIndex(seat.getRowIndex())
+                .colIndex(seat.getColIndex())
+                .label(seat.getLabel())
                 .status(seat.getStatus())
                 .seatType(
                         seat.getSeatTypeId() != null

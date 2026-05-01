@@ -10,8 +10,9 @@ import lombok.Getter;
 @AllArgsConstructor
 public class SeatResponse {
     Long id;
-    String rowLabel;
-    Integer columnNumber;
+    Integer rowIndex;
+    Integer colIndex;
+    String label;
     SeatStatus status;
     Long seatTypeId;
     Long roomId;

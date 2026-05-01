@@ -1,7 +1,5 @@
 package com.cinemaebooking.backend.bootstrap.seed;
 
-import com.cinemaebooking.backend.bootstrap.reset.ResetService;
-import com.cinemaebooking.backend.cinema.domain.model.Cinema;
 import com.cinemaebooking.backend.user.application.port.UserRepository;
 import com.cinemaebooking.backend.user.domain.enums.UserRole;
 import com.cinemaebooking.backend.user.domain.enums.UserStatus;

@@ -1,6 +1,5 @@
 package com.cinemaebooking.backend.seat.infrastructure.adapter;
 
-import com.cinemaebooking.backend.room.domain.valueObject.RoomId;
 import com.cinemaebooking.backend.room.infrastructure.persistence.entity.RoomJpaEntity;
 import com.cinemaebooking.backend.room.infrastructure.persistence.repository.RoomJpaRepository;
 import com.cinemaebooking.backend.seat.application.port.seat.SeatRepository;
@@ -11,11 +10,13 @@ import com.cinemaebooking.backend.seat.infrastructure.persistence.entity.SeatJpa
 import com.cinemaebooking.backend.seat.infrastructure.persistence.entity.SeatTypeJpaEntity;
 import com.cinemaebooking.backend.seat.infrastructure.persistence.repository.SeatJpaRepository;
 import com.cinemaebooking.backend.seat.infrastructure.persistence.repository.SeatTypeJpaRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -55,8 +56,6 @@ public class SeatRepositoryImpl implements SeatRepository {
 
         SeatJpaEntity old = seatJpaRepository.findByIdOrThrow(seat.getId().getValue());
 
-        old.setRowLabel(seat.getRowLabel());
-        old.setColumnNumber(seat.getColumnNumber());
         old.setStatus(seat.getStatus());
 
         // update seat type safely
@@ -101,34 +100,43 @@ public class SeatRepositoryImpl implements SeatRepository {
 
     // EXISTS CHECK
     @Override
-    public boolean existsByRoomIdAndRowLabelAndColumnNumber(
-            Long roomId, String rowLabel, Integer columnNumber) {
-
-        return seatJpaRepository
-                .existsByRoom_IdAndRowLabelAndColumnNumber(roomId, rowLabel, columnNumber);
+    public boolean existsByRoomIdAndRowIndexAndColIndex(Long roomId, Integer rowIndex, Integer colIndex){
+        return seatJpaRepository.existsByRoomIdAndRowIndexAndColIndex(roomId, rowIndex, colIndex);
     }
 
     // EXISTS CHECK (EXCLUDE ID)
     @Override
-    public boolean existsByRoomIdAndRowLabelAndColumnNumberAndIdNot(
-            Long roomId,
-            String rowLabel,
-            Integer columnNumber,
-            SeatId id
-    ){
-        return seatJpaRepository.existsByRoom_IdAndRowLabelAndColumnNumberAndIdNot(
-                roomId, rowLabel, columnNumber, id.getValue());
+    public boolean existsByRoomIdAndRowIndexAndColIndexAndIdNot(Long roomId, Integer rowIndex, Integer colIndex, SeatId id){
+        return seatJpaRepository.existsByRoomIdAndRowIndexAndColIndexAndIdNot(roomId, rowIndex, colIndex, id);
     }
 
     // FIND BY ROOM
     @Override
-    public Page<Seat> findByRoomId(Long roomId, Pageable pageable) {
+    public List<Seat> findByRoomId(Long roomId) {
 
         if (roomId == null) {
-            throw new IllegalArgumentException("RoomId must not be null");
+            throw new IllegalArgumentException("roomId must not be null");
         }
 
-        return seatJpaRepository.findByRoom_Id(roomId, pageable)
-                .map(mapper::toDomain);
+        return seatJpaRepository.findByRoom_Id(roomId)
+                .stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+
+    @Override
+    @Transactional
+    public void createBatch(List<Seat> seats) {
+        List<SeatJpaEntity> entities = seats.stream()
+                .map(seat -> {
+                    SeatJpaEntity entity = mapper.toEntity(seat);
+                    RoomJpaEntity room = roomJpaRepository.findByIdOrThrow(seat.getRoomId());
+                    entity.setRoom(room);
+                    // seatType null → không set, cho phép nullable
+                    return entity;
+                })
+                .toList();
+        seatJpaRepository.saveAll(entities);
     }
 }

@@ -14,6 +14,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/seats")
 @RequiredArgsConstructor
@@ -23,7 +25,6 @@ public class SeatController {
     private final UpdateSeatUsecase updateSeatUsecase;
     private final DeleteSeatUsecase deleteSeatUsecase;
     private final GetSeatByIdUsecase getSeatByIdUsecase;
-    private final FindSeatsByRoomIdUsecase findSeatsByRoomIdUsecase;
     private final GetAllSeatsUsecase getAllSeatsUsecase;
 
     // ================== CREATE ==================
@@ -61,15 +62,6 @@ public class SeatController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteSeat(@PathVariable Long id) {
         deleteSeatUsecase.execute(toSeatId(id));
-    }
-
-    // ================== LIST BY ROOM ==================
-    @GetMapping("/room/{roomId}")
-    public Page<SeatResponse> getSeatsByRoomId(
-            @PathVariable Long roomId,
-            @PageableDefault(size = 8, page = 0) Pageable pageable
-    ) {
-        return findSeatsByRoomIdUsecase.execute(roomId, pageable);
     }
 
     // ================== HELPER ==================

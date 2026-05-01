@@ -11,9 +11,10 @@ public class SeatResponseMapper {
         if (seat == null) return null;
 
         return SeatResponse.builder().
-                id(seat.getId() != null ? seat.getId().getValue() : null).
-                rowLabel(seat.getRowLabel())
-                .columnNumber(seat.getColumnNumber())
+                id(seat.getId() != null ? seat.getId().getValue() : null)
+                .rowIndex(seat.getRowIndex())
+                .colIndex(seat.getColIndex())
+                .label(seat.getLabel())
                 .status(seat.getStatus())
                 .seatTypeId(seat.getSeatTypeId())
                 .roomId(seat.getRoomId())

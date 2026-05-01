@@ -6,8 +6,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CreateSeatRequest {
-    private String rowLabel;
-    private Integer columnNumber;
+    private Integer rowIndex;
+    private Integer colIndex;
+    private String label;      // admin tự đặt nếu tạo thủ công
     private Long seatTypeId;
     private Long roomId;
 }
