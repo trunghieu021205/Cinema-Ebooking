@@ -11,7 +11,7 @@ import java.util.List;
  * Public API: Seat map theo showtime
  */
 @RestController
-@RequestMapping("/api/v1/showtimes")
+@RequestMapping("/api/v1/showtime_seats")
 @RequiredArgsConstructor
 public class ShowtimeSeatController {
 
