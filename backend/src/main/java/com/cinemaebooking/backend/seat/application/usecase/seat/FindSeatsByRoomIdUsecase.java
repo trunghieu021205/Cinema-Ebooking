@@ -7,9 +7,9 @@ import com.cinemaebooking.backend.seat.application.mapper.seat.SeatResponseMappe
 import com.cinemaebooking.backend.seat.application.port.seat.SeatRepository;
 import com.cinemaebooking.backend.seat.domain.model.seat.Seat;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 
 @Service
@@ -19,20 +19,18 @@ public class FindSeatsByRoomIdUsecase {
     private final SeatRepository seatRepository;
     private final SeatResponseMapper mapper;
 
-    public Page<SeatResponse> execute(Long roomId, Pageable pageable) {
+    public List<SeatResponse> execute(Long roomId) {
 
         // Validate input
         if (roomId == null) {
             throw CommonExceptions.invalidInput("Room id must not be null");
         }
-
-        if (pageable == null) {
-            throw CommonExceptions.invalidInput("Pageable must not be null");
-        }
         // Gọi repository để lấy dữ liệu (có pagination)
-        Page<Seat> seats = seatRepository.findByRoomId(roomId, pageable);
+        List<Seat> seats = seatRepository.findByRoomId(roomId);
 
         // Convert Domain -> DTO Response
-        return seats.map(mapper::toResponse);
+        return seats.stream()
+                .map(mapper::toResponse)
+                .toList();
     }
 }

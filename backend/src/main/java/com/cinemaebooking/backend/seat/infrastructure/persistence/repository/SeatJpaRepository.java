@@ -1,11 +1,10 @@
 package com.cinemaebooking.backend.seat.infrastructure.persistence.repository;
 
 import com.cinemaebooking.backend.infrastructure.persistence.repository.SoftDeleteJpaRepository;
-import com.cinemaebooking.backend.seat.domain.valueObject.seat.SeatId;
 import com.cinemaebooking.backend.seat.infrastructure.persistence.entity.SeatJpaEntity;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public interface SeatJpaRepository extends SoftDeleteJpaRepository<SeatJpaEntity> {
@@ -16,7 +15,7 @@ public interface SeatJpaRepository extends SoftDeleteJpaRepository<SeatJpaEntity
             Integer columnNumber
     );
 
-    Page<SeatJpaEntity> findByRoom_Id(Long roomId, Pageable pageable);
+    List<SeatJpaEntity> findByRoom_Id(Long roomId);
 
     boolean existsByRoom_IdAndRowLabelAndColumnNumberAndIdNot(
             Long roomId,
@@ -25,15 +24,5 @@ public interface SeatJpaRepository extends SoftDeleteJpaRepository<SeatJpaEntity
             Long id
     );
 
-    boolean existsByRowLabelAndColumnNumberAndRoomId(
-            String rowLabel,
-            Integer columnNumber,
-            Long roomId
-    );
-
-    boolean existsByRowLabelAndColumnNumberAndIdNot(
-            String rowLabel,
-            Integer columnNumber,
-            Long id
-    );
+    List<SeatJpaEntity> findAllById(Iterable<Long> ids);
 }
