@@ -12,8 +12,9 @@ public interface SeatJpaRepository extends SoftDeleteJpaRepository<SeatJpaEntity
 
     List<SeatJpaEntity> findByRoom_Id(Long roomId);
 
+    boolean existsByRoom_Id(Long roomId);
+
     boolean existsByRoomIdAndRowIndexAndColIndex(Long roomId, Integer rowIndex, Integer colIndex);
 
-    List<SeatJpaEntity> findAllById(Iterable<Long> ids);
     boolean existsByRoomIdAndRowIndexAndColIndexAndIdNot(Long roomId, Integer rowIndex, Integer colIndex, SeatId id);
 }

@@ -32,6 +32,7 @@ public class RoomController {
     private final GetRoomListUseCase getRoomListUseCase;
     private final GetRoomsByCinemaIdUseCase getRoomsByCinemaIdUseCase;
     private final GetRoomByIdUseCase getRoomByIdUseCase;
+    private final GenerateRoomLayoutUseCase generateRoomLayoutUseCase;
 
     // ================== CREATE ==================
     @PostMapping
@@ -82,6 +83,13 @@ public class RoomController {
             @PageableDefault(size = 8, page = 0) Pageable pageable) {
 
         return getRoomsByCinemaIdUseCase.execute(cinemaId, pageable);
+    }
+
+    // THÊM endpoint
+    @PostMapping("/{id}/generate-layout")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void generateLayout(@PathVariable Long id) {
+        generateRoomLayoutUseCase.execute(toRoomId(id));
     }
 
     // ================== HELPER ==================

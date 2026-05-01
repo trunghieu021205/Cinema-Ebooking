@@ -17,6 +17,7 @@ public interface SeatRepository {
     void deleteById(SeatId id);
     boolean existsById(SeatId id);
     List<Seat> findByRoomId(Long roomId);
+    boolean existsByRoomId(Long roomId);
     boolean existsByRoomIdAndRowIndexAndColIndex(Long roomId, Integer rowIndex, Integer colIndex);
     boolean existsByRoomIdAndRowIndexAndColIndexAndIdNot(Long roomId, Integer rowIndex, Integer colIndex, SeatId id);
     void createBatch(List<Seat> seats);

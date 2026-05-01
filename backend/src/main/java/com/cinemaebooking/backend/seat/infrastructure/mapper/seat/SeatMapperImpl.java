@@ -35,20 +35,11 @@ public class SeatMapperImpl implements SeatMapper {
                 .colIndex(seat.getColIndex())
                 .label(seat.getLabel())
                 .status(seat.getStatus())
-                .seatType(
-                        seat.getSeatTypeId() != null
-                                ? SeatTypeJpaEntity.builder()
-                                .id(seat.getSeatTypeId())
-                                .build()
-                                : null
-                )
-                .room(
-                        seat.getRoomId() != null
-                                ? RoomJpaEntity.builder()
-                                .id(seat.getRoomId())
-                                .build()
-                                : null
-                )
+
+                .seatType(null)
+
+                .room(null)
+
                 .build();
     }
 }
