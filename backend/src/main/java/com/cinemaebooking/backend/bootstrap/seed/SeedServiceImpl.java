@@ -18,9 +18,10 @@ public class SeedServiceImpl implements SeedService {
    // private final ResetService resetService;
     private final CinemaSeed cinemaSeed;
     private final RoomSeed roomSeed;
+    private final SeatTypeSeed seatTypeSeed;
     @Override
     public void seed() {
-
+        seatTypeSeed.seed();
     }
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
