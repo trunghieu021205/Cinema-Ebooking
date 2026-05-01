@@ -40,11 +40,11 @@
                     <tr v-for="row in rows" :key="row.id" class="cursor-pointer group"
                         :class="{ 'bg-gray-200': selectedItem?.id === row.id }">
                         <td v-for="col in visibleColumns" :key="col.key"
-                            class="px-4 py-3 text-slate-700 transition-colors group-hover:bg-gray-100"
+                            class="px-4 py-3 text-text-admin-primary transition-colors group-hover:bg-gray-100"
                             @click="selectedItem = row">
                             <!-- Enum badge -->
                             <span v-if="col.type === 'enum'"
-                                class="inline-block rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">
+                                class="inline-block rounded-full bg-slate-200 px-2.5 py-0.5 text-xs font-medium text-slate-700">
                                 {{ row[col.key] }}
                             </span>
                             <!-- Default text -->
@@ -53,11 +53,11 @@
 
                         <!-- Delete button -->
                         <td class="px-4 py-3">
-                            <button
-                                class="rounded-full p-1.5 text-text-admin-tertiary transition-colors hover:bg-overlay-light-30 hover:text-text-admin-primary"
+                            <BaseButton variant="ghost" size="sm" rounded="full" isAdmin iconOnly
                                 @click="onDeleteClick(row)">
-                                <Trash2 class="size-4" />
-                            </button>
+                                <BaseIcon :icon="Trash2" :size="16" />
+
+                            </BaseButton>
                         </td>
                     </tr>
 
@@ -83,6 +83,8 @@ import { Plus, Trash2 } from 'lucide-vue-next'
 import DetailPanel from '@/components/common/table/subcomponents/DetailPanel.vue'
 import ConfirmDialog from '@/components/common/table/subcomponents/ConfirmDialog.vue'
 import type { ColumnDef, RowItem } from '@/components/common/table/types/table'
+import BaseButton from '@/components/ui/button/BaseButton.vue'
+import BaseIcon from '@/components/ui/icon/BaseIcon.vue'
 
 // ── Props & Emits ─────────────────────────────────────────────────────────────
 
