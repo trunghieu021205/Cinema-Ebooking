@@ -29,5 +29,6 @@ public interface RoomRepository {
 
     boolean existsByNameAndCinemaIdAndIdNot(String name, Long cinemaId, RoomId id);
 
+    Long getCinemaIdByRoomId(RoomId roomId);
 
 }

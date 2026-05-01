@@ -1,6 +1,5 @@
 package com.cinemaebooking.backend.seat.infrastructure.adapter;
 
-import com.cinemaebooking.backend.room.domain.valueObject.RoomId;
 import com.cinemaebooking.backend.room.infrastructure.persistence.entity.RoomJpaEntity;
 import com.cinemaebooking.backend.room.infrastructure.persistence.repository.RoomJpaRepository;
 import com.cinemaebooking.backend.seat.application.port.seat.SeatRepository;
@@ -16,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -122,13 +122,24 @@ public class SeatRepositoryImpl implements SeatRepository {
 
     // FIND BY ROOM
     @Override
-    public Page<Seat> findByRoomId(Long roomId, Pageable pageable) {
+    public List<Seat> findByRoomId(Long roomId) {
 
         if (roomId == null) {
-            throw new IllegalArgumentException("RoomId must not be null");
+            throw new IllegalArgumentException("roomId must not be null");
         }
 
-        return seatJpaRepository.findByRoom_Id(roomId, pageable)
-                .map(mapper::toDomain);
+        return seatJpaRepository.findByRoom_Id(roomId)
+                .stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    public  List<Seat> findAllByIds(List<Long> ids){
+        List<SeatJpaEntity> entities =
+                seatJpaRepository.findAllById(ids);
+
+        return entities.stream()
+                .map(mapper::toDomain)
+                .toList();
     }
 }

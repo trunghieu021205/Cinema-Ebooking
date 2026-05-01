@@ -28,4 +28,5 @@ public final class ValidationFactory {
     public static GenreValidationProfile genre() { return GenreValidationProfile.INSTANCE; }
     public static CouponValidationProfile coupon() {return CouponValidationProfile.INSTANCE;}
     public static ComboValidationProfile combo() {return ComboValidationProfile.INSTANCE;}
+    public static ShowtimeValidationProfile showtime(){ return ShowtimeValidationProfile.INSTANCE;}
 }

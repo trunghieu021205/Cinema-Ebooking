@@ -2,7 +2,7 @@ package com.cinemaebooking.backend.showtime.infrastructure.persistence.mapper;
 
 import com.cinemaebooking.backend.showtime.domain.model.ShowtimeFormat;
 import com.cinemaebooking.backend.showtime.domain.valueobject.ShowtimeFormatId;
-import com.cinemaebooking.backend.showtime.infrastructure.mapper.ShowtimeFormatMapperImpl;
+import com.cinemaebooking.backend.showtime.infrastructure.mappers.ShowtimeFormatMapperImpl;
 import com.cinemaebooking.backend.showtime.infrastructure.persistence.entity.ShowtimeFormatJpaEntity;
 import org.junit.jupiter.api.Test;
 

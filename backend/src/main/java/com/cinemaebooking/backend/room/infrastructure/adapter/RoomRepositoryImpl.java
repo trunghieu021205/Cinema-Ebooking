@@ -101,4 +101,9 @@ public class RoomRepositoryImpl implements RoomRepository {
                 id.getValue()
         );
     }
+
+    @Override
+    public Long getCinemaIdByRoomId(RoomId roomId) {
+        return roomJpaRepository.getCinemaIdByRoomId(roomId.getValue());
+    }
 }
