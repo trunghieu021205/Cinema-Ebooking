@@ -14,7 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/admin/combos")
+@RequestMapping("/api/v1/combos")
 @RequiredArgsConstructor
 public class ComboController {
 

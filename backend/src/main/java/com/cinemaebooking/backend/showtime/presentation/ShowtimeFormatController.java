@@ -11,7 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/admin/showtime_formats")
+@RequestMapping("/api/v1/showtime_formats")
 @RequiredArgsConstructor
 public class ShowtimeFormatController {
 
