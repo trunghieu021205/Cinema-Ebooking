@@ -22,8 +22,8 @@ const routes: RouteRecordRaw[] = [
     component: AdminLayout,
     children: [
 
-      // ── Direct link (không có children → SidebarItem) ──
-      { 
+      // ── Analytics ──────────────────────────────────────────────────────────
+      {
         path: 'analystics',
         name: 'admin-analystics',
         meta: {
@@ -34,22 +34,18 @@ const routes: RouteRecordRaw[] = [
             path: 'dashboard',
             name: 'admin-analystics-dashboard',
             component: () => import('@/pages/admin/DashboardPage.vue'),
-            meta: {
-              sidebar: { label: 'Dashboard' },
-            },
+            meta: { sidebar: { label: 'Dashboard' } },
           },
           {
             path: 'reports',
             name: 'admin-analystics-reports',
             component: () => import('@/pages/admin/ReportsPage.vue'),
-            meta: {
-              sidebar: { label: 'Reports' },
-            },
+            meta: { sidebar: { label: 'Reports' } },
           },
         ],
       },
 
-      // ── Group (có children với meta.sidebar → SidebarGroup) ──
+      // ── Cinemas ────────────────────────────────────────────────────────────
       {
         path: 'cinemas',
         meta: {
@@ -60,23 +56,21 @@ const routes: RouteRecordRaw[] = [
             path: '',
             name: 'admin-cinemas',
             component: () => import('@/pages/admin/CinemasPage.vue'),
-            meta: { sidebar: { label: 'All Cinemas' } },
           },
           {
-            path: 'rooms',
-            name: 'admin-cinemas-rooms',
+            path: ':cinemaId/rooms',
+            name: 'admin-cinema-rooms',
             component: () => import('@/pages/admin/RoomsPage.vue'),
-            meta: { sidebar: { label: 'Rooms' } },
           },
           {
             path: 'seat-layout',
             name: 'admin-cinemas-seats',
             component: () => import('@/pages/admin/SeatLayoutPage.vue'),
-            meta: { sidebar: { label: 'Seat Layout' } },
           },
         ],
       },
 
+      // ── Contents ───────────────────────────────────────────────────────────
       {
         path: 'contents',
         meta: {
@@ -97,10 +91,12 @@ const routes: RouteRecordRaw[] = [
           },
         ],
       },
+
+      // ── Operations ─────────────────────────────────────────────────────────
       {
         path: 'operations',
         meta: {
-          sidebar: { label: 'Operations', icon:ClipboardList },
+          sidebar: { label: 'Operations', icon: ClipboardList },
         },
         children: [
           {
@@ -123,10 +119,12 @@ const routes: RouteRecordRaw[] = [
           },
         ],
       },
+
+      // ── Promotions ─────────────────────────────────────────────────────────
       {
         path: 'promotions',
         meta: {
-          sidebar: { label: 'Promotions', icon:Tag },
+          sidebar: { label: 'Promotions', icon: Tag },
         },
         children: [
           {
@@ -149,6 +147,8 @@ const routes: RouteRecordRaw[] = [
           },
         ],
       },
+
+      // ── Users ──────────────────────────────────────────────────────────────
       {
         path: 'users',
         name: 'admin-users',

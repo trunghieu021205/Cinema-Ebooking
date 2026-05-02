@@ -23,7 +23,6 @@
             <!-- content -->
             <div class="flex flex-col gap-1">
                 <h1 class="text-title">{{ pageTitle }}</h1>
-                <h2 class="text-body">{{ breadcrumb }}</h2>
             </div>
         </div>
 

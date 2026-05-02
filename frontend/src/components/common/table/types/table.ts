@@ -8,8 +8,9 @@ export interface ColumnDef<T = Record<string, unknown>> {
   label: string           // label hiển thị (table header + panel label)
   type: FieldType         // quyết định input nào render trong detail panel
   options?: string[]      // chỉ cần khi type === 'enum' → render <select>
-  readonly?: boolean
-  hideInCreate?: boolean   // true → hiển thị nhưng không cho chỉnh sửa
+  readonly?: boolean      // true → disabled cả create lẫn edit
+  readonlyInEdit?: boolean // true → editable trong create, readonly trong detail panel
+  hideInCreate?: boolean  // true → ẩn khỏi CreateModal
   hideInTable?: boolean   // true → ẩn khỏi table nhưng vẫn hiện trong panel
   required?: boolean      // default true — false nếu field được phép trống
 }

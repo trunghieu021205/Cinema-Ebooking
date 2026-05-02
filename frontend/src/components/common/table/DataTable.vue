@@ -21,7 +21,6 @@
                             class="px-4 py-3 text-left text-xs font-medium text-text-admin-secondary">
                             {{ col.label }}
                         </th>
-                        <!-- Delete column header -->
                         <th class="w-10 px-4 py-3" />
                     </tr>
                 </thead>
@@ -40,24 +39,22 @@
                     <tr v-for="row in rows" :key="row.id" class="cursor-pointer group"
                         :class="{ 'bg-gray-200': selectedItem?.id === row.id }">
                         <td v-for="col in visibleColumns" :key="col.key"
-                            class="px-4 py-3 text-text-admin-primary transition-colors group-hover:bg-gray-100"
+                            class="px-4 py-3 text-slate-700 transition-colors group-hover:bg-gray-100"
                             @click="selectedItem = row">
-                            <!-- Enum badge -->
                             <span v-if="col.type === 'enum'"
-                                class="inline-block rounded-full bg-slate-200 px-2.5 py-0.5 text-xs font-medium text-slate-700">
+                                class="inline-block rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">
                                 {{ row[col.key] }}
                             </span>
-                            <!-- Default text -->
                             <span v-else class="line-clamp-1">{{ row[col.key] }}</span>
                         </td>
 
                         <!-- Delete button -->
                         <td class="px-4 py-3">
-                            <BaseButton variant="ghost" size="sm" rounded="full" isAdmin iconOnly
+                            <button
+                                class="rounded-full p-1.5 text-text-admin-tertiary transition-colors hover:bg-overlay-light-30 hover:text-text-admin-primary"
                                 @click="onDeleteClick(row)">
-                                <BaseIcon :icon="Trash2" :size="16" />
-
-                            </BaseButton>
+                                <Trash2 class="size-4" />
+                            </button>
                         </td>
                     </tr>
 
@@ -65,9 +62,17 @@
             </table>
         </div>
 
-        <!-- Detail panel -->
+        <!-- Detail panel — pass-through slot 'detail-actions' → panel's 'actions' slot -->
         <DetailPanel :item="selectedItem" :columns="columns" :errors="fieldErrors" @close="selectedItem = null"
-            @save="onSave" />
+            @save="onSave">
+            <!--
+                Pass-through: nếu parent truyền #detail-actions thì forward xuống DetailPanel.
+                Slot scope { item } là draft hiện tại trong panel (RowItem).
+            -->
+            <template v-if="$slots['detail-actions']" #actions="slotProps">
+                <slot name="detail-actions" v-bind="slotProps" />
+            </template>
+        </DetailPanel>
 
         <!-- Confirm delete dialog -->
         <ConfirmDialog v-model="showDeleteConfirm" title="Xác nhận xóa"
@@ -83,8 +88,6 @@ import { Plus, Trash2 } from 'lucide-vue-next'
 import DetailPanel from '@/components/common/table/subcomponents/DetailPanel.vue'
 import ConfirmDialog from '@/components/common/table/subcomponents/ConfirmDialog.vue'
 import type { ColumnDef, RowItem } from '@/components/common/table/types/table'
-import BaseButton from '@/components/ui/button/BaseButton.vue'
-import BaseIcon from '@/components/ui/icon/BaseIcon.vue'
 
 // ── Props & Emits ─────────────────────────────────────────────────────────────
 
@@ -93,7 +96,7 @@ const props = withDefaults(
         rows: T[]
         columns: ColumnDef<T>[]
         createLabel?: string
-        fieldErrors?: Record<string, string>  // { fieldKey: 'Error message từ backend' }
+        fieldErrors?: Record<string, string>
     }>(),
     {
         createLabel: 'Tạo mới',
@@ -127,7 +130,6 @@ function onDeleteClick(row: T) {
 function onDeleteConfirmed() {
     if (pendingDelete.value) {
         emit('delete', pendingDelete.value)
-        // Nếu đang mở detail của item bị xóa thì đóng panel
         if (selectedItem.value?.id === pendingDelete.value.id) {
             selectedItem.value = null
         }
@@ -138,7 +140,5 @@ function onDeleteConfirmed() {
 // ── Save ──────────────────────────────────────────────────────────────────────
 function onSave(updated: RowItem) {
     emit('save', updated as T)
-    // Sau khi save thành công, parent có thể gọi selectedItem = null
-    // hoặc để panel tự đóng bằng cách watch fieldErrors (nếu rỗng = success)
 }
 </script>
