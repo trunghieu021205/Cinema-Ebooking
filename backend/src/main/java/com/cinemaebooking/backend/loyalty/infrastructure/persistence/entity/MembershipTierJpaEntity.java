@@ -43,7 +43,16 @@ import java.math.BigDecimal;
  * @since 2026
  */
 @Entity
-@Table(name = "membership_tiers")
+@Table(
+        name = "membership_tiers",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_membership_tiers_name_deleted",
+                        columnNames = {"name", "deleted"}
+                )
+        }
+)
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -54,7 +63,7 @@ public class MembershipTierJpaEntity extends BaseJpaEntity {
     /**
      * Tên cấp độ thành viên (Basic, Silver, Gold)
      */
-    @Column(nullable = false, unique = true, length = 100)
+    @Column(nullable = false, length = 100)
     private String name;
 
     /**
@@ -83,4 +92,10 @@ public class MembershipTierJpaEntity extends BaseJpaEntity {
      */
     @Column(nullable = false)
     private Integer tierLevel;
+
+    @Override
+    protected void beforeSoftDelete() {
+        this.name = markDeleted(this.name);
+    }
+
 }
