@@ -39,6 +39,11 @@ public interface MembershipTierJpaRepository extends JpaRepository<MembershipTie
     Optional<MembershipTierJpaEntity> findByName(String name);
 
     /**
+    * kiêm tra Có tồn tại bản ghi khác (khác id hiện tại) nhưng trùng name hay không?
+     */
+    boolean existsByNameAndIdNot(String name, Long id);
+
+    /**
      * Kiểm tra tier có tồn tại theo tên không
      */
     boolean existsByName(String name);
