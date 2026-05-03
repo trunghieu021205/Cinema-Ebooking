@@ -9,6 +9,7 @@ import lombok.Getter;
 @Builder
 @AllArgsConstructor
 public class SeatResponse {
+
     Long id;
     Integer rowIndex;
     Integer colIndex;
@@ -16,5 +17,6 @@ public class SeatResponse {
     SeatStatus status;
     Long seatTypeId;
     Long roomId;
+    Long coupleGroupId;
 
 }

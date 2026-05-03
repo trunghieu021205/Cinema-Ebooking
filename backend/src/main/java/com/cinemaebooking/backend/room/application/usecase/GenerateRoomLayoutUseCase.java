@@ -66,20 +66,22 @@ public class GenerateRoomLayoutUseCase {
         SeatType standardType = seatTypeRepository.findByNameIgnoreCase("STANDARD")
                 .orElseThrow(() -> new IllegalStateException("STANDARD seat type not found"));
 
-
         for (int r = 0; r < room.getNumberOfRows(); r++) {
             for (int c = 0; c < room.getNumberOfCols(); c++) {
+                int pairIndex = c / 2;             // 0,0,1,1,2,2,...
+                long coupleGroupId = (long) r * 1000 + pairIndex;  // unique trong phòng
+
                 seats.add(Seat.builder()
                         .roomId(room.getId().getValue())
                         .rowIndex(r)
                         .colIndex(c)
                         .label(buildLabel(r, c))
                         .status(SeatStatus.ACTIVE)
-                        .seatTypeId(standardType.getId().getValue()) // default: chưa assign type
+                        .seatTypeId(standardType.getId().getValue())
+                        .coupleGroupId(coupleGroupId)
                         .build());
             }
         }
-
         return seats;
     }
 

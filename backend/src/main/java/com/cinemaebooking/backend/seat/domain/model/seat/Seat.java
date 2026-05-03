@@ -19,7 +19,7 @@ public class Seat extends BaseEntity<SeatId> {
     @Setter
     private Long seatTypeId;
     private Long roomId;
-
+    private Long coupleGroupId;
     // ================== BUSINESS METHODS ==================
 
     public void update(Long seatTypeId, SeatStatus status) {

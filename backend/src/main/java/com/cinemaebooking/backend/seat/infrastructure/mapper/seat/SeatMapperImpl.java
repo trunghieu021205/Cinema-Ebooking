@@ -22,6 +22,7 @@ public class SeatMapperImpl implements SeatMapper {
                 .status(entity.getStatus())
                 .seatTypeId(entity.getSeatType() != null ? entity.getSeatType().getId() : null)
                 .roomId(entity.getRoom() != null ? entity.getRoom().getId() : null)
+                .coupleGroupId(entity.getCoupleGroupId())
                 .build();
     }
 
@@ -35,11 +36,7 @@ public class SeatMapperImpl implements SeatMapper {
                 .colIndex(seat.getColIndex())
                 .label(seat.getLabel())
                 .status(seat.getStatus())
-
-                .seatType(null)
-
-                .room(null)
-
+                .coupleGroupId(seat.getCoupleGroupId())
                 .build();
     }
 }

@@ -51,4 +51,6 @@ public class SeatJpaEntity extends BaseJpaEntity {
     @JoinColumn(name = "room_id", nullable = false)
     private RoomJpaEntity room;
 
+    @Column(name = "couple_group_id", nullable = false)
+    private Long coupleGroupId;
 }

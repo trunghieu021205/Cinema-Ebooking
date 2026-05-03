@@ -18,6 +18,7 @@ public class SeatResponseMapper {
                 .status(seat.getStatus())
                 .seatTypeId(seat.getSeatTypeId())
                 .roomId(seat.getRoomId())
+                .coupleGroupId(seat.getCoupleGroupId())
                 .build();
     }
 }
