@@ -47,28 +47,29 @@ const routes: RouteRecordRaw[] = [
 
       // ── Cinemas ────────────────────────────────────────────────────────────
       {
-        path: 'cinemas',
-        meta: {
-          sidebar: { label: 'Cinemas', icon: Building2 },
+      path: 'cinemas',
+      // ← KHÔNG có component ở đây — đây chỉ là nhóm sidebar
+      meta: { sidebar: { label: 'Cinemas', icon: Building2 } },
+      children: [
+        {
+          path: '',
+          name: 'admin-cinemas',
+          component: () => import('@/pages/admin/CinemasPage.vue'),
+          meta: { sidebar: { label: 'All Cinemas' } },
         },
-        children: [
-          {
-            path: '',
-            name: 'admin-cinemas',
-            component: () => import('@/pages/admin/CinemasPage.vue'),
-          },
-          {
-            path: ':cinemaId/rooms',
-            name: 'admin-cinema-rooms',
-            component: () => import('@/pages/admin/RoomsPage.vue'),
-          },
-          {
-            path: 'seat-layout',
-            name: 'admin-cinemas-seats',
-            component: () => import('@/pages/admin/SeatLayoutPage.vue'),
-          },
-        ],
-      },
+        {
+          path: ':cinemaId/rooms',
+          name: 'admin-cinema-rooms',
+          component: () => import('@/pages/admin/RoomsPage.vue'),
+          // ← KHÔNG có children ở đây nữa
+        },
+        {
+          path: ':cinemaId/rooms/:roomId/layout',
+          name: 'admin-cinema-room-layout',
+          component: () => import('@/pages/admin/RoomLayoutPage.vue'),
+        },
+      ],
+    },
 
       // ── Contents ───────────────────────────────────────────────────────────
       {

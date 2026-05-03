@@ -38,17 +38,13 @@
         </div>
 
         <!-- Table -->
-        <DataTable v-else :rows="rooms" :columns="columns" createLabel="Thêm phòng" :fieldErrors="fieldErrors"
-            @create="showCreate = true" @delete="handleDelete" @save="handleSave">
+        <DataTable :rows="rooms" :columns="columns" createLabel="Thêm phòng" :fieldErrors="fieldErrors"
+            @create="showCreate = true" @delete="handleDelete" @save="handleSave" @row-select="selectedRoom = $event">
 
-            <!--
-                detail-actions slot → forward vào DetailPanel footer.
-                Placeholder cho Layout modal — sẽ implement ở bước tiếp theo.
-            -->
             <template #detail-actions="{ item }">
                 <button
                     class="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 py-2.5 text-sm text-slate-600 transition-colors hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900"
-                    @click="openLayoutModal(item as RoomResponse)">
+                    @click="router.push(`/admin/cinemas/${cinemaId}/rooms/${item.id}/layout`)">
                     <LayoutGrid class="size-4" />
                     Quản lý layout
                 </button>
@@ -109,8 +105,7 @@ const {
 
 // ── UI state ──────────────────────────────────────────────────────────────────
 const showCreate = ref(false)
-const showLayoutModal = ref(false)
-const selectedRoom = ref<RoomResponse | null>(null)
+
 
 // ── Column definitions ────────────────────────────────────────────────────────
 //  readonlyInEdit: editable trong CreateModal, readonly trong DetailPanel
@@ -145,12 +140,6 @@ async function handleDelete(item: RoomResponse) {
     await remove(item)
 }
 
-// ── Layout modal ──────────────────────────────────────────────────────────────
-function openLayoutModal(room: RoomResponse) {
-    selectedRoom.value = room
-    showLayoutModal.value = true
-    // TODO: implement RoomLayoutModal component
-}
 
 onMounted(() => fetchList(0))
 </script>
