@@ -1,5 +1,5 @@
 <template>
-    <div class="flex flex-col gap-6 py-6 min-h-screen">
+    <div class="flex flex-col py-6 min-h-screen">
 
         <!-- Breadcrumb -->
         <div class="flex items-center gap-2 pr-6 text-sm">
@@ -22,7 +22,7 @@
         </div>
 
         <!-- Header -->
-        <div class="flex items-center justify-between pr-6">
+        <div class="flex items-center justify-between pr-6 mt-6">
             <div>
                 <h1 class="text-lg font-semibold text-text-admin-primary">Sơ đồ ghế</h1>
                 <p v-if="layout" class="text-sm text-text-admin-tertiary">
@@ -49,8 +49,9 @@
             <div class="flex gap-6">
                 <!-- Seat map container (để gắn drag-select) -->
                 <div ref="gridContainer" class="flex-1 overflow-x-auto">
-                    <SeatGrid :layout="layout" :config="adminSeatGridConfig" :selected-ids="Array.from(selectedIds)"
-                        @seat-click="handleSeatClick" />
+                    <SeatGrid ref="seatGridRef" :layout="layout" :config="adminSeatGridConfig"
+                        :selected-ids="Array.from(selectedIds)" @seat-click="handleSeatClick"
+                        @couple-click="handleCoupleClick" />
                 </div>
 
                 <!-- Panel chỉnh sửa (hiện khi có ghế chọn) -->
@@ -95,13 +96,18 @@ roomApi.getById(roomId)
 const { layout, isLoading, error, fetchLayout } = useRoomLayout()
 
 // Selection logic
-const { selectedIds, toggleSeat, clearSelection, initDragSelect } = useSeatSelection()
+const { selectedIds, toggleSeat, toggleCouple, clearSelection, initDragSelect } = useSeatSelection()
 const gridContainer = ref<HTMLElement | null>(null)
 let cleanupDrag: (() => void) | undefined
 
-// Xử lý click ghế (truyền event để hỗ trợ Ctrl+Click)
+// Xử lý click ghế đơn (truyền event để hỗ trợ Ctrl+Click)
 function handleSeatClick(seat: SeatResponse, event: MouseEvent) {
     toggleSeat(seat, event)
+}
+
+// Hàm xử lý click ghế đôi
+function handleCoupleClick(left: SeatResponse, right: SeatResponse, event: MouseEvent) {
+    toggleCouple(left, right, event)
 }
 
 // Sau khi cập nhật thành công (bulk update)
@@ -111,13 +117,12 @@ async function refreshAfterUpdate() {
 }
 
 // Khởi tạo drag-select khi grid được render
+const seatGridRef = ref<InstanceType<typeof SeatGrid> | null>(null)
+
 function setupDragSelect() {
-    if (gridContainer.value) {
-        // Tìm phần tử bên trong chứa lưới ghế (div .inline-flex.flex-col do SeatGrid sinh ra)
-        const seatGridInner = gridContainer.value.querySelector('.inline-flex.flex-col') as HTMLElement
-        if (seatGridInner && !cleanupDrag) {
-            cleanupDrag = initDragSelect(seatGridInner)
-        }
+    const el = seatGridRef.value?.gridEl
+    if (el && !cleanupDrag) {
+        cleanupDrag = initDragSelect(el)
     }
 }
 

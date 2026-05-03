@@ -44,9 +44,9 @@
 
         <!-- Nút bỏ chọn -->
         <div class="border-t pt-2">
-            <BaseButton variant="ghost" size="sm" @click="emit('clear-selection')">
+            <button class="text-sm text-gray-500 hover:text-gray-700" @click="emit('clear-selection')">
                 Bỏ chọn tất cả
-            </BaseButton>
+            </button>
         </div>
     </div>
 </template>
