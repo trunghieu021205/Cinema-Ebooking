@@ -144,6 +144,22 @@ public class SeatRepositoryImpl implements SeatRepository {
     }
 
     @Override
+    public List<Seat> findByCoupleGroupIdAndRoomId(Long coupleGroupId, Long roomId) {
+        return seatJpaRepository.findByCoupleGroupIdAndRoomId(coupleGroupId, roomId)
+                .stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Seat> findByCoupleGroupIdInAndRoomId(Collection<Long> coupleGroupIds, Long roomId) {
+        return seatJpaRepository.findByCoupleGroupIdInAndRoomId(coupleGroupIds, roomId)
+                .stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     @Transactional
     public void createBatch(List<Seat> seats) {
 

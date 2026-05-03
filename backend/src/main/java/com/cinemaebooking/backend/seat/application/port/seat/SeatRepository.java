@@ -5,6 +5,7 @@ import com.cinemaebooking.backend.seat.domain.valueObject.seat.SeatId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,6 +22,8 @@ public interface SeatRepository {
     boolean existsByRoomId(Long roomId);
     boolean existsByRoomIdAndRowIndexAndColIndex(Long roomId, Integer rowIndex, Integer colIndex);
     boolean existsByRoomIdAndRowIndexAndColIndexAndIdNot(Long roomId, Integer rowIndex, Integer colIndex, SeatId id);
+    List<Seat> findByCoupleGroupIdAndRoomId(Long coupleGroupId, Long roomId);
+    List<Seat> findByCoupleGroupIdInAndRoomId(Collection<Long> coupleGroupIds, Long roomId);
     void createBatch(List<Seat> seats);
     void updateBatch(List<Seat> seats);
 }
