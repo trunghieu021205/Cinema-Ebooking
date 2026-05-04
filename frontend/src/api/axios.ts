@@ -20,6 +20,19 @@ apiClient.interceptors.request.use((config) => {
 })
 
 // ================= RESPONSE =================
+const PUBLIC_ENDPOINTS = [
+  '/auth/login',
+  '/auth/register',
+  '/auth/forgot_password',
+  '/auth/reset_password',
+  '/auth/refresh_token' 
+]
+
+const isPublicEndpoint = (url?: string): boolean => {
+  if (!url) return false
+  return PUBLIC_ENDPOINTS.some(publicPath => url.includes(publicPath))
+}
+
 let isRefreshing = false
 let failedQueue: Array<{
     resolve: (value?: any) => void
@@ -34,11 +47,10 @@ const processQueue = (error: any = null) => {
     failedQueue = []
 }
 
-// ✅ Extract logout thành helper, tránh lặp code
 const logout = () => {
     localStorage.removeItem('accessToken')
     localStorage.removeItem('refreshToken')
-    window.location.href = '/'
+    window.dispatchEvent(new CustomEvent('auth:logout'))
 }
 
 apiClient.interceptors.response.use(
@@ -62,12 +74,12 @@ apiClient.interceptors.response.use(
     },
 
     async (error: AxiosError) => {
-        // ✅ InternalAxiosRequestConfig thay vì AxiosRequestConfig
         const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
         const status = error.response?.status
         const apiError = (error.response?.data as any)?.error
+        const url = originalRequest.url
 
-        if (status !== 401 || originalRequest._retry) {
+        if (status !== 401) {
             const mapped = mapFieldErrors(apiError)
             return Promise.reject({
                 type: 'http',
@@ -80,8 +92,25 @@ apiClient.interceptors.response.use(
             })
         }
 
-        // ✅ Guard: chặn refresh loop nếu chính request refresh bị 401
-        if (originalRequest.url?.includes('/auth/refresh_token')) {
+        if (isPublicEndpoint(url)) {
+            const mapped = mapFieldErrors(apiError)
+            return Promise.reject({
+                type: 'api',
+                fieldErrors: mapped.fieldErrors,
+                globalErrors: mapped.globalErrors,
+                code: apiError?.code ?? null,
+                message: apiError?.message ?? 'Đã có lỗi xảy ra',
+                status,
+                raw: apiError,
+            })
+        }
+
+        if (originalRequest._retry) {
+            logout()
+            return Promise.reject(error)
+        }
+
+        if (url?.includes('/auth/refresh_token')) {
             logout()
             return Promise.reject(error)
         }
