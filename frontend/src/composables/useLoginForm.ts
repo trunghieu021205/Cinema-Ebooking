@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue'
-import { useAuthStore } from '@/store/auth.store'
+import { useAuthStore } from '@/stores/auth.store'
 import { useRouter } from 'vue-router'
 import { authApi } from '@/api/auth.api'
 import { userApi } from '@/api/user.api'

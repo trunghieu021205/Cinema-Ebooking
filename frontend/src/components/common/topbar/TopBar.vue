@@ -33,7 +33,7 @@ import Logo from '@/components/ui/logo/Logo.vue'
 import BaseButton from '@/components/ui/button/BaseButton.vue'
 import BaseIcon from '@/components/ui/icon/BaseIcon.vue'
 import { ChevronLeft, ChevronRight, Search, Home, Users, Settings } from 'lucide-vue-next'
-import { useUIStore } from '@/store/ui.store'
+import { useUIStore } from '@/stores/ui.store'
 import { useBreadcrumb } from '@/composables/useBreadcrumb'
 const ui = useUIStore()
 const { pageTitle, breadcrumb } = useBreadcrumb()
