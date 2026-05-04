@@ -30,3 +30,11 @@ logging:
     org.hibernate.orm.jdbc.bind: OFF
     org.flywaydb: DEBUG   # THÊM
     org.springframework.boot.autoconfigure.flyway: DEBUG  # THÊM
+
+# ================== JWT VARIABLES ==================
+jwt:
+  secret: my-secret-key-my-secret-key-my-secret-key-123456   # ⚠️ đổi thành biến môi trường khi production
+  access:
+    expiration: 900000      # 15 phút (miligiây)
+  refresh:
+    expiration: 604800000   # 7 ngày
