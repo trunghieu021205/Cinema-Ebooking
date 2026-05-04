@@ -19,9 +19,11 @@ public class SeedServiceImpl implements SeedService {
     private final CinemaSeed cinemaSeed;
     private final RoomSeed roomSeed;
     private final SeatTypeSeed seatTypeSeed;
+    private final ShowtimeFormatSeed showtimeFormatSeed;
     @Override
     public void seed() {
         seatTypeSeed.seed();
+        showtimeFormatSeed.seed();
     }
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
