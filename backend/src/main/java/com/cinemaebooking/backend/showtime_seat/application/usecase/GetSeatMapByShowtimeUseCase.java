@@ -1,61 +1,53 @@
 package com.cinemaebooking.backend.showtime_seat.application.usecase;
 
 import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
+import com.cinemaebooking.backend.common.exception.domain.ShowtimeExceptions;
 import com.cinemaebooking.backend.seat.application.port.seat.SeatRepository;
 import com.cinemaebooking.backend.seat.domain.model.seat.Seat;
-import com.cinemaebooking.backend.showtime_seat.application.dto.ShowtimeSeatResponse;
+import com.cinemaebooking.backend.showtime.application.port.ShowtimeRepository;
+import com.cinemaebooking.backend.showtime.domain.model.Showtime;
+import com.cinemaebooking.backend.showtime.domain.valueobject.ShowtimeId;
+import com.cinemaebooking.backend.showtime_seat.application.dto.ShowtimeSeatLayoutResponse;
+import com.cinemaebooking.backend.showtime_seat.application.mapper.ShowtimeSeatLayoutMapper;
 import com.cinemaebooking.backend.showtime_seat.application.port.ShowtimeSeatRepository;
+import com.cinemaebooking.backend.showtime_seat.domain.enums.ShowtimeSeatStatus;
 import com.cinemaebooking.backend.showtime_seat.domain.model.ShowtimeSeat;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class GetSeatMapByShowtimeUseCase {
 
-    private final ShowtimeSeatRepository showtimeSeatRepository;
+    private final ShowtimeRepository showtimeRepository;
     private final SeatRepository seatRepository;
+    private final ShowtimeSeatRepository showtimeSeatRepository;
+    private final ShowtimeSeatLayoutMapper layoutMapper;  // inject mapper
 
-    public List<ShowtimeSeatResponse> execute(Long showtimeId) {
-
+    public ShowtimeSeatLayoutResponse execute(ShowtimeId showtimeId) {
         if (showtimeId == null) {
             throw CommonExceptions.invalidInput("ShowtimeId must not be null");
         }
 
-        var showtimeSeats = showtimeSeatRepository.findByShowtimeId(showtimeId);
+        Showtime showtime = showtimeRepository.findById(showtimeId)
+                .orElseThrow(() -> ShowtimeExceptions.notFound(showtimeId));
+        Long roomId = showtime.getRoomId();
 
-        // lấy tất cả seatId
-        List<Long> seatIds = showtimeSeats.stream()
-                .map(ShowtimeSeat::getSeatId)
-                .toList();
+        // Lấy tất cả ghế trong phòng
+        List<Seat> allSeatsInRoom = seatRepository.findByRoomId(roomId);
 
-        // query seats
-        List<Seat> seats = seatRepository.findAllByIds(seatIds);
-
-        Map<Long, Seat> seatMap = seats.stream()
+        // Lấy trạng thái từ showtime_seat
+        List<ShowtimeSeat> showtimeSeats = showtimeSeatRepository.findByShowtimeId(showtimeId.getValue());
+        Map<Long, ShowtimeSeatStatus> seatIdToStatus = showtimeSeats.stream()
                 .collect(Collectors.toMap(
-                        s -> s.getId().getValue(),
-                        s -> s
+                        ShowtimeSeat::getSeatId,
+                        ShowtimeSeat::getStatus
                 ));
 
-        return showtimeSeats.stream()
-                .map(stSeat -> {
-                    Seat seat = seatMap.get(stSeat.getSeatId());
-
-                    if (seat == null) {
-                        throw CommonExceptions.invalidInput("Seat not found: " + stSeat.getSeatId());
-                    }
-
-                    return ShowtimeSeatResponse.builder()
-                            .seatId(seat.getId().getValue())
-                            .rowLabel(seat.getRowLabel())
-                            .columnNumber(seat.getColumnNumber())
-                            .build();
-                })
-                .toList();
+        // Dùng mapper để tạo response
+        return layoutMapper.toLayoutResponse(allSeatsInRoom, seatIdToStatus);
     }
 }

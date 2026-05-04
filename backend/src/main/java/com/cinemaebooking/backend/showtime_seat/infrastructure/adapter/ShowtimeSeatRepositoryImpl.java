@@ -1,14 +1,17 @@
 package com.cinemaebooking.backend.showtime_seat.infrastructure.adapter;
 
 import com.cinemaebooking.backend.showtime_seat.application.port.ShowtimeSeatRepository;
+import com.cinemaebooking.backend.showtime_seat.domain.enums.ShowtimeSeatStatus;
 import com.cinemaebooking.backend.showtime_seat.domain.model.ShowtimeSeat;
 import com.cinemaebooking.backend.showtime_seat.infrastructure.mapper.ShowtimeSeatMapperImpl;
 import com.cinemaebooking.backend.showtime_seat.infrastructure.persistence.entity.ShowtimeSeatJpaEntity;
 import com.cinemaebooking.backend.showtime_seat.infrastructure.persistence.repository.ShowtimeSeatJpaRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -47,5 +50,26 @@ public class ShowtimeSeatRepositoryImpl implements ShowtimeSeatRepository {
     @Override
     public boolean existsByShowtimeId(Long showtimeId) {
         return !jpaRepository.findByShowtimeId(showtimeId).isEmpty();
+    }
+
+    @Override
+    public Optional<ShowtimeSeat> findByShowtimeIdAndSeatId(Long showtimeId, Long seatId) {
+        return jpaRepository.findByShowtimeIdAndSeatId(showtimeId, seatId)
+                .map(mapper::toDomain);
+    }
+
+    @Override
+    public void save(ShowtimeSeat showtimeSeat) {
+        ShowtimeSeatJpaEntity entity = mapper.toEntity(showtimeSeat);
+        jpaRepository.save(entity);
+    }
+
+    @Override
+    public void updateStatus(Long showtimeId, Long seatId, ShowtimeSeatStatus newStatus) {
+        // find existing entity, update status, save
+        ShowtimeSeatJpaEntity entity = jpaRepository.findByShowtimeIdAndSeatId(showtimeId, seatId)
+                .orElseThrow(() -> new EntityNotFoundException("ShowtimeSeat not found"));
+        entity.setStatus(newStatus);
+        jpaRepository.save(entity);
     }
 }

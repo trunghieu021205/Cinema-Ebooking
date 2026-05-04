@@ -1,5 +1,7 @@
 package com.cinemaebooking.backend.showtime_seat.presentation;
 
+import com.cinemaebooking.backend.showtime.domain.valueobject.ShowtimeId;
+import com.cinemaebooking.backend.showtime_seat.application.dto.ShowtimeSeatLayoutResponse;
 import com.cinemaebooking.backend.showtime_seat.application.dto.ShowtimeSeatResponse;
 import com.cinemaebooking.backend.showtime_seat.application.usecase.GetSeatMapByShowtimeUseCase;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +22,13 @@ public class ShowtimeSeatController {
     /**
      * GET /api/v1/showtimes/{showtimeId}/seats
      */
-    @GetMapping("/{showtimeId}/seats")
-    public List<ShowtimeSeatResponse> getSeats(@PathVariable Long showtimeId) {
-        return getSeatMapByShowtimeUseCase.execute(showtimeId);
+    @GetMapping("/{showtimeId}/seat_layout")
+    public ShowtimeSeatLayoutResponse getSeats(@PathVariable Long showtimeId) {
+        return getSeatMapByShowtimeUseCase.execute(toShowtimeId(showtimeId));
     }
+
+    public ShowtimeId toShowtimeId(Long id) {
+        return ShowtimeId.of(id);
+    }
+
 }
