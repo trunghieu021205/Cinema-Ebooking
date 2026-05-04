@@ -1,6 +1,7 @@
 package com.cinemaebooking.backend.showtime.domain.model;
 
 import com.cinemaebooking.backend.common.domain.BaseEntity;
+import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import com.cinemaebooking.backend.showtime.domain.valueobject.ShowtimeFormatId;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -26,7 +27,6 @@ import lombok.experimental.SuperBuilder;
  * @since 2026
  */
 @Getter
-@Setter
 @SuperBuilder(toBuilder = true)
 public class ShowtimeFormat extends BaseEntity<ShowtimeFormatId> {
 
@@ -39,4 +39,26 @@ public class ShowtimeFormat extends BaseEntity<ShowtimeFormatId> {
      * Giá phụ thu của format
      */
     private Long extraPrice;
+
+    public void update(String name, Long extraPrice) {
+        validateName(name);
+        validatePrice(extraPrice);
+
+        this.name = name;
+        this.extraPrice = extraPrice;
+    }
+
+    // ================== VALIDATION ==================
+
+    private void validateName(String name) {
+        if (name == null || name.isBlank()) {
+            throw CommonExceptions.invalidInput("Format name must not be blank");
+        }
+    }
+
+    private void validatePrice(Long price) {
+        if (price == null || price < 0) {
+            throw CommonExceptions.invalidInput("Extra price must be >= 0");
+        }
+    }
 }

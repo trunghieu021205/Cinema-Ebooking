@@ -1,4 +1,4 @@
-package com.cinemaebooking.backend.showtime.infrastructure.mapper;
+package com.cinemaebooking.backend.showtime.infrastructure.mappers;
 
 import com.cinemaebooking.backend.infrastructure.mapper.BaseMapper;
 import com.cinemaebooking.backend.showtime.domain.model.Showtime;
