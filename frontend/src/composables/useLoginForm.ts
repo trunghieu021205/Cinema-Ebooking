@@ -71,7 +71,8 @@ export function useLoginForm(emit: (event: string) => void) {
                 password: password.value
             })
 
-            localStorage.setItem('token', loginData.accessToken)
+            localStorage.setItem('accessToken', loginData.accessToken)
+            localStorage.setItem('refreshToken', loginData.refreshToken)
 
             const userProfile = await userApi.getMe(loginData.accessToken)
 

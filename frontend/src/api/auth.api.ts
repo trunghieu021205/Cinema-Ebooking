@@ -7,5 +7,8 @@ export const authApi = {
         apiClient.post<ApiResponse<LoginResponse>>('/auth/login', payload),
 
     register: (payload: RegisterRequest) =>
-        apiClient.post<ApiResponse>('/auth/register',payload),
+        apiClient.post<ApiResponse>('/auth/register', payload),
+    
+    refreshToken: (payload: RefreshTokenRequest) =>
+        apiClient.post<ApiResponse<LoginResponse>>('/auth/refresh_token', payload)
 }

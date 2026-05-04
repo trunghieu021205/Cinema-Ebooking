@@ -26,8 +26,12 @@ export type UserRole = 'ADMIN' | 'USER'
 export type UserStatus = 'ACTIVE' | 'INACTIVE' | 'BANNED'
 
 export interface LoginResponse {
-    accessToken: string
+    accessToken: string   // thay vì token
+    refreshToken: string  // thêm mới
     role: UserRole
+}
+export interface RefreshTokenRequest {
+    refreshToken: string
 }
 
 export interface UserProfile {
