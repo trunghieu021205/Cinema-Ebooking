@@ -1,14 +1,14 @@
 
 import apiClient from './axios'
-import type { LoginRequest, LoginResponse , RegisterRequest, ApiResponse } from '@/types/auth.types'
+import type { LoginRequest, LoginResponse , RegisterRequest} from '@/types/auth.types'
 
 export const authApi = {
     login: (payload: LoginRequest) =>
-        apiClient.post<ApiResponse<LoginResponse>>('/auth/login', payload),
+        apiClient.post<LoginResponse>('/auth/login', payload),
 
     register: (payload: RegisterRequest) =>
-        apiClient.post<ApiResponse>('/auth/register', payload),
-    
+        apiClient.post<LoginResponse>('/auth/register', payload),
+
     refreshToken: (payload: RefreshTokenRequest) =>
-        apiClient.post<ApiResponse<LoginResponse>>('/auth/refresh_token', payload)
+        apiClient.post<LoginResponse>('/auth/refresh_token', payload)
 }
