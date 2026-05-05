@@ -107,18 +107,67 @@ const {
 const showCreate = ref(false)
 
 
-// ── Column definitions ────────────────────────────────────────────────────────
-//  readonlyInEdit: editable trong CreateModal, readonly trong DetailPanel
-//  (numberOfRows / numberOfCols không có trong UpdateRoomRequest)
 const columns: ColumnDef<RoomResponse>[] = [
-    { key: 'id', label: 'ID', type: 'number', readonly: true, hideInCreate: true },
-    { key: 'name', label: 'Tên phòng', type: 'text' },
-    { key: 'roomType', label: 'Loại phòng', type: 'enum', options: ['TYPE_2D', 'TYPE_3D', 'IMAX'] },
-    { key: 'numberOfRows', label: 'Số hàng', type: 'number', readonlyInEdit: true },
-    { key: 'numberOfCols', label: 'Số cột', type: 'number', readonlyInEdit: true },
-    { key: 'totalSeats', label: 'Tổng ghế', type: 'number', readonly: true, hideInCreate: true },
-    { key: 'status', label: 'Trạng thái', type: 'enum', options: ['ACTIVE', 'INACTIVE', 'MAINTENANCE'], hideInCreate: true },
-    { key: 'cinemaId', label: 'Cinema ID', type: 'number', readonly: true, hideInCreate: true, hideInTable: true },
+    {
+        key: 'id',
+        label: 'ID',
+        type: 'number',
+        readonly: true,
+        hideInCreate: true,
+        hideInTable: true
+    },
+    {
+        key: 'name',
+        label: 'Tên phòng',
+        type: 'text',
+        width: '400px'
+    },
+    {
+        key: 'roomType',
+        label: 'Loại phòng',
+        type: 'enum',
+        options: ['TYPE_2D', 'TYPE_3D', 'IMAX'],
+        width: '200px'
+    },
+
+    {
+        key: 'numberOfRows',
+        label: 'Số hàng',
+        type: 'number',
+        readonlyInEdit: true,
+        hideInTable: true
+    },
+    {
+        key: 'numberOfCols',
+        label: 'Số cột',
+        type: 'number',
+        readonlyInEdit: true,
+        hideInTable: true
+    },
+    {
+        key: 'totalSeats',
+        label: 'Tổng ghế',
+        type: 'number',
+        readonly: true,
+        hideInCreate: true,
+        width: '200px'
+    },
+    {
+        key: 'status',
+        label: 'Trạng thái',
+        type: 'enum',
+        options: ['ACTIVE', 'INACTIVE', 'MAINTENANCE'],
+        hideInCreate: true,
+        width: 'auto'
+    },
+    {
+        key: 'cinemaId',
+        label: 'Cinema ID',
+        type: 'number',
+        readonly: true,
+        hideInCreate: true,
+        hideInTable: true
+    },
 ]
 
 // ── Handlers ──────────────────────────────────────────────────────────────────

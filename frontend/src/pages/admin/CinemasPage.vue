@@ -85,11 +85,41 @@ const showCreate = ref(false)
 
 // ── Column definitions ────────────────────────────────────────────────────────
 const columns: ColumnDef<CinemaResponse>[] = [
-    { key: 'id', label: 'ID', type: 'number', readonly: true, hideInCreate: true },
-    { key: 'name', label: 'Tên rạp', type: 'text' },
-    { key: 'address', label: 'Địa chỉ', type: 'textarea', hideInTable: true },
-    { key: 'city', label: 'Thành phố', type: 'text' },
-    { key: 'status', label: 'Trạng thái', type: 'enum', options: ['ACTIVE', 'INACTIVE'], hideInCreate: true },
+    {
+        key: 'id',
+        label: 'ID',
+        type: 'number',
+        readonly: true,
+        hideInCreate: true,
+        hideInTable: true,
+
+    },
+    {
+        key: 'name',
+        label: 'Tên rạp',
+        type: 'text',
+        width: '400px'
+    },
+    {
+        key: 'address',
+        label: 'Địa chỉ',
+        type: 'textarea',
+        hideInTable: true
+    },
+    {
+        key: 'city',
+        label: 'Thành phố',
+        type: 'text',
+        width: '200px'
+    },
+    {
+        key: 'status',
+        label: 'Trạng thái',
+        type: 'enum',
+        options: ['ACTIVE', 'INACTIVE'],
+        hideInCreate: true,
+        width: 'auto'
+    },
 ]
 
 // ── Handlers ──────────────────────────────────────────────────────────────────

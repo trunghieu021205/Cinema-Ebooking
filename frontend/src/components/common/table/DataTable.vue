@@ -12,12 +12,12 @@
 
         <!-- Table -->
         <div class="overflow-hidden rounded-xl border border-slate-100">
-            <table class="w-full text-sm">
+            <table class="w-full text-sm table-fixed">
 
                 <!-- Header -->
                 <thead>
                     <tr class="border-b border-slate-100 bg-slate-50">
-                        <th v-for="col in visibleColumns" :key="col.key"
+                        <th v-for="col in visibleColumns" :key="col.key" :style="col.width ? { width: col.width } : {}"
                             class="px-4 py-3 text-left text-xs font-medium text-text-admin-secondary">
                             {{ col.label }}
                         </th>
@@ -40,16 +40,23 @@
                         :class="{ 'bg-gray-200': selectedItem?.id === row.id }">
                         <td v-for="col in visibleColumns" :key="col.key"
                             class="px-4 py-3 text-slate-700 transition-colors group-hover:bg-gray-100"
-                            @click="selectedItem = row">
+                            :style="col.width ? { width: col.width } : {}" @click="selectedItem = row">
                             <span v-if="col.type === 'enum'"
                                 class="inline-block rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">
                                 {{ row[col.key] }}
+                            </span>
+                            <span v-else-if="col.type === 'multiselect' && Array.isArray(row[col.key])"
+                                class="flex flex-wrap gap-1">
+                                <span v-for="pillItem in getPillItems(col, row)" :key="pillItem.id"
+                                    class="inline-block rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
+                                    {{ pillItem.name }}
+                                </span>
                             </span>
                             <span v-else class="line-clamp-1">{{ row[col.key] }}</span>
                         </td>
 
                         <!-- Delete button -->
-                        <td class="px-4 py-3">
+                        <td class="px-2 py-3">
                             <button
                                 class="rounded-full p-1.5 text-text-admin-tertiary transition-colors hover:bg-overlay-light-30 hover:text-text-admin-primary"
                                 @click="onDeleteClick(row)">
@@ -115,6 +122,23 @@ const visibleColumns = computed(() =>
     props.columns.filter((c) => !c.hideInTable)
 )
 
+function getPillItems(col: ColumnDef, row: any): { id: number; name: string }[] {
+    const raw = row[col.key]
+    if (!Array.isArray(raw) || raw.length === 0) return []
+
+    // Nếu là object[] (GenreResponse) -> lấy luôn id & name
+    if (typeof raw[0] === 'object' && 'name' in raw[0]) {
+        return raw.map((o: any) => ({ id: o.id, name: o.name }))
+    }
+
+    // Nếu là number[] -> lookup trong options
+    const options = col.options as { id: number; name: string }[] | undefined
+    if (!options) return []
+    return raw.map((id: number) => {
+        const found = options.find(opt => opt.id === id)
+        return found ? { id, name: found.name } : { id, name: String(id) }
+    })
+}
 // ── Selected item → mở DetailPanel ───────────────────────────────────────────
 const selectedItem = ref<T | null>(null)
 

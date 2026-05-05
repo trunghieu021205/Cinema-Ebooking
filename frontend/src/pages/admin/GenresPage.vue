@@ -53,7 +53,7 @@ import { ref, onMounted } from 'vue'
 import DataTable from '@/components/common/table/DataTable.vue'
 import CreateModal from '@/components/common/table/subcomponents/CreateModal.vue'
 import { useGenre } from '@/composables/useGenre'
-import type { GenreResponse, CreateGenreRequest } from '@/types/genre.types'
+import type { GenreResponse, CreateGenreRequest } from '@/types/genre'
 import type { ColumnDef } from '@/components/common/table/types/table'
 
 const {
@@ -73,10 +73,21 @@ const {
 
 const showCreate = ref(false)
 
-// ── Column definitions ────────────────────────────────────────────────────────
 const columns: ColumnDef<GenreResponse>[] = [
-    { key: 'id', label: 'ID', type: 'number', readonly: true, hideInCreate: true },
-    { key: 'name', label: 'Tên thể loại', type: 'text' },
+    {
+        key: 'id',
+        label: 'ID',
+        type: 'number',
+        readonly: true,
+        hideInCreate: true,
+        hideInTable: true
+    },
+    {
+        key: 'name',
+        label: 'Tên thể loại',
+        type: 'text',
+        width: 'auto'
+    },
 ]
 
 // ── Handlers ──────────────────────────────────────────────────────────────────
