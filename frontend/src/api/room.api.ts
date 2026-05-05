@@ -4,10 +4,9 @@ import type { Page } from '@/types/common.types'
 
 export const roomApi = {
 
-  // GET /api/v1/rooms?cinemaId=X&page=0&size=8
   getListByCinema: (cinemaId: number, page = 0, size = 8) =>
-    apiClient.get<Page<RoomResponse>>('/rooms', {
-      params: { cinemaId, page, size, sort: 'id,desc' },
+    apiClient.get<Page<RoomResponse>>(`/rooms/cinema/${cinemaId}`, {
+      params: { page, size, sort: 'id,desc' },
     }),
 
   // GET /api/v1/rooms/:id
