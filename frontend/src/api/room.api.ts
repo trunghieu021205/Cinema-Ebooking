@@ -1,6 +1,6 @@
 import apiClient from '@/api/axios'
 import type { RoomResponse, CreateRoomRequest, UpdateRoomRequest } from '@/types/room'
-import type { Page } from '@/types/cinema'
+import type { Page } from '@/types/common.types'
 
 export const roomApi = {
 

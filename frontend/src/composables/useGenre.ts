@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import { genreApi } from '@/api/genre.api'
-import type { GenreResponse, CreateGenreRequest } from '@/types/genre.types'
+import type { GenreResponse, CreateGenreRequest } from '@/types/genre'
 import { mapFieldErrors } from '@/utils/errorMapper'
 
 export function useGenre() {

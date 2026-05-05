@@ -1,6 +1,7 @@
 import axios, { AxiosError } from 'axios'
 import type { InternalAxiosRequestConfig } from 'axios'
-import type { ApiResponse, LoginResponse } from '@/types/auth.types'
+import type { LoginResponse } from '@/types/auth.types'
+import type { ApiResponse } from '@/types/common.types'
 import { mapFieldErrors } from '@/utils/errorMapper'
 
 
