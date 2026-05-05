@@ -2,20 +2,20 @@ package com.cinemaebooking.backend.common.exception.handler;
 
 import com.cinemaebooking.backend.common.api.response.ApiError;
 import com.cinemaebooking.backend.common.api.response.ApiResponse;
-import com.cinemaebooking.backend.common.exception.BaseException;
-import com.cinemaebooking.backend.common.exception.ErrorCode;
-import com.cinemaebooking.backend.common.exception.ErrorDetail;
-import com.cinemaebooking.backend.common.exception.ErrorType;
+import com.cinemaebooking.backend.common.exception.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestControllerAdvice
@@ -23,51 +23,47 @@ public class GlobalExceptionHandler {
 
     private static final String TRACE_ID_KEY = "traceId";
 
-    // ================== BUSINESS / DOMAIN EXCEPTION ==================
+    // =========================================================
+    // ================== BUSINESS EXCEPTION ====================
+    // =========================================================
 
     @ExceptionHandler(BaseException.class)
     public ResponseEntity<ApiResponse<?>> handleBaseException(
             BaseException ex,
             HttpServletRequest request
     ) {
-        String traceId = getTraceId();
         ErrorCode errorCode = ex.getErrorCode();
+        String traceId = getTraceId();
 
-        // message luôn lấy từ ErrorCode — debugMessage chỉ dùng để log
         logByType(traceId, errorCode, request, ex);
 
-        List<ErrorDetail> details = ex.getDetails();
-
-        ApiError error = new ApiError(
-                errorCode.getCode(),
-                errorCode.getMessage(),             // ← không bao giờ dùng ex.getMessage()
-                errorCode.getType(),
+        return buildErrorResponse(
+                errorCode,
+                traceId,
+                request,
                 ex.getParams(),
-                details.isEmpty() ? null : details  // null nếu không có detail
+                ex.getDetails().isEmpty() ? null : ex.getDetails()
         );
-
-        return ResponseEntity
-                .status(errorCode.getHttpStatus())
-                .body(buildResponse(error, traceId, request));
     }
 
-    // ================== SPRING VALIDATION (@Valid) ==================
+    // =========================================================
+    // ================== VALIDATION ============================
+    // =========================================================
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<?>> handleMethodArgumentNotValid(
+    public ResponseEntity<ApiResponse<?>> handleValidation(
             MethodArgumentNotValidException ex,
             HttpServletRequest request
     ) {
         String traceId = getTraceId();
         ErrorCode errorCode = ErrorCode.INVALID_INPUT;
 
-        // Map Spring FieldError → ErrorDetail
         List<ErrorDetail> details = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
                 .map(e -> new ErrorDetail(
                         e.getField(),
-                        null,                        // Spring không có ErrorCategory
+                        null,
                         e.getDefaultMessage()
                 ))
                 .toList();
@@ -78,23 +74,80 @@ public class GlobalExceptionHandler {
                 details
         );
 
-        ApiError error = new ApiError(
-                errorCode.getCode(),
-                errorCode.getMessage(),
-                errorCode.getType(),
+        return buildErrorResponse(
+                errorCode,
+                traceId,
+                request,
                 null,
                 details
         );
-
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(buildResponse(error, traceId, request));
     }
 
-    // ================== GENERIC / UNEXPECTED ERROR ==================
+    // =========================================================
+    // ================== SECURITY ==============================
+    // =========================================================
+
+    /**
+     * @PreAuthorize fail
+     */
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<ApiResponse<?>> handleAuthorizationDenied(
+            AuthorizationDeniedException ex,
+            HttpServletRequest request
+    ) {
+        return handleSecurityError(ErrorCode.FORBIDDEN, request, "Authorization denied");
+    }
+
+    /**
+     * requestMatchers / filter security
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiResponse<?>> handleAccessDenied(
+            AccessDeniedException ex,
+            HttpServletRequest request
+    ) {
+        return handleSecurityError(ErrorCode.FORBIDDEN, request, "Access denied");
+    }
+
+    /**
+     * chưa login / token invalid
+     */
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ApiResponse<?>> handleAuthentication(
+            AuthenticationException ex,
+            HttpServletRequest request
+    ) {
+        return handleSecurityError(ErrorCode.UNAUTHORIZED, request, "Unauthorized");
+    }
+
+    private ResponseEntity<ApiResponse<?>> handleSecurityError(
+            ErrorCode errorCode,
+            HttpServletRequest request,
+            String logMessage
+    ) {
+        String traceId = getTraceId();
+
+        log.warn("[{}] {} | path={}",
+                traceId,
+                logMessage,
+                request.getRequestURI()
+        );
+
+        return buildErrorResponse(
+                errorCode,
+                traceId,
+                request,
+                null,
+                null
+        );
+    }
+
+    // =========================================================
+    // ================== FALLBACK ==============================
+    // =========================================================
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<?>> handleGenericException(
+    public ResponseEntity<ApiResponse<?>> handleUnexpected(
             Exception ex,
             HttpServletRequest request
     ) {
@@ -107,20 +160,38 @@ public class GlobalExceptionHandler {
                 ex
         );
 
+        return buildErrorResponse(
+                errorCode,
+                traceId,
+                request,
+                null,
+                null
+        );
+    }
+
+    // =========================================================
+    // ================== CORE BUILDER ==========================
+    // =========================================================
+
+    private ResponseEntity<ApiResponse<?>> buildErrorResponse(
+            ErrorCode errorCode,
+            String traceId,
+            HttpServletRequest request,
+            Map<String, Object> params,
+            List<ErrorDetail> details
+    ) {
         ApiError error = new ApiError(
                 errorCode.getCode(),
                 errorCode.getMessage(),
                 errorCode.getType(),
-                null,
-                null
+                params,
+                details
         );
 
         return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(buildResponse(error, traceId, request));
+                .status(errorCode.getHttpStatus())
+                .body(ApiResponse.error(error, traceId, request.getRequestURI()));
     }
-
-    // ================== HELPER ==================
 
     private String getTraceId() {
         String traceId = MDC.get(TRACE_ID_KEY);
@@ -153,13 +224,5 @@ public class GlobalExceptionHandler {
                     debugInfo
             );
         }
-    }
-
-    private ApiResponse<?> buildResponse(
-            ApiError error,
-            String traceId,
-            HttpServletRequest request
-    ) {
-        return ApiResponse.error(error, traceId, request.getRequestURI());
     }
 }

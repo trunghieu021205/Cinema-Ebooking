@@ -6,11 +6,13 @@ import com.cinemaebooking.backend.cinema.application.dto.UpdateCinemaRequest;
 import com.cinemaebooking.backend.cinema.application.usecase.*;
 import com.cinemaebooking.backend.cinema.domain.valueobject.CinemaId;
 import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
+import jakarta.annotation.security.PermitAll;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -36,13 +38,16 @@ public class CinemaController {
 
     // ================== CREATE ==================
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
     public CinemaResponse createCinema(@RequestBody CreateCinemaRequest request) {
         return createCinemaUseCase.execute(request);
     }
 
     // ================== UPDATE ==================
+
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public CinemaResponse updateCinema(
             @PathVariable Long id,
             @RequestBody UpdateCinemaRequest request) {
@@ -54,6 +59,7 @@ public class CinemaController {
     // ================== DELETE ==================
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasRole('ADMIN')")
     public void deleteCinema(@PathVariable Long id) {
 
         CinemaId cinemaId = toCinemaId(id);
@@ -62,6 +68,7 @@ public class CinemaController {
 
     // ================== DETAIL ==================
     @GetMapping("/{id}")
+    @PermitAll
     public CinemaResponse getCinemaDetail(@PathVariable Long id) {
 
         CinemaId cinemaId = toCinemaId(id);
@@ -70,6 +77,7 @@ public class CinemaController {
 
     // ================== LIST ==================
     @GetMapping
+    @PermitAll
     public Page<CinemaResponse> getCinemaList(@PageableDefault(size = 8) Pageable pageable) {
         return getCinemaListUseCase.execute(pageable);
     }
