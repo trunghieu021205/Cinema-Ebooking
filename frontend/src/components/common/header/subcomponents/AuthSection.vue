@@ -51,8 +51,8 @@
 </template>
 <script setup lang="ts">
 import GiftIcon from '@/components/ui/icon/GiftIcon.vue'
-import { useUIStore } from '@/store/ui.store'
-import { useAuthStore } from '@/store/auth.store'
+import { useUIStore } from '@/stores/ui.store'
+import { useAuthStore } from '@/stores/auth.store'
 import { useRouter } from 'vue-router'
 import MembershipIcon from '@/components/ui/icon/MembershipIcon.vue'
 const auth = useAuthStore()

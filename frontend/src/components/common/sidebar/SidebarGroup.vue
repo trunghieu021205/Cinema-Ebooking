@@ -33,7 +33,7 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { ChevronDown } from 'lucide-vue-next'
-import { useUIStore } from '@/store/ui.store'
+import { useUIStore } from '@/stores/ui.store'
 const ui = useUIStore()
 const props = defineProps({
     item: Object, // { key, label, icon, children: [{ key, label, to }] }

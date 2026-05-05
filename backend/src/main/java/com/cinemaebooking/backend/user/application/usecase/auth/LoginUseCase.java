@@ -20,14 +20,12 @@ public class LoginUseCase {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
-    private final LoginValidator  loginValidator;
+    private final LoginValidator loginValidator;
 
     public LoginResponse execute(LoginRequest request) {
-
         if (request == null) {
             throw CommonExceptions.invalidInput("Login request must not be null");
         }
-
         loginValidator.validate(request);
 
         User user = userRepository.findByEmail(request.getEmail())
@@ -36,13 +34,16 @@ public class LoginUseCase {
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw UserExceptions.invalidCredentials();
         }
-
         if (user.getStatus() == UserStatus.INACTIVE) {
             throw UserExceptions.inactiveUser(user.getId());
         }
 
-        String token = jwtProvider.generateToken(user.getId(), user.getRole().name());
+        // Tạo access token (ngắn hạn, ví dụ 15-30 phút)
+        String accessToken = jwtProvider.generateToken(user.getId(), user.getRole().name());
+        // Tạo refresh token (dài hạn, ví dụ 7 ngày)
+        String refreshToken = jwtProvider.generateRefreshToken(user.getId().getValue());
 
-        return new LoginResponse(token, user.getRole());
+        // Trả về cả hai token
+        return new LoginResponse(accessToken, refreshToken, user.getRole().name());
     }
 }

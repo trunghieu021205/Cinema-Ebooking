@@ -46,8 +46,10 @@ public class CreateRoomUseCase {
     private Room buildRoom(CreateRoomRequest request) {
         return Room.builder()
                 .name(request.getName())
-                .totalSeats(request.getTotalSeats())
                 .roomType(request.getRoomType())
+                .numberOfRows(request.getNumberOfRows())
+                .numberOfCols(request.getNumberOfCols())
+                .totalSeats(request.getNumberOfRows() * request.getNumberOfCols())
                 .cinemaId(request.getCinemaId())
                 .status(RoomStatus.ACTIVE)
                 .build();

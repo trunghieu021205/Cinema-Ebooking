@@ -4,6 +4,7 @@ import com.cinemaebooking.backend.infrastructure.persistence.entity.BaseJpaEntit
 import com.cinemaebooking.backend.movie.infrastructure.persistence.entity.MovieJpaEntity;
 import com.cinemaebooking.backend.room.infrastructure.persistence.entity.RoomJpaEntity;
 import com.cinemaebooking.backend.showtime.domain.enums.Language;
+import com.cinemaebooking.backend.showtime.domain.enums.ShowtimeStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -53,6 +54,10 @@ public class ShowtimeJpaEntity extends BaseJpaEntity {
     @Enumerated(EnumType.STRING)
     @Column(length = 10)
     private Language subtitleLanguage;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 10)
+    private ShowtimeStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "movie_id", nullable = false)

@@ -1,42 +1,79 @@
 <template>
-    <div>
-        <div class="mb-6 mt-2 flex flex-col gap-1">
-            <p class="text-body text-text-admin-secondary">
-                {{ totalItems }} rạp • trang {{ currentPage + 1 }}/{{ totalPages }}
-            </p>
+    <div class="flex flex-col gap-6 py-6">
+        <div class="flex flex-col gap-2 pr-6">
+            <!-- Breadcrumb -->
+            <div class="flex items-center text-sm">
+                <span class="text-text-admin-primary font-medium">
+                    Cinemas
+                </span>
+            </div>
+
+            <!-- Header -->
+            <div class="flex items-center justify-between ">
+                <div>
+                    <h1 class="text-lg font-semibold text-text-admin-primary">
+                        Rạp chiếu phim
+                    </h1>
+                    <p class="text-sm text-text-admin-tertiary">
+                        {{ totalItems }} rạp
+                    </p>
+                </div>
+            </div>
         </div>
 
-        <div v-if="globalErrors.length"
-            class="mb-4 rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600">
-            {{ globalErrors[0] }}
+        <!-- Global errors -->
+        <div v-if="globalErrors.length" class="pr-6 rounded-lg bg-red-50 border border-red-100 p-4">
+            <p v-for="err in globalErrors" :key="err" class="text-sm text-red-600">{{ err }}</p>
         </div>
 
-        <div v-if="isLoading" class="flex items-center justify-center py-20 text-sm text-slate-400">
-            Đang tải...
+        <!-- Table -->
+        <DataTable :rows="cinemas" :columns="columns" createLabel="Thêm rạp" :fieldErrors="fieldErrors"
+            @create="showCreate = true" @delete="handleDelete" @save="handleSave">
+
+            <!--
+                detail-actions slot: inject "Quản lý phòng" vào footer của DetailPanel.
+                { item } là draft hiện tại (RowItem) — có id để navigate.
+            -->
+            <template #detail-actions="{ item }">
+                <button
+                    class="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 py-2.5 text-sm text-slate-600 transition-colors hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900"
+                    @click="router.push(`/admin/cinemas/${item.id}/rooms`)">
+                    <LayoutGrid class="size-4" />
+                    Quản lý phòng
+                </button>
+            </template>
+
+        </DataTable>
+
+        <!-- Pagination -->
+        <div v-if="totalPages > 1" class="flex justify-center gap-1.5 pr-6">
+            <button v-for="page in totalPages" :key="page" class="rounded-lg px-3 py-1.5 text-sm transition-colors"
+                :class="currentPage === page - 1
+                    ? 'bg-accent text-text-on-accent font-medium'
+                    : 'text-text-admin-secondary hover:bg-slate-100'" @click="goToPage(page - 1)">
+                {{ page }}
+            </button>
         </div>
 
-        <DataTable v-else :rows="cinemas" :columns="columns" createLabel="Tạo rạp mới" :fieldErrors="fieldErrors"
-            @create="showCreate = true" @delete="remove" @save="save" />
+        <!-- Create modal -->
+        <CreateModal v-model="showCreate" title="Thêm rạp chiếu phim" :columns="columns" :isLoading="isLoading"
+            :fieldErrors="fieldErrors" @submit="handleCreate" />
 
-        <!-- Pagination — dùng goToPage thay vì fetchList -->
-        <div v-if="totalPages > 1" class="mt-4 flex items-center justify-center mb-6 mr-6 gap-2">
-            <button v-for="p in totalPages" :key="p" class="size-8 rounded-lg text-sm transition-colors"
-                :class="p - 1 === currentPage ? 'bg-slate-900 text-white' : 'text-slate-500 hover:bg-gray-200'"
-                @click="goToPage(p - 1)">{{ p }}</button>
-        </div>
-
-        <CreateModal v-model="showCreate" :columns="columns" title="Tạo rạp mới" submitLabel="Tạo rạp"
-            :isLoading="isCreating" :fieldErrors="fieldErrors" @submit="onCreate" />
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { LayoutGrid } from 'lucide-vue-next'
 import DataTable from '@/components/common/table/DataTable.vue'
 import CreateModal from '@/components/common/table/subcomponents/CreateModal.vue'
 import { useCinema } from '@/composables/useCinema'
-import type { ColumnDef } from '@/components/common/table/types/table'
 import type { CinemaResponse, CreateCinemaRequest } from '@/types/cinema'
+import type { ColumnDef } from '@/components/common/table/types/table'
+
+const router = useRouter()
+
 
 const {
     cinemas, isLoading, fieldErrors, globalErrors,
@@ -45,21 +82,60 @@ const {
 } = useCinema()
 
 const showCreate = ref(false)
-const isCreating = ref(false)
 
+// ── Column definitions ────────────────────────────────────────────────────────
 const columns: ColumnDef<CinemaResponse>[] = [
-    { key: 'name', label: 'Tên rạp', type: 'text' },
-    { key: 'city', label: 'Thành phố', type: 'text' },
-    { key: 'status', label: 'Trạng thái', type: 'enum', options: ['ACTIVE', 'INACTIVE'], hideInCreate: true },
-    { key: 'address', label: 'Địa chỉ', type: 'textarea', hideInTable: true },
+    {
+        key: 'id',
+        label: 'ID',
+        type: 'number',
+        readonly: true,
+        hideInCreate: true,
+        hideInTable: true,
+
+    },
+    {
+        key: 'name',
+        label: 'Tên rạp',
+        type: 'text',
+        width: '400px'
+    },
+    {
+        key: 'address',
+        label: 'Địa chỉ',
+        type: 'textarea',
+        hideInTable: true
+    },
+    {
+        key: 'city',
+        label: 'Thành phố',
+        type: 'text',
+        width: '200px'
+    },
+    {
+        key: 'status',
+        label: 'Trạng thái',
+        type: 'enum',
+        options: ['ACTIVE', 'INACTIVE'],
+        hideInCreate: true,
+        width: 'auto'
+    },
 ]
 
-async function onCreate(draft: Record<string, unknown>) {
-    isCreating.value = true
-    const ok = await create(draft as CreateCinemaRequest)
-    isCreating.value = false
+// ── Handlers ──────────────────────────────────────────────────────────────────
+async function handleCreate(draft: Record<string, unknown>) {
+    const ok = await create(draft as unknown as CreateCinemaRequest)
     if (ok) showCreate.value = false
 }
 
-onMounted(() => fetchList())
+async function handleSave(item: CinemaResponse, done: () => void) {
+    const ok = await save(item)
+    if (ok) done()
+}
+
+async function handleDelete(item: CinemaResponse) {
+    await remove(item)
+}
+
+onMounted(() => fetchList(0))
 </script>

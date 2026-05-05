@@ -8,6 +8,7 @@ import com.cinemaebooking.backend.user.domain.valueObject.UserId;
  */
 public interface JwtProvider {
     String generateToken(UserId userId, String role);
+    String generateRefreshToken(Long userId);
     String generateResetToken(UserId userId);
     UserId extractUserId(String token);
 }

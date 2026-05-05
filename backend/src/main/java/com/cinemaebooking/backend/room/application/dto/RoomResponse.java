@@ -9,8 +9,10 @@ import lombok.*;
 public class RoomResponse {
     private Long id;
     private String name;
-    private Integer totalSeats;
     private RoomType roomType;
+    private Integer numberOfRows;
+    private Integer numberOfCols;
+    private Integer totalSeats;
     private RoomStatus status;
     private Long cinemaId;
 }

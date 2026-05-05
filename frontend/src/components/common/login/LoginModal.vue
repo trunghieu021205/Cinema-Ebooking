@@ -21,7 +21,7 @@ const closeModal = () => emit('close')
             <!-- HEADER IMAGE -->
             <div class="relative">
                 <img src="/images/login/LoginBanner.png" class="w-full h-50 rounded-t-lg object-cover" />
-                <BaseButton variant="ghost" size="sm" rounded="full" iconOnly @click="onClose"
+                <BaseButton variant="ghost" size="sm" rounded="full" iconOnly @click="closeModal"
                     class="absolute right-2 top-2">
                     <BaseIcon :icon="X" :size="16" :scale="1.2" />
                 </BaseButton>
