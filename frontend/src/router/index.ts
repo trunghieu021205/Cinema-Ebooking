@@ -12,7 +12,6 @@ const routes: RouteRecordRaw[] = [
       {
         path: '',
         name: 'home',
-        component: () => import('@/pages/MoviePage.vue'),
       },
     ],
   },

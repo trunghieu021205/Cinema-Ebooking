@@ -29,14 +29,21 @@
         </select>
 
         <!-- Mutiselect -->
-        <div v-else-if="column.type === 'multiselect'" class="flex flex-wrap gap-2 rounded-lg border p-2"
-            :class="error ? 'border-red-300 bg-red-50/40' : 'border-border-admin-subtle bg-white'">
-            <label v-for="opt in column.options" :key="opt.id"
-                class="flex cursor-pointer items-center gap-1.5 text-sm text-slate-700">
-                <input type="checkbox" :value="opt.id" :checked="normalizedMultiselectValue.includes(opt.id)"
-                    @change="onCheckboxChange(opt.id, $event)" class="rounded border-gray-300" />
-                {{ opt.name }}
-            </label>
+        <div v-else-if="column.type === 'multiselect'" class="rounded-lg border border-border-admin-subtle bg-white p-2"
+            :class="error ? 'border-red-300 bg-red-50/40' : ''">
+            <!-- Loading state -->
+            <div v-if="!column.options?.length" class="py-2 text-center text-sm text-slate-400">
+                Đang tải thể loại...
+            </div>
+            <!-- Grid checkboxes với scroll -->
+            <div v-else class="grid grid-cols-2 gap-x-3 gap-y-1.5 max-h-48 overflow-y-auto pr-1">
+                <label v-for="opt in column.options" :key="opt.id"
+                    class="flex cursor-pointer items-center gap-1.5 text-sm text-slate-700">
+                    <input type="checkbox" :value="opt.id" :checked="normalizedMultiselectValue.includes(opt.id)"
+                        @change="onCheckboxChange(opt.id, $event)" class="rounded border-gray-300" />
+                    <span class="truncate">{{ opt.name }}</span>
+                </label>
+            </div>
         </div>
 
         <!-- Textarea -->

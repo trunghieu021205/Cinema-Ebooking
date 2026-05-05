@@ -96,14 +96,17 @@ export function useMovie() {
   }
 
   // ── Genres (unchanged) ─────────────────────────────────────────────────
-  const fetchGenres = async () => {
-    try {
-      const res = await genreApi.getAll()
-      genresList.value = res
-    } catch (err) {
-      console.error('Failed to fetch genres', err)
+    const fetchGenres = async () => {
+        try {
+        const response = await genreApi.getList(0, 1000)  // lấy tất cả thể loại
+        genresList.value = response.content               // content là mảng GenreResponse[]
+        } catch (err) {
+        console.error('Failed to fetch genres', err)
+        globalErrors.value = ['Không thể tải danh sách thể loại']
+        genresList.value = [] // fallback an toàn
+        }
     }
-  }
+
 
   // ── Create (local insertion + cache invalidation) ──────────────────────
   const create = async (payload: CreateMovieRequest): Promise<boolean> => {
