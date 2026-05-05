@@ -12,19 +12,33 @@ export function useGenre() {
   const totalPages = ref(0)
   const totalItems = ref(0)
 
+  function handleError(err: any) {
+    fieldErrors.value = err.fieldErrors ?? {}
+    if (err.globalErrors?.length) {
+        globalErrors.value = err.globalErrors
+    } else if (!Object.values(fieldErrors.value).some(Boolean)) {
+        globalErrors.value = [err.message ?? 'Đã có lỗi xảy ra']
+    } else {
+        globalErrors.value = []
+    }
+  }
+
+  function clearErrors() {
+    fieldErrors.value  = {}
+    globalErrors.value = []
+  }
+
   const fetchList = async (page = 0, size = 8) => {
     isLoading.value = true
-    fieldErrors.value = {}
-    globalErrors.value = []
+    clearErrors()
     try {
       const response = await genreApi.getList(page, size)
       genres.value = response.content
       totalItems.value = response.totalElements
       totalPages.value = response.totalPages
       currentPage.value = response.number
-    } catch (err: any) {
-      if (err.fieldErrors) fieldErrors.value = err.fieldErrors
-      if (err.globalErrors) globalErrors.value = err.globalErrors
+    } catch (err) {
+          handleError(err)
     } finally {
       isLoading.value = false
     }
@@ -32,15 +46,13 @@ export function useGenre() {
 
   const create = async (payload: CreateGenreRequest) => {
     isLoading.value = true
-    fieldErrors.value = {}
-    globalErrors.value = []
+    clearErrors()
     try {
       await genreApi.create(payload)
       await fetchList(currentPage.value) // reload trang hiện tại
       return true
-    } catch (err: any) {
-      if (err.fieldErrors) fieldErrors.value = err.fieldErrors
-      if (err.globalErrors) globalErrors.value = err.globalErrors
+    } catch (err) {
+      handleError(err)
       return false
     } finally {
       isLoading.value = false
@@ -49,15 +61,13 @@ export function useGenre() {
 
   const save = async (item: GenreResponse) => {
     isLoading.value = true
-    fieldErrors.value = {}
-    globalErrors.value = []
+    clearErrors()
     try {
       await genreApi.update(item.id, { name: item.name })
       await fetchList(currentPage.value)
       return true
-    } catch (err: any) {
-      if (err.fieldErrors) fieldErrors.value = err.fieldErrors
-      if (err.globalErrors) globalErrors.value = err.globalErrors
+    } catch (err) {
+      handleError(err)
       return false
     } finally {
       isLoading.value = false
@@ -66,6 +76,7 @@ export function useGenre() {
 
   const remove = async (item: GenreResponse) => {
     isLoading.value = true
+    clearErrors()
     try {
       await genreApi.delete(item.id)
       // Nếu trang hiện tại chỉ còn 1 phần tử và không phải trang đầu thì lùi lại
@@ -73,9 +84,8 @@ export function useGenre() {
       const newPage = shouldGoPrev ? currentPage.value - 1 : currentPage.value
       await fetchList(newPage)
       return true
-    } catch (err: any) {
-      if (err.fieldErrors) fieldErrors.value = err.fieldErrors
-      if (err.globalErrors) globalErrors.value = err.globalErrors
+    } catch (err) {
+      handleError(err)
       return false
     } finally {
       isLoading.value = false

@@ -13,69 +13,63 @@ export function useLoginForm(emit: (event: string) => void) {
     const showPassword = ref(false)
     const loading = ref(false)
     const generalError = ref('')
-
     const fieldErrors = ref({ email: '', password: '' })
 
-    const isDisabled = computed(() => loading.value)
-
-    // ─── Validate local ────────────────────────────────────
+    // ─── Validate toàn bộ khi submit ──────────────────────────────
     const validateAll = (): boolean => {
         fieldErrors.value = { email: '', password: '' }
-
-        if (!email.value) fieldErrors.value.email = 'Vui lòng nhập email'
-        if (!password.value) fieldErrors.value.password = 'Vui lòng nhập mật khẩu'
-
+        if (!email.value.trim()) fieldErrors.value.email = 'Vui lòng nhập email'
+        if (!password.value.trim()) fieldErrors.value.password = 'Vui lòng nhập mật khẩu'
         return !Object.values(fieldErrors.value).some(Boolean)
     }
 
-    // ─── Clear error ───────────────────────────────────────
+    // ─── Clear lỗi khi user gõ ────────────────────────────────────
     const handleInput = (field: keyof typeof fieldErrors.value) => {
         fieldErrors.value[field] = ''
         generalError.value = ''
     }
 
-    // ─── Handle backend error (UPDATED) ────────────────────
+    // ─── Map lỗi từ backend — đồng nhất với useRegisterForm ───────
     const handleBackendError = (err: any) => {
-        // reset
         fieldErrors.value = { email: '', password: '' }
         generalError.value = ''
 
-        // map field errors
         if (err.fieldErrors) {
-            Object.assign(fieldErrors.value, err.fieldErrors)
+            for (const [field, message] of Object.entries(err.fieldErrors)) {
+                if (field in fieldErrors.value) {
+                    fieldErrors.value[field as keyof typeof fieldErrors.value] = message as string
+                }
+            }
         }
 
+        // Chỉ hiện globalError nếu không có field nào được map
         const hasFieldError = Object.values(fieldErrors.value).some(Boolean)
-
-        if (!hasFieldError && err.globalErrors?.length) {
-            generalError.value = err.globalErrors[0]
-            return
-        }
-
-        // fallback
         if (!hasFieldError) {
-            generalError.value = err.message || 'Đăng nhập thất bại'
+            generalError.value =
+                err.globalErrors?.[0] ??
+                err.message ??
+                'Đăng nhập thất bại, vui lòng thử lại'
         }
     }
 
-    // ─── Submit ────────────────────────────────────────────
+    // ─── Submit ───────────────────────────────────────────────────
     const handleLogin = async () => {
         if (!validateAll()) return
 
         loading.value = true
         generalError.value = ''
+        fieldErrors.value = { email: '', password: '' }
 
         try {
             const loginData = await authApi.login({
                 email: email.value,
-                password: password.value
+                password: password.value,
             })
 
             localStorage.setItem('accessToken', loginData.accessToken)
             localStorage.setItem('refreshToken', loginData.refreshToken)
 
             const userProfile = await userApi.getMe(loginData.accessToken)
-
             auth.setAuth(userProfile, loginData.accessToken)
 
             router.push(
@@ -83,7 +77,6 @@ export function useLoginForm(emit: (event: string) => void) {
                     ? '/admin/analystics/dashboard'
                     : '/'
             )
-
             emit('close')
         } catch (err: any) {
             handleBackendError(err)
@@ -91,25 +84,25 @@ export function useLoginForm(emit: (event: string) => void) {
             loading.value = false
         }
     }
-    const canSubmit = computed(() => {
-        return (
-            !loading.value &&
-            email.value &&
-            password.value &&
-            !fieldErrors.value.email &&
-            !fieldErrors.value.password
-        )
-    })
+
+    // ─── isDisabled — export để template dùng ─────────────────────
+    // FIX: trước đây export canSubmit nhưng LoginForm.vue dùng isDisabled → undefined
+    const isDisabled = computed(() =>
+        loading.value ||
+        !email.value.trim() ||
+        !password.value.trim() ||
+        Object.values(fieldErrors.value).some(Boolean)
+    )
+
     const submit = () => {
-        if (!canSubmit.value) return
+        if (isDisabled.value) return
         handleLogin()
     }
 
     return {
         email, password, showPassword,
-        loading, generalError,
-        fieldErrors,
-        isDisabled,
-        handleInput, submit
+        loading, generalError, fieldErrors,
+        isDisabled,           // ← FIX: export đúng tên mà LoginForm.vue cần
+        handleInput, submit,
     }
 }

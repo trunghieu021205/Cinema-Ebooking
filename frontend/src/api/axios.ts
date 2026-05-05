@@ -12,14 +12,6 @@ const apiClient = axios.create({
     headers: { 'Content-Type': 'application/json' },
 })
 
-// ================= REQUEST =================
-apiClient.interceptors.request.use((config) => {
-    const token = localStorage.getItem('accessToken')
-    if (token) config.headers.Authorization = `Bearer ${token}`
-    return config
-})
-
-// ================= RESPONSE =================
 const PUBLIC_ENDPOINTS = [
   '/auth/login',
   '/auth/register',
@@ -32,6 +24,17 @@ const isPublicEndpoint = (url?: string): boolean => {
   if (!url) return false
   return PUBLIC_ENDPOINTS.some(publicPath => url.includes(publicPath))
 }
+
+// ================= REQUEST =================
+apiClient.interceptors.request.use((config) => {
+    if (isPublicEndpoint(config.url)) return config 
+    const token = localStorage.getItem('accessToken')
+    if (token) config.headers.Authorization = `Bearer ${token}`
+    return config
+})
+
+// ================= RESPONSE =================
+
 
 let isRefreshing = false
 let failedQueue: Array<{
@@ -58,7 +61,7 @@ apiClient.interceptors.response.use(
         const res: ApiResponse<any> = response.data
         if (res && typeof res.success === 'boolean') {
             if (!res.success) {
-                const mapped = mapFieldErrors(res.error)
+                const mapped = mapFieldErrors(apiError ?? null)
                 return Promise.reject({
                     type: 'api',
                     fieldErrors: mapped.fieldErrors,
@@ -80,7 +83,7 @@ apiClient.interceptors.response.use(
         const url = originalRequest.url
 
         if (status !== 401) {
-            const mapped = mapFieldErrors(apiError)
+            const mapped = mapFieldErrors(apiError ?? null)
             return Promise.reject({
                 type: 'http',
                 fieldErrors: mapped.fieldErrors,
@@ -93,7 +96,7 @@ apiClient.interceptors.response.use(
         }
 
         if (isPublicEndpoint(url)) {
-            const mapped = mapFieldErrors(apiError)
+            const mapped = mapFieldErrors(apiError ?? null)
             return Promise.reject({
                 type: 'api',
                 fieldErrors: mapped.fieldErrors,

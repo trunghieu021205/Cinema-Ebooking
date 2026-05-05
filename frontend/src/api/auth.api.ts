@@ -1,6 +1,6 @@
 
 import apiClient from './axios'
-import type { LoginRequest, LoginResponse , RegisterRequest} from '@/types/auth.types'
+import type { LoginRequest, LoginResponse , RegisterRequest, RefreshTokenRequest} from '@/types/auth.types'
 
 export const authApi = {
     login: (payload: LoginRequest) =>

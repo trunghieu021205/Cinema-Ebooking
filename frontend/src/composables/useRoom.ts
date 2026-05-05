@@ -35,7 +35,13 @@ export function useRoom(cinemaId: number) {
   function handleError(err: unknown) {
     const e = err as ApiRejected
     fieldErrors.value  = e.fieldErrors  ?? {}
-    globalErrors.value = e.globalErrors ?? [e.message ?? 'Đã có lỗi xảy ra']
+    if (e.globalErrors?.length) {
+      globalErrors.value = e.globalErrors
+    } else if (!Object.values(fieldErrors.value).some(Boolean)) {
+      globalErrors.value = [e.message ?? 'Đã có lỗi xảy ra']  // luôn có gì đó để hiển thị
+    } else {
+      globalErrors.value = []
+    }
   }
 
   function clearErrors() {
