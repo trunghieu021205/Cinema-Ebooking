@@ -1,6 +1,6 @@
 import apiClient from './axios'
-import type { GenreResponse, CreateGenreRequest, UpdateGenreRequest, Page } from '@/types/genre'
-
+import type { GenreResponse, CreateGenreRequest, UpdateGenreRequest } from '@/types/genre'
+import type { Page } from '@/types/common.types'
 export const genreApi = {
   // GET /api/v1/genres?page=0&size=8
   getList: (page = 0, size = 8) =>
