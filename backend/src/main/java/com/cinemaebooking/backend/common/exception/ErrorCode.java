@@ -106,9 +106,6 @@ public enum ErrorCode {
     // ===================== CATALOG =====================
     // movie: 3001–3004
     MOVIE_NOT_FOUND             (3001, "Không tìm thấy phim",                              HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
-    MOVIE_ALREADY_EXISTS        (3002, "Phim đã tồn tại",                                  HttpStatus.CONFLICT,              ErrorType.BUSINESS),
-    MOVIE_INVALID_STATUS        (3003, "Trạng thái phim không hợp lệ",                     HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
-    MOVIE_INVALID_RELEASE_DATE  (3004, "Ngày phát hành phim không hợp lệ",                 HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
 
     // cinema: 3005–3007
     CINEMA_NOT_FOUND            (3005, "Không tìm thấy rạp chiếu",                         HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
