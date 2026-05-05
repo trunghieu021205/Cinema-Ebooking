@@ -144,7 +144,6 @@ public enum ErrorCode {
 
     // genre: 3032–3033
     GENRE_NOT_FOUND             (3032, "Không tìm thấy thể loại phim",                     HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
-    GENRE_ALREADY_EXISTS        (3033, "Thể loại phim đã tồn tại",                         HttpStatus.CONFLICT,              ErrorType.BUSINESS),
 
     // ===================== PRODUCT =====================
     COMBO_NOT_FOUND             (3401, "Không tìm thấy combo",                             HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),

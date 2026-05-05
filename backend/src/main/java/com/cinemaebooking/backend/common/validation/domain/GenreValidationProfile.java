@@ -15,9 +15,8 @@ public class GenreValidationProfile {
     public List<ValidationRule<String>> nameRules() {
         return StringValidationBuilder.create()
                 .notBlank()
-                .length(2, 100)
-                .pattern(ValidationPatterns.GENRE_NAME, "contains invalid characters")
-                .containsLetter()
+                .length(2, 50)
+                .pattern(ValidationPatterns.GENRE_NAME, "chứa kí tự không hợp lệ")
                 .build();
     }
 }
