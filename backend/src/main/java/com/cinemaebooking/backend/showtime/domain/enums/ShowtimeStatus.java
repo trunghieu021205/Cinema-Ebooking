@@ -1,6 +1,8 @@
 package com.cinemaebooking.backend.showtime.domain.enums;
 
 public enum ShowtimeStatus {
-    ACTIVE,
+    SCHEDULED,
+    ONGOING,
+    FINISHED,
     CANCELLED
 }
