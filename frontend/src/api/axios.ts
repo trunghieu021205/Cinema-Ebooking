@@ -1,7 +1,7 @@
 import axios, { AxiosError } from 'axios'
 import type { InternalAxiosRequestConfig } from 'axios'
 import type { LoginResponse } from '@/types/auth.types'
-import type { ApiResponse } from '@/types/common.types'
+import type { ApiResponse, ApiError } from '@/types/common.types'
 import { mapFieldErrors } from '@/utils/errorMapper'
 
 
@@ -43,10 +43,14 @@ let failedQueue: Array<{
     reject: (reason?: any) => void
 }> = []
 
-const processQueue = (error: any = null) => {
-    failedQueue.forEach(prom => {
-        if (error) prom.reject(error)
-        else prom.resolve()
+const processQueue = (error: any = null, token: string | null = null) => {
+    failedQueue.forEach(({ resolve, reject, config }) => {
+        if (error) {
+            reject(error)
+        } else {
+            if (token) config.headers.Authorization = `Bearer ${token}`
+            resolve(apiClient(config))   // retry ngay trong queue thay vì dùng .then()
+        }
     })
     failedQueue = []
 }
@@ -54,7 +58,11 @@ const processQueue = (error: any = null) => {
 const logout = () => {
     localStorage.removeItem('accessToken')
     localStorage.removeItem('refreshToken')
-    window.dispatchEvent(new CustomEvent('auth:logout'))
+    window.dispatchEvent(new CustomEvent('auth:logout'))  // giữ để store cleanup nếu cần
+
+    if (!window.location.pathname.includes('/')) {
+        window.location.href = '/'
+    }
 }
 
 apiClient.interceptors.response.use(
@@ -62,14 +70,15 @@ apiClient.interceptors.response.use(
         const res: ApiResponse<any> = response.data
         if (res && typeof res.success === 'boolean') {
             if (!res.success) {
+                const apiError: ApiError | undefined = res.error                       // ← khai báo đúng chỗ
                 const mapped = mapFieldErrors(apiError ?? null)
                 return Promise.reject({
                     type: 'api',
                     fieldErrors: mapped.fieldErrors,
                     globalErrors: mapped.globalErrors,
-                    code: res.error?.code ?? null,
-                    message: res.error?.message ?? 'Lỗi từ server',
-                    raw: res.error,
+                    code: apiError?.code ?? null,
+                    message: apiError?.message ?? 'Lỗi từ server',
+                    raw: apiError,
                 })
             }
             return res.data
@@ -80,7 +89,7 @@ apiClient.interceptors.response.use(
     async (error: AxiosError) => {
         const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
         const status = error.response?.status
-        const apiError = (error.response?.data as any)?.error
+        const apiError: ApiError | undefined = (error.response?.data as any)?.error
         const url = originalRequest.url
 
         if (status !== 401) {
@@ -123,7 +132,7 @@ apiClient.interceptors.response.use(
 
         if (isRefreshing) {
             return new Promise((resolve, reject) => {
-                failedQueue.push({ resolve, reject })
+                failedQueue.push({ resolve, reject, config: originalRequest })
             })
                 .then(() => apiClient(originalRequest))
                 .catch(err => Promise.reject(err))
@@ -139,15 +148,13 @@ apiClient.interceptors.response.use(
         }
 
         try {
-            // ✅ Gọi thẳng axios thô, KHÔNG qua apiClient
-            // → tránh circular dependency + tránh response interceptor unwrap
+
             const { data } = await axios.post<ApiResponse<LoginResponse>>(
                 `${BASE_URL}/auth/refresh_token`,
                 { refreshToken },
                 { headers: { 'Content-Type': 'application/json' } }
             )
 
-            // ✅ Validate response trước khi dùng
             if (!data.success || !data.data?.accessToken || !data.data?.refreshToken) {
                 throw new Error('Invalid refresh response')
             }
@@ -160,7 +167,13 @@ apiClient.interceptors.response.use(
             apiClient.defaults.headers.common.Authorization = `Bearer ${newAccessToken}`
             originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
 
-            processQueue(null)
+            try {
+                const { useAuthStore } = await import('@/stores/auth.store')
+                await useAuthStore().fetchMe()
+            } catch {
+            }
+
+            processQueue(null, newAccessToken)
             return apiClient(originalRequest)
         } catch (refreshError) {
             processQueue(refreshError)
