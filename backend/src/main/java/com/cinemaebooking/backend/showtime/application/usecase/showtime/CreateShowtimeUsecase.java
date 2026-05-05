@@ -60,7 +60,7 @@ public class CreateShowtimeUsecase {
                 .endTime(request.getEndTime())
                 .audioLanguage(request.getAudioLanguage())
                 .subtitleLanguage(request.getSubtitleLanguage())
-                .status(ShowtimeStatus.ACTIVE)
+                .status(ShowtimeStatus.SCHEDULED)
                 .build();
     }
 

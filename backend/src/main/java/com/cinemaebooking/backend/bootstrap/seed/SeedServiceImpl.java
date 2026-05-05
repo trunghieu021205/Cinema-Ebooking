@@ -1,7 +1,5 @@
 package com.cinemaebooking.backend.bootstrap.seed;
 
-import com.cinemaebooking.backend.bootstrap.reset.ResetService;
-import com.cinemaebooking.backend.cinema.domain.model.Cinema;
 import com.cinemaebooking.backend.user.application.port.UserRepository;
 import com.cinemaebooking.backend.user.domain.enums.UserRole;
 import com.cinemaebooking.backend.user.domain.enums.UserStatus;
@@ -20,9 +18,12 @@ public class SeedServiceImpl implements SeedService {
    // private final ResetService resetService;
     private final CinemaSeed cinemaSeed;
     private final RoomSeed roomSeed;
+    private final SeatTypeSeed seatTypeSeed;
+    private final ShowtimeFormatSeed showtimeFormatSeed;
     @Override
     public void seed() {
-
+        seatTypeSeed.seed();
+        showtimeFormatSeed.seed();
     }
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;

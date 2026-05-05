@@ -49,6 +49,12 @@ public class ShowtimeFormatRepositoryImpl implements ShowtimeFormatRepository {
     }
 
     @Override
+    public Optional<ShowtimeFormat> findByNameIgnoreCase(String name){
+        return jpaRepository.findByNameIgnoreCase(name)
+                .map(mapper::toDomain);
+    }
+
+    @Override
     public Page<ShowtimeFormat> findAll(Pageable pageable) {
         return jpaRepository.findAll(pageable)
                 .map(mapper::toDomain);

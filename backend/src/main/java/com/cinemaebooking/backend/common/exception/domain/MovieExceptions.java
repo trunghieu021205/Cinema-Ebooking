@@ -14,8 +14,4 @@ public final class MovieExceptions {
                 "Movie not found with id: " + id);
     }
 
-    public static BaseException duplicateTitle(String title) {
-        return new BaseException(ErrorCode.MOVIE_ALREADY_EXISTS,
-                "Movie already exists with title: " + title);
-    }
 }

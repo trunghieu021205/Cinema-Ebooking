@@ -23,18 +23,25 @@
                 <!-- Fields -->
                 <div class="flex-1 overflow-y-auto px-5 py-4">
                     <div class="flex flex-col gap-4">
-                        <FieldRenderer v-for="col in editableColumns" :key="col.key" :column="col"
-                            :modelValue="draft[col.key]" :error="localErrors[col.key]"
-                            @update:modelValue="onFieldUpdate(col.key, $event)" />
+                        <!--
+                            readonlyInEdit: field editable trong Create nhưng readonly trong Detail.
+                            Spread column và override readonly = true khi readonlyInEdit được set.
+                        -->
+                        <FieldRenderer v-for="col in editableColumns" :key="col.key"
+                            :column="col.readonlyInEdit ? { ...col, readonly: true } : col" :modelValue="draft[col.key]"
+                            :error="localErrors[col.key]" @update:modelValue="onFieldUpdate(col.key, $event)" />
                     </div>
                 </div>
 
                 <!-- Footer -->
-                <div class="border-t border-slate-100 px-5 pb-8">
+                <div class="border-t border-slate-100 px-5 pb-8 pt-4 flex flex-col gap-2">
                     <!-- Validation error summary -->
-                    <p v-if="emptyFields.length" class="mb-3 text-xs text-red-500">
+                    <p v-if="emptyFields.length" class="text-xs text-red-500">
                         Vui lòng điền: {{ emptyFields.join(', ') }}
                     </p>
+
+                    <!-- Slot cho actions bổ sung từ parent (vd: nút "Quản lý phòng") -->
+                    <slot name="actions" :item="draft" />
 
                     <BaseButton variant="primary" size="md" rounded="lg" class="w-full"
                         :class="!canSave && 'opacity-50 cursor-not-allowed pointer-events-none'" :disabled="!canSave"
@@ -62,7 +69,7 @@ import type { ColumnDef, RowItem } from '@/components/common/table/types/table'
 const props = defineProps<{
     item: RowItem | null
     columns: ColumnDef[]
-    errors?: Record<string, string>   // backend validation errors
+    errors?: Record<string, string>
 }>()
 
 const emit = defineEmits<{
@@ -70,9 +77,9 @@ const emit = defineEmits<{
     save: [item: RowItem]
 }>()
 
+// ── Local errors ──────────────────────────────────────────────────────────────
 const localErrors = ref<Record<string, string>>({})
 
-// Sync từ prop khi backend trả lỗi mới
 watch(() => props.errors, (val) => {
     localErrors.value = { ...val }
 }, { deep: true })
@@ -81,8 +88,8 @@ function onFieldUpdate(key: string, value: unknown) {
     draft.value[key] = value
     delete localErrors.value[key]
 }
+
 // ── Draft state ───────────────────────────────────────────────────────────────
-// Copy item vào draft khi panel mở — không mutate prop trực tiếp
 const draft = ref<Record<string, unknown>>({})
 
 watch(
@@ -90,30 +97,30 @@ watch(
     (val) => {
         if (val) {
             draft.value = { ...val }
-            localErrors.value = {}  // ← reset khi mở item mới
+            localErrors.value = {}
         }
     },
     { immediate: true },
 )
 
-// ── Columns chỉ dùng trong panel (kể cả hideInTable) ─────────────────────────
+// ── Editable columns (kể cả hideInTable, readonly fields vẫn hiển thị) ───────
 const editableColumns = computed(() =>
     props.columns.filter((c) => !c.readonly || c.hideInTable !== true)
-    // Readonly fields vẫn hiện trong panel nhưng disabled
 )
 
-// ── Detect có thay đổi chưa ──────────────────────────────────────────────────
+// ── Dirty check ───────────────────────────────────────────────────────────────
 const isDirty = computed(() => {
     if (!props.item) return false
     return props.columns.some((c) => draft.value[c.key] !== props.item![c.key])
 })
 
-// ── Validate: field nào required mà trống ────────────────────────────────────
+// ── Required validation (bỏ qua readonlyInEdit — user không thể sửa) ─────────
 const emptyFields = computed(() =>
     props.columns
         .filter(
             (c) =>
                 !c.readonly &&
+                !c.readonlyInEdit &&
                 c.required !== false &&
                 (draft.value[c.key] === '' || draft.value[c.key] == null),
         )

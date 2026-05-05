@@ -6,6 +6,7 @@ import com.cinemaebooking.backend.showtime.infrastructure.persistence.entity.Sho
 import com.cinemaebooking.backend.showtime.infrastructure.persistence.repository.ShowtimeJpaRepository;
 import com.cinemaebooking.backend.showtime_seat.domain.enums.ShowtimeSeatStatus;
 import com.cinemaebooking.backend.showtime_seat.domain.model.ShowtimeSeat;
+import com.cinemaebooking.backend.showtime_seat.domain.valueobject.ShowtimeSeatId;
 import com.cinemaebooking.backend.showtime_seat.infrastructure.persistence.entity.ShowtimeSeatJpaEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -24,9 +25,10 @@ public class ShowtimeSeatMapperImpl implements ShowtimeSeatMapper {
         ShowtimeJpaEntity showtime = showtimeJpaRepository.getReferenceById(domain.getShowtimeId());
 
         return ShowtimeSeatJpaEntity.builder()
+                .id(domain.getId() != null ? domain.getId().getValue() : null)
                 .seat(seat)
                 .showtime(showtime)
-                .status(ShowtimeSeatStatus.AVAILABLE)
+                .status(domain.getStatus())
                 .build();
     }
 
@@ -34,6 +36,7 @@ public class ShowtimeSeatMapperImpl implements ShowtimeSeatMapper {
     public ShowtimeSeat toDomain(ShowtimeSeatJpaEntity entity) {
 
         return ShowtimeSeat.builder()
+                .id(ShowtimeSeatId.ofNullable(entity.getId()))
                 .showtimeId(entity.getShowtime().getId())
                 .seatId(entity.getSeat().getId())
                 .build();

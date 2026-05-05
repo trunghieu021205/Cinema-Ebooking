@@ -9,8 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateSeatRequest {
-    private String rowLabel;
-    private Integer columnNumber;
     private Long seatTypeId;
     private SeatStatus seatStatus;
 }

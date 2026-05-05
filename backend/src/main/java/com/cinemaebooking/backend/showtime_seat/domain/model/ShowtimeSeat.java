@@ -1,8 +1,11 @@
 package com.cinemaebooking.backend.showtime_seat.domain.model;
 
+import com.cinemaebooking.backend.common.domain.BaseEntity;
 import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import com.cinemaebooking.backend.seat.domain.model.seat.Seat;
 import com.cinemaebooking.backend.showtime.domain.valueobject.ShowtimeId;
+import com.cinemaebooking.backend.showtime_seat.domain.enums.ShowtimeSeatStatus;
+import com.cinemaebooking.backend.showtime_seat.domain.valueobject.ShowtimeSeatId;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
@@ -17,10 +20,11 @@ import lombok.experimental.SuperBuilder;
  */
 @Getter
 @SuperBuilder(toBuilder = true)
-public class ShowtimeSeat {
+public class ShowtimeSeat extends BaseEntity<ShowtimeSeatId> {
 
     private final Long showtimeId;
     private final Long seatId;
+    private final ShowtimeSeatStatus status;
 
     /**
      * Validate dữ liệu domain:
@@ -52,6 +56,7 @@ public class ShowtimeSeat {
         ShowtimeSeat showtimeSeat = ShowtimeSeat.builder()
                 .showtimeId(showtimeId.getValue())
                 .seatId(seat.getId().getValue())
+                .status(ShowtimeSeatStatus.AVAILABLE)
                 .build();
 
         showtimeSeat.validate();

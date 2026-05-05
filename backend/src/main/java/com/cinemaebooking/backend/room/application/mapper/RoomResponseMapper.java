@@ -11,8 +11,10 @@ public class RoomResponseMapper {
         return new RoomResponse(
                 room.getId() != null ? room.getId().getValue() : null,
                 room.getName(),
-                room.getTotalSeats(),
                 room.getRoomType(),
+                room.getNumberOfRows(),
+                room.getNumberOfCols(),
+                room.getTotalSeats(),
                 room.getStatus(),
                 room.getCinemaId()
         );

@@ -36,6 +36,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String header = request.getHeader("Authorization");
 
+        // Không có token → để Spring Security xử lý (sẽ trả về 401 nếu cần)
         if (header == null || !header.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
@@ -45,7 +46,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             UserId userId = jwtProvider.extractUserId(token);
-
             User user = userRepository.findById(userId).orElseThrow();
 
             CustomUserPrincipal principal = new CustomUserPrincipal(
@@ -62,10 +62,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     );
             SecurityContextHolder.getContext().setAuthentication(auth);
 
-        } catch (Exception e) {
-            SecurityContextHolder.clearContext();
-        }
+            // Token hợp lệ → cho request đi tiếp
+            filterChain.doFilter(request, response);
 
-        filterChain.doFilter(request, response);
+        } catch (Exception e) {
+            // Token không hợp lệ → trả về 401 và KHÔNG gọi filterChain
+            SecurityContextHolder.clearContext();
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired token");
+            // Không gọi filterChain.doFilter()
+        }
     }
 }

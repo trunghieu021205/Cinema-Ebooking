@@ -10,7 +10,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CreateRoomRequest {
     private String name;
-    private Integer totalSeats;
     private RoomType roomType;
+    private Integer numberOfRows;
+    private Integer numberOfCols;
     private Long cinemaId;
 }

@@ -7,16 +7,10 @@ import lombok.Getter;
 @Getter
 @Builder
 public class ShowtimeSeatResponse {
-
     private Long seatId;
-    private String rowLabel;
-    private Integer columnNumber;
-
-    public static ShowtimeSeatResponse from(Seat seat) {
-        return ShowtimeSeatResponse.builder()
-                .seatId(seat.getId().getValue())
-                .rowLabel(seat.getRowLabel())
-                .columnNumber(seat.getColumnNumber())
-                .build();
-    }
+    private String label;
+    private Integer rowIndex;
+    private Integer colIndex;
+    private Long seatTypeId;
+    private String status;
 }

@@ -10,17 +10,23 @@ import com.cinemaebooking.backend.seat.infrastructure.persistence.entity.SeatJpa
 import com.cinemaebooking.backend.seat.infrastructure.persistence.entity.SeatTypeJpaEntity;
 import com.cinemaebooking.backend.seat.infrastructure.persistence.repository.SeatJpaRepository;
 import com.cinemaebooking.backend.seat.infrastructure.persistence.repository.SeatTypeJpaRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
 public class SeatRepositoryImpl implements SeatRepository {
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     private final SeatJpaRepository seatJpaRepository;
     private final RoomJpaRepository roomJpaRepository;
@@ -33,16 +39,12 @@ public class SeatRepositoryImpl implements SeatRepository {
 
         SeatJpaEntity entity = mapper.toEntity(seat);
 
-        // FIX: ROOM must be managed entity
         if (seat.getRoomId() != null) {
-            RoomJpaEntity room = roomJpaRepository.findByIdOrThrow(seat.getRoomId());
-            entity.setRoom(room);
+            entity.setRoom(entityManager.getReference(RoomJpaEntity.class, seat.getRoomId()));
         }
 
-        // FIX: SEAT TYPE must be managed entity
         if (seat.getSeatTypeId() != null) {
-            SeatTypeJpaEntity seatType = seatTypeJpaRepository.findByIdOrThrow(seat.getSeatTypeId());
-            entity.setSeatType(seatType);
+            entity.setSeatType(entityManager.getReference(SeatTypeJpaEntity.class, seat.getSeatTypeId()));
         }
 
         SeatJpaEntity saved = seatJpaRepository.save(entity);
@@ -55,20 +57,20 @@ public class SeatRepositoryImpl implements SeatRepository {
 
         SeatJpaEntity old = seatJpaRepository.findByIdOrThrow(seat.getId().getValue());
 
-        old.setRowLabel(seat.getRowLabel());
-        old.setColumnNumber(seat.getColumnNumber());
         old.setStatus(seat.getStatus());
 
-        // update seat type safely
         if (seat.getSeatTypeId() != null) {
-            SeatTypeJpaEntity seatType = seatTypeJpaRepository.findByIdOrThrow(seat.getSeatTypeId());
-            old.setSeatType(seatType);
+            old.setSeatType(entityManager.getReference(
+                    SeatTypeJpaEntity.class,
+                    seat.getSeatTypeId()
+            ));
         }
 
-        // optional update room
         if (seat.getRoomId() != null) {
-            RoomJpaEntity room = roomJpaRepository.findByIdOrThrow(seat.getRoomId());
-            old.setRoom(room);
+            old.setRoom(entityManager.getReference(
+                    RoomJpaEntity.class,
+                    seat.getRoomId()
+            ));
         }
 
         return mapper.toDomain(seatJpaRepository.save(old));
@@ -101,23 +103,14 @@ public class SeatRepositoryImpl implements SeatRepository {
 
     // EXISTS CHECK
     @Override
-    public boolean existsByRoomIdAndRowLabelAndColumnNumber(
-            Long roomId, String rowLabel, Integer columnNumber) {
-
-        return seatJpaRepository
-                .existsByRoom_IdAndRowLabelAndColumnNumber(roomId, rowLabel, columnNumber);
+    public boolean existsByRoomIdAndRowIndexAndColIndex(Long roomId, Integer rowIndex, Integer colIndex){
+        return seatJpaRepository.existsByRoomIdAndRowIndexAndColIndex(roomId, rowIndex, colIndex);
     }
 
     // EXISTS CHECK (EXCLUDE ID)
     @Override
-    public boolean existsByRoomIdAndRowLabelAndColumnNumberAndIdNot(
-            Long roomId,
-            String rowLabel,
-            Integer columnNumber,
-            SeatId id
-    ){
-        return seatJpaRepository.existsByRoom_IdAndRowLabelAndColumnNumberAndIdNot(
-                roomId, rowLabel, columnNumber, id.getValue());
+    public boolean existsByRoomIdAndRowIndexAndColIndexAndIdNot(Long roomId, Integer rowIndex, Integer colIndex, SeatId id){
+        return seatJpaRepository.existsByRoomIdAndRowIndexAndColIndexAndIdNot(roomId, rowIndex, colIndex, id);
     }
 
     // FIND BY ROOM
@@ -134,12 +127,113 @@ public class SeatRepositoryImpl implements SeatRepository {
                 .toList();
     }
 
-    public  List<Seat> findAllByIds(List<Long> ids){
-        List<SeatJpaEntity> entities =
-                seatJpaRepository.findAllById(ids);
-
-        return entities.stream()
+    @Override
+    public List<Seat> findAllById(List<SeatId> ids) {
+        List<Long> idValues = ids.stream()
+                .map(SeatId::getValue)
+                .toList();
+        return seatJpaRepository.findAllById(idValues)
+                .stream()
                 .map(mapper::toDomain)
                 .toList();
+    }
+
+    @Override
+    public boolean existsByRoomId(Long roomId) {
+        return seatJpaRepository.existsByRoom_Id(roomId);
+    }
+
+    @Override
+    public List<Seat> findByCoupleGroupIdAndRoomId(Long coupleGroupId, Long roomId) {
+        return seatJpaRepository.findByCoupleGroupIdAndRoomId(coupleGroupId, roomId)
+                .stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Seat> findByCoupleGroupIdInAndRoomId(Collection<Long> coupleGroupIds, Long roomId) {
+        return seatJpaRepository.findByCoupleGroupIdInAndRoomId(coupleGroupIds, roomId)
+                .stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void createBatch(List<Seat> seats) {
+
+        if (seats == null || seats.isEmpty()) {
+            throw new IllegalArgumentException("Seat batch must not be empty");
+        }
+
+        Set<Long> roomIds = seats.stream()
+                .map(Seat::getRoomId)
+                .collect(Collectors.toSet());
+
+        if (roomIds.size() != 1) {
+            throw new IllegalArgumentException("All seats must belong to same room");
+        }
+
+        Long roomId = roomIds.iterator().next();
+        RoomJpaEntity roomRef = entityManager.getReference(RoomJpaEntity.class, roomId);
+
+        Map<Long, SeatTypeJpaEntity> typeCache = new HashMap<>();
+
+        List<SeatJpaEntity> entities = seats.stream()
+                .map(seat -> {
+                    SeatJpaEntity entity = mapper.toEntity(seat);
+
+                    entity.setRoom(roomRef);
+
+                    if (seat.getSeatTypeId() != null) {
+                        SeatTypeJpaEntity typeRef = typeCache.computeIfAbsent(
+                                seat.getSeatTypeId(),
+                                id -> entityManager.getReference(SeatTypeJpaEntity.class, id)
+                        );
+                        entity.setSeatType(typeRef);
+                    }
+
+                    return entity;
+                })
+                .toList();
+
+        seatJpaRepository.saveAll(entities);
+    }
+
+    @Override
+    @Transactional
+    public void updateBatch(List<Seat> seats) {
+
+        List<Long> ids = seats.stream()
+                .map(seat -> seat.getId().getValue())
+                .toList();
+
+        List<SeatJpaEntity> entities = seatJpaRepository.findAllById(ids);
+
+        Map<Long, Seat> seatMap = seats.stream()
+                .collect(Collectors.toMap(
+                        seat -> seat.getId().getValue(),
+                        seat -> seat
+                ));
+
+        for (SeatJpaEntity entity : entities) {
+
+            Seat seat = seatMap.get(entity.getId());
+            if (seat == null) continue;
+
+            // update fields admin được chỉnh
+            entity.setStatus(seat.getStatus());
+
+            if (seat.getSeatTypeId() != null) {
+                SeatTypeJpaEntity seatType = entityManager.getReference(
+                        SeatTypeJpaEntity.class,
+                        seat.getSeatTypeId()
+                );
+                entity.setSeatType(seatType);
+            }
+        }
+
+        seatJpaRepository.saveAll(entities);
     }
 }

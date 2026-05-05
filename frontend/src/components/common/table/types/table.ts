@@ -1,17 +1,20 @@
 // ─── Column definition ───────────────────────────────────────────────────────
 // Mỗi column khai báo một lần, dùng lại ở cả table lẫn detail panel
 
-export type FieldType = 'text' | 'number' | 'email' | 'enum' | 'date' | 'textarea'
+export type FieldType = 'text' | 'number' | 'email' | 'enum' | 'date' | 'textarea' | 'multiselect'
 
 export interface ColumnDef<T = Record<string, unknown>> {
-  key: keyof T & string   // tên field trong data object
-  label: string           // label hiển thị (table header + panel label)
-  type: FieldType         // quyết định input nào render trong detail panel
-  options?: string[]      // chỉ cần khi type === 'enum' → render <select>
+  key: keyof T & string
+  label: string
+  type: FieldType
+  options?: string[] | { id: number; name: string }[]
   readonly?: boolean
-  hideInCreate?: boolean   // true → hiển thị nhưng không cho chỉnh sửa
-  hideInTable?: boolean   // true → ẩn khỏi table nhưng vẫn hiện trong panel
-  required?: boolean      // default true — false nếu field được phép trống
+  readonlyInEdit?: boolean
+  hideInCreate?: boolean
+  hideInTable?: boolean
+  required?: boolean
+  displayKey?: string
+  width?: string
 }
 
 // ─── Row item ─────────────────────────────────────────────────────────────────
@@ -25,5 +28,5 @@ export type RowItem = { id: string | number; [key: string]: unknown }
 export interface DataTableEmits<T extends RowItem> {
   create: []
   delete: [item: T]
-  save: [item: T]
+  save: [item: T, done: () => void]
 }

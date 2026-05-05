@@ -69,4 +69,9 @@ public class SeatTypeRepositoryImpl implements SeatTypeRepository {
                 id.getValue()
         );
     }
+
+    @Override
+    public Optional<SeatType> findByNameIgnoreCase(String name) {
+        return jpaRepository.findByNameIgnoreCase(name).map(mapper::toDomain);
+    }
 }
