@@ -42,6 +42,7 @@ public class GlobalExceptionHandler {
                 errorCode.getCode(),
                 errorCode.getMessage(),             // ← không bao giờ dùng ex.getMessage()
                 errorCode.getType(),
+                ex.getParams(),
                 details.isEmpty() ? null : details  // null nếu không có detail
         );
 
@@ -81,6 +82,7 @@ public class GlobalExceptionHandler {
                 errorCode.getCode(),
                 errorCode.getMessage(),
                 errorCode.getType(),
+                null,
                 details
         );
 
@@ -109,6 +111,7 @@ public class GlobalExceptionHandler {
                 errorCode.getCode(),
                 errorCode.getMessage(),
                 errorCode.getType(),
+                null,
                 null
         );
 

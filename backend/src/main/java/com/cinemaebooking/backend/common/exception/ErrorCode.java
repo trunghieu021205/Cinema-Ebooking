@@ -109,6 +109,7 @@ public enum ErrorCode {
 
     // cinema: 3005–3007
     CINEMA_NOT_FOUND            (3005, "Không tìm thấy rạp chiếu",                         HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
+    CINEMA_HAS_UNDELETED_ROOMS  (3006, "Không thể xóa rạp vì vẫn còn phòng chiếu",         HttpStatus.CONFLICT,              ErrorType.BUSINESS),
 
     // room: 3008–3011
     ROOM_NOT_FOUND              (3008, "Không tìm thấy phòng chiếu",                       HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
