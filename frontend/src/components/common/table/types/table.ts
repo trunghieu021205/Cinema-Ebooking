@@ -28,5 +28,5 @@ export type RowItem = { id: string | number; [key: string]: unknown }
 export interface DataTableEmits<T extends RowItem> {
   create: []
   delete: [item: T]
-  save: [item: T]
+  save: [item: T, done: () => void]
 }

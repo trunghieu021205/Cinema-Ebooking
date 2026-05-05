@@ -163,6 +163,9 @@ function onDeleteConfirmed() {
 
 // ── Save ──────────────────────────────────────────────────────────────────────
 function onSave(updated: RowItem) {
-    emit('save', updated as T)
+    const done = () => {
+        selectedItem.value = null   // đóng DetailPanel
+    }
+    emit('save', updated as T, done)
 }
 </script>

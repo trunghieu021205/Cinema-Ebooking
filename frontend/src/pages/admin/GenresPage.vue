@@ -96,8 +96,9 @@ async function handleCreate(draft: Record<string, unknown>) {
     if (ok) showCreate.value = false
 }
 
-async function handleSave(item: GenreResponse) {
-    await save(item)
+async function handleSave(item: GenreResponse, done: () => void) {
+    const ok = await save(item)
+    if (ok) done()
 }
 
 async function handleDelete(item: GenreResponse) {

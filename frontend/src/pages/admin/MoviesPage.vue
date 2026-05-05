@@ -170,11 +170,7 @@ async function handleCreate(draft: Record<string, unknown>) {
     if (ok) showCreate.value = false
 }
 
-async function handleSave(item: MovieResponse) {
-    // Khi DataTable gọi save, item có thể có genres là:
-    // - GenreResponse[] (nếu không sửa trong detail panel)
-    // - number[] (nếu user đã sửa qua FieldRenderer)
-    // Ta cần chuyển về GenreResponse[] trước khi gọi save (vì save cần object[] để extract id)
+async function handleSave(item: MovieResponse, done: () => void) {
     let resolvedGenres: { id: number; name: string }[]
     if (Array.isArray(item.genres)) {
         if (item.genres.length === 0) {
@@ -185,14 +181,14 @@ async function handleSave(item: MovieResponse) {
                 genresList.value.find(g => g.id === id) ?? { id, name: '' }
             )
         } else {
-            // đã là object[]
             resolvedGenres = item.genres as { id: number; name: string }[]
         }
     } else {
         resolvedGenres = []
     }
 
-    await save({ ...item, genres: resolvedGenres })
+    const ok = await save({ ...item, genres: resolvedGenres })
+    if (ok) done()
 }
 
 async function handleDelete(item: MovieResponse) {
