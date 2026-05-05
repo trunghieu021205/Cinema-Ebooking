@@ -16,9 +16,11 @@ const CATEGORY_MESSAGES: Record<string, MessageFn> = {
 }
 
 // ─── Error code map ────────────────────────────────────────────
-const ERROR_CODE_MESSAGES: Record<number, string> = {
-    1001: 'Dữ liệu không hợp lệ',
-    2002: 'Email hoặc mật khẩu không đúng',
+const ERROR_CODE_MESSAGES: Record<number, MessageFn> = {
+    1001: () => 'Dữ liệu không hợp lệ',
+    2002: () => 'Email hoặc mật khẩu không đúng',
+
+    3006: (p) => `Không thể xóa rạp ${p?.cinemaName} vì vẫn còn phòng chưa bị xóa`,
 }
 
 // ─── Field + Category override ─────────────────────────────────
@@ -30,7 +32,7 @@ const FIELD_CATEGORY_MESSAGES: Record<string, MessageFn> = {
 }
 
 // ─── Resolve message cho 1 detail ─────────────────────────────
-function resolveMessage(detail: ApiErrorDetail): string {
+function resolveDetailMessage(detail: ApiErrorDetail): string {
   // 1. Ưu tiên field-specific override
   const fieldKey = `${detail.field}.${detail.category}`
   const fieldOverride = FIELD_CATEGORY_MESSAGES[fieldKey]
@@ -44,6 +46,14 @@ function resolveMessage(detail: ApiErrorDetail): string {
   return detail.reason
 }
 
+function resolveGlobalMessage(error: ApiError): string {
+  const messageFn = error.code ? ERROR_CODE_MESSAGES[error.code] : null
+
+  return messageFn
+    ? messageFn(error.params ?? undefined)
+    : error.message
+}
+
 // ─── Main export ───────────────────────────────────────────────
 export function mapFieldErrors(error: ApiError | null) {
     const fieldErrors: Record<string, string> = {}
@@ -55,14 +65,13 @@ export function mapFieldErrors(error: ApiError | null) {
         for (const detail of error.details) {
             if (detail.field && !(detail.field in fieldErrors)) {
                 // Lấy lỗi đầu tiên mỗi field, BE đã sort theo priority
-                fieldErrors[detail.field] = resolveMessage(detail)
+                fieldErrors[detail.field] = resolveDetailMessage(detail)
             } else if (!detail.field) {
-                globalErrors.push(resolveMessage(detail))
+                globalErrors.push(resolveDetailMessage(detail))
             }
         }
     } else {
-        const codeMessage = error.code ? ERROR_CODE_MESSAGES[error.code] : null
-        globalErrors.push(codeMessage ?? error.message)
+        globalErrors.push(resolveGlobalMessage(error))
     }
 
     return { fieldErrors, globalErrors }
