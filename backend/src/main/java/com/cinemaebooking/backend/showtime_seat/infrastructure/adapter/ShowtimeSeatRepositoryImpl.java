@@ -47,16 +47,6 @@ public class ShowtimeSeatRepositoryImpl implements ShowtimeSeatRepository {
         jpaRepository.deleteAll(entities);
     }
 
-    @Override
-    public boolean existsByShowtimeId(Long showtimeId) {
-        return !jpaRepository.findByShowtimeId(showtimeId).isEmpty();
-    }
-
-    @Override
-    public Optional<ShowtimeSeat> findByShowtimeIdAndSeatId(Long showtimeId, Long seatId) {
-        return jpaRepository.findByShowtimeIdAndSeatId(showtimeId, seatId)
-                .map(mapper::toDomain);
-    }
 
     @Override
     public void save(ShowtimeSeat showtimeSeat) {
@@ -65,9 +55,9 @@ public class ShowtimeSeatRepositoryImpl implements ShowtimeSeatRepository {
     }
 
     @Override
-    public void updateStatus(Long showtimeId, Long seatId, ShowtimeSeatStatus newStatus) {
+    public void updateStatus(Long showtimeId, Long roomLayoutSeatId, ShowtimeSeatStatus newStatus) {
         // find existing entity, update status, save
-        ShowtimeSeatJpaEntity entity = jpaRepository.findByShowtimeIdAndSeatId(showtimeId, seatId)
+        ShowtimeSeatJpaEntity entity = jpaRepository.findByShowtimeIdAndRoomLayoutSeatId(showtimeId, roomLayoutSeatId)
                 .orElseThrow(() -> new EntityNotFoundException("ShowtimeSeat not found"));
         entity.setStatus(newStatus);
         jpaRepository.save(entity);

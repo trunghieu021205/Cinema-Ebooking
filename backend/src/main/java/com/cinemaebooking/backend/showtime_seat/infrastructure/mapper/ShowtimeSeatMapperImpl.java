@@ -1,10 +1,9 @@
 package com.cinemaebooking.backend.showtime_seat.infrastructure.mapper;
 
-import com.cinemaebooking.backend.seat.infrastructure.persistence.entity.SeatJpaEntity;
-import com.cinemaebooking.backend.seat.infrastructure.persistence.repository.SeatJpaRepository;
+import com.cinemaebooking.backend.room_layout.infrastructure.persistence.entity.RoomLayoutSeatJpaEntity;
+import com.cinemaebooking.backend.room_layout.infrastructure.persistence.repository.RoomLayoutSeatJpaRepository;
 import com.cinemaebooking.backend.showtime.infrastructure.persistence.entity.ShowtimeJpaEntity;
 import com.cinemaebooking.backend.showtime.infrastructure.persistence.repository.ShowtimeJpaRepository;
-import com.cinemaebooking.backend.showtime_seat.domain.enums.ShowtimeSeatStatus;
 import com.cinemaebooking.backend.showtime_seat.domain.model.ShowtimeSeat;
 import com.cinemaebooking.backend.showtime_seat.domain.valueobject.ShowtimeSeatId;
 import com.cinemaebooking.backend.showtime_seat.infrastructure.persistence.entity.ShowtimeSeatJpaEntity;
@@ -15,19 +14,20 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ShowtimeSeatMapperImpl implements ShowtimeSeatMapper {
 
-    private final SeatJpaRepository seatJpaRepository;
+    private final RoomLayoutSeatJpaRepository roomLayoutSeatJpaRepository;
     private final ShowtimeJpaRepository showtimeJpaRepository;
 
     @Override
     public ShowtimeSeatJpaEntity toEntity(ShowtimeSeat domain) {
-        SeatJpaEntity seat = seatJpaRepository.getReferenceById(domain.getSeatId());
+        RoomLayoutSeatJpaEntity seat = roomLayoutSeatJpaRepository.getReferenceById(domain.getRoomLayoutSeatId());
 
         ShowtimeJpaEntity showtime = showtimeJpaRepository.getReferenceById(domain.getShowtimeId());
 
         return ShowtimeSeatJpaEntity.builder()
                 .id(domain.getId() != null ? domain.getId().getValue() : null)
-                .seat(seat)
+                .roomLayoutSeat(seat)
                 .showtime(showtime)
+                .price(domain.getPrice())
                 .status(domain.getStatus())
                 .build();
     }
@@ -38,7 +38,9 @@ public class ShowtimeSeatMapperImpl implements ShowtimeSeatMapper {
         return ShowtimeSeat.builder()
                 .id(ShowtimeSeatId.ofNullable(entity.getId()))
                 .showtimeId(entity.getShowtime().getId())
-                .seatId(entity.getSeat().getId())
+                .roomLayoutSeatId(entity.getRoomLayoutSeat().getId())
+                .price(entity.getPrice())
+                .status(entity.getStatus())
                 .build();
     }
 }

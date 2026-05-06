@@ -1,12 +1,14 @@
 package com.cinemaebooking.backend.showtime_seat.infrastructure.persistence.entity;
 
 import com.cinemaebooking.backend.infrastructure.persistence.entity.BaseJpaEntity;
-import com.cinemaebooking.backend.seat.infrastructure.persistence.entity.SeatJpaEntity;
+import com.cinemaebooking.backend.room_layout.infrastructure.persistence.entity.RoomLayoutSeatJpaEntity;
 import com.cinemaebooking.backend.showtime.infrastructure.persistence.entity.ShowtimeJpaEntity;
 import com.cinemaebooking.backend.showtime_seat.domain.enums.ShowtimeSeatStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+
+import java.math.BigDecimal;
 
 /**
  * ShowtimeSeatJpaEntity - Persistence model for showtime_seats table.
@@ -34,18 +36,20 @@ import lombok.experimental.SuperBuilder;
 )
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SuperBuilder(toBuilder = true)
 public class ShowtimeSeatJpaEntity extends BaseJpaEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "seat_id", nullable = false)
-    private SeatJpaEntity seat;
+    @JoinColumn(name = "room_layout_seat_id", nullable = false)
+    private RoomLayoutSeatJpaEntity roomLayoutSeat;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "showtime_id", nullable = false)
     private ShowtimeJpaEntity showtime;
+
+    @Column(name = "price", precision = 10, scale = 2, nullable = false)
+    private BigDecimal price;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)

@@ -16,6 +16,7 @@ public class Showtime extends BaseEntity<ShowtimeId> {
 
     private Long movieId;
     private Long roomId;
+    private Long roomLayoutId;
     private Long formatId;
 
     private LocalDateTime startTime;
@@ -65,6 +66,9 @@ public class Showtime extends BaseEntity<ShowtimeId> {
 
         if (status == null) {
             throw CommonExceptions.invalidInput("Showtime status cannot be null");
+        }
+        if (roomLayoutId == null || roomLayoutId <= 0) {
+            throw CommonExceptions.invalidInput("roomLayoutId must be a positive number");
         }
     }
 

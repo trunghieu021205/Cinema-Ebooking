@@ -6,6 +6,8 @@ import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.math.BigDecimal;
+
 /**
  * ShowtimeFormatJpaEntity - Persistence model for showtime_formats table.
  * Responsibility:
@@ -31,8 +33,7 @@ import lombok.experimental.SuperBuilder;
 )
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SuperBuilder(toBuilder = true)
 public class ShowtimeFormatJpaEntity extends BaseJpaEntity {
 
@@ -40,8 +41,8 @@ public class ShowtimeFormatJpaEntity extends BaseJpaEntity {
     private String name;
 
     @PositiveOrZero
-    @Column(nullable = false)
-    private Long extraPrice;
+    @Column(precision = 10, scale = 2, nullable = false)
+    private BigDecimal extraPrice;
 
     @Override
     protected void beforeSoftDelete() {

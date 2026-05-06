@@ -21,7 +21,6 @@ public final class ValidationFactory {
         return CinemaValidationProfile.INSTANCE;
     }
     public static RoomValidationProfile   room(){ return RoomValidationProfile.INSTANCE;}
-    public static SeatValidationProfile seat(){ return SeatValidationProfile.INSTANCE;}
     public static SeatTypeValidationProfile seatType(){ return SeatTypeValidationProfile.INSTANCE;}
     public static UserValidationProfile user(){ return UserValidationProfile.INSTANCE;}
     public static MovieValidationProfile movie() { return MovieValidationProfile.INSTANCE; }

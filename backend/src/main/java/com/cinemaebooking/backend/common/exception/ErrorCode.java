@@ -117,12 +117,12 @@ public enum ErrorCode {
             HttpStatus.CONFLICT,
             ErrorType.BUSINESS),
     // seat: 3012–3020
-    SEAT_NOT_FOUND              (3012, "Không tìm thấy ghế",                               HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
+    /*SEAT_NOT_FOUND              (3012, "Không tìm thấy ghế",                               HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
     SEAT_ALREADY_EXISTS         (3013, "Ghế đã tồn tại trong phòng chiếu này",             HttpStatus.CONFLICT,              ErrorType.BUSINESS),
     SEAT_INVALID_STATUS         (3014, "Trạng thái ghế không hợp lệ",                      HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
     SEAT_ALREADY_BOOKED         (3015, "Ghế đã được đặt",                                  HttpStatus.CONFLICT,              ErrorType.BUSINESS),
     SEAT_NOT_AVAILABLE          (3016, "Ghế không còn khả dụng",                           HttpStatus.CONFLICT,              ErrorType.BUSINESS),
-    SEAT_ALREADY_SELECTED_BY_USER (3017, "Ghế đã được người dùng chọn",                   HttpStatus.CONFLICT,              ErrorType.BUSINESS),
+    SEAT_ALREADY_SELECTED_BY_USER (3017, "Ghế đã được người dùng chọn",                   HttpStatus.CONFLICT,              ErrorType.BUSINESS),*/
     SEAT_TYPE_NOT_FOUND         (3018, "Không tìm thấy loại ghế",                          HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
     SEAT_TYPE_ALREADY_EXISTS    (3019, "Loại ghế đã tồn tại",                              HttpStatus.CONFLICT,              ErrorType.BUSINESS),
     SEAT_TYPE_INVALID           (3020, "Loại ghế không hợp lệ",                            HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
@@ -144,6 +144,20 @@ public enum ErrorCode {
 
     // genre: 3032–3033
     GENRE_NOT_FOUND             (3032, "Không tìm thấy thể loại phim",                     HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
+
+    // room_layout: 3034–3038
+    ROOM_LAYOUT_NOT_FOUND              (3034, "Không tìm thấy layout của phòng",                      HttpStatus.NOT_FOUND,   ErrorType.BUSINESS),
+    ROOM_LAYOUT_ALREADY_EXISTS         (3035, "Layout cho phòng này đã được tạo",                    HttpStatus.CONFLICT,     ErrorType.BUSINESS),
+    ROOM_LAYOUT_INVALID_VERSION        (3036, "Số phiên bản layout không hợp lệ",                   HttpStatus.BAD_REQUEST,  ErrorType.BUSINESS),
+    ROOM_LAYOUT_NO_CURRENT             (3037, "Không có layout hiện tại cho phòng vào thời điểm này",HttpStatus.NOT_FOUND,   ErrorType.BUSINESS),
+    ROOM_LAYOUT_INVALID_EFFECTIVE_DATE (3038, "Ngày hiệu lực của layout không hợp lệ",               HttpStatus.BAD_REQUEST,  ErrorType.BUSINESS),
+
+    // room_layout_seat: 3039–3043
+    ROOM_LAYOUT_SEAT_NOT_FOUND              (3039, "Không tìm thấy ghế trong layout",                 HttpStatus.NOT_FOUND,   ErrorType.BUSINESS),
+    ROOM_LAYOUT_SEAT_DUPLICATE_POSITION     (3040, "Vị trí ghế bị trùng trong layout",                HttpStatus.CONFLICT,     ErrorType.BUSINESS),
+    ROOM_LAYOUT_SEAT_INVALID_POSITION       (3041, "Vị trí ghế không hợp lệ (hàng/cột vượt quá giới hạn)", HttpStatus.BAD_REQUEST, ErrorType.BUSINESS),
+    ROOM_LAYOUT_SEAT_NOT_BELONG_TO_CURRENT  (3042, "Ghế không thuộc layout hiện tại của phòng",       HttpStatus.BAD_REQUEST,  ErrorType.BUSINESS),
+    ROOM_LAYOUT_SEAT_COUPLE_GROUP_INVALID   (3043, "Nhóm ghế đôi không hợp lệ (không đủ 2 ghế hoặc không kề nhau)", HttpStatus.BAD_REQUEST, ErrorType.BUSINESS),
 
     // ===================== PRODUCT =====================
     COMBO_NOT_FOUND             (3401, "Không tìm thấy combo",                             HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),

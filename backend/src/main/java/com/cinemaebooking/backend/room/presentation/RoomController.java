@@ -1,13 +1,18 @@
 package com.cinemaebooking.backend.room.presentation;
 
+import com.cinemaebooking.backend.common.exception.ErrorCategory;
 import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import com.cinemaebooking.backend.room.application.dto.CreateRoomRequest;
-import com.cinemaebooking.backend.room.application.dto.RoomLayoutResponse;
+import com.cinemaebooking.backend.room_layout.application.dto.roomLayout.RoomLayoutDetailResponse;
 import com.cinemaebooking.backend.room.application.dto.RoomResponse;
 import com.cinemaebooking.backend.room.application.dto.UpdateRoomRequest;
 import com.cinemaebooking.backend.room.application.usecase.*;
 import com.cinemaebooking.backend.room.domain.valueObject.RoomId;
-import com.cinemaebooking.backend.seat.application.dto.seat.SeatResponse;
+import com.cinemaebooking.backend.room_layout.application.dto.roomLayoutSeat.BulkUpdateResponse;
+import com.cinemaebooking.backend.room_layout.application.dto.roomLayoutSeat.UpdateRoomLayoutSeatsRequest;
+import com.cinemaebooking.backend.room_layout.application.usecase.roomLayout.GenerateRoomLayoutUseCase;
+import com.cinemaebooking.backend.room_layout.application.usecase.roomLayout.GetRoomLayoutUseCase;
+import com.cinemaebooking.backend.room_layout.application.usecase.roomLayout.UpdateRoomLayoutSeatsUseCase;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -16,8 +21,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * RoomController - REST API for Room resource.
@@ -39,6 +42,7 @@ public class RoomController {
     private final GetRoomByIdUseCase getRoomByIdUseCase;
     private final GenerateRoomLayoutUseCase generateRoomLayoutUseCase;
     private final GetRoomLayoutUseCase getRoomLayoutUseCase;
+    private final UpdateRoomLayoutSeatsUseCase updateRoomLayoutSeatsUseCase;
 
     // ================== CREATE ==================
     @PostMapping
@@ -102,14 +106,23 @@ public class RoomController {
     }
 
     @GetMapping("/{id}/layout")
-    public RoomLayoutResponse getLayout(@PathVariable Long id) {
+    public RoomLayoutDetailResponse getLayout(@PathVariable Long id) {
         return getRoomLayoutUseCase.execute(id);
+    }
+
+    @PostMapping("/{id}/layouts/update-seats")
+    @PreAuthorize("hasRole('ADMIN')")
+    @ResponseStatus(HttpStatus.CREATED)
+    public BulkUpdateResponse updateSeatsInLayout(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateRoomLayoutSeatsRequest request) {
+        return updateRoomLayoutSeatsUseCase.execute(id, request.effectiveDate(), request.updates());
     }
 
     // ================== HELPER ==================
     private RoomId toRoomId(Long id) {
         if (id == null) {
-            throw CommonExceptions.invalidInput("Room id must not be null");
+            throw CommonExceptions.invalidInput("roomId", ErrorCategory.REQUIRED,"Room id must not be null");
         }
         return RoomId.of(id);
     }

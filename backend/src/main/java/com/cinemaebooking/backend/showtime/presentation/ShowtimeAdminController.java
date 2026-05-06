@@ -9,6 +9,7 @@ import com.cinemaebooking.backend.showtime.domain.valueobject.ShowtimeId;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -22,6 +23,7 @@ public class ShowtimeAdminController {
     private final GetShowtimeDetailUsecase getShowtimeDetailUseCase;
 
     // ================== CREATE ==================
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ShowtimeResponse createShowtime(@Valid @RequestBody CreateShowtimeRequest request) {
@@ -29,12 +31,14 @@ public class ShowtimeAdminController {
     }
 
     // ================== DETAIL ==================
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}")
     public ShowtimeResponse getShowtimeById(@PathVariable Long id) {
         return getShowtimeDetailUseCase.execute(toShowtimeId(id));
     }
 
     // ================== UPDATE ==================
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ShowtimeResponse updateShowtime(
             @PathVariable Long id,
@@ -44,6 +48,7 @@ public class ShowtimeAdminController {
     }
 
     // ================== DELETE ==================
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteShowtime(@PathVariable Long id) {
