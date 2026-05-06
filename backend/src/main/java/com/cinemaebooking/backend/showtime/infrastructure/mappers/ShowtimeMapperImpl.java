@@ -19,12 +19,12 @@ public class ShowtimeMapperImpl implements ShowtimeMapper {
                 .endTime(entity.getEndTime())
                 .audioLanguage(
                         entity.getAudioLanguage() != null
-                                ? entity.getAudioLanguage().name()
+                                ? entity.getAudioLanguage()
                                 : null
                 )
                 .subtitleLanguage(
                         entity.getSubtitleLanguage() != null
-                                ? entity.getSubtitleLanguage().name()
+                                ? entity.getSubtitleLanguage()
                                 : null
                 )
                 .status(entity.getStatus())
@@ -44,12 +44,12 @@ public class ShowtimeMapperImpl implements ShowtimeMapper {
                 .endTime(domain.getEndTime())
                 .audioLanguage(
                         domain.getAudioLanguage() != null
-                                ? Language.valueOf(domain.getAudioLanguage())
+                                ? domain.getAudioLanguage()
                                 : null
                 )
                 .subtitleLanguage(
                         domain.getSubtitleLanguage() != null
-                                ? Language.valueOf(domain.getSubtitleLanguage())
+                                ? domain.getSubtitleLanguage()
                                 : null
                 )
                 .status(domain.getStatus())

@@ -2,6 +2,7 @@ package com.cinemaebooking.backend.showtime.domain.model;
 
 import com.cinemaebooking.backend.common.domain.BaseEntity;
 import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
+import com.cinemaebooking.backend.showtime.domain.enums.Language;
 import com.cinemaebooking.backend.showtime.domain.enums.ShowtimeStatus;
 import com.cinemaebooking.backend.showtime.domain.valueobject.ShowtimeId;
 import lombok.Getter;
@@ -20,8 +21,8 @@ public class Showtime extends BaseEntity<ShowtimeId> {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 
-    private String audioLanguage;
-    private String subtitleLanguage;
+    private Language audioLanguage;
+    private Language subtitleLanguage;
 
     private ShowtimeStatus status;
 
@@ -38,7 +39,7 @@ public class Showtime extends BaseEntity<ShowtimeId> {
         this.endTime = end;
     }
 
-    public void updateLanguage(String audio, String subtitle){
+    public void updateLanguage(Language audio, Language subtitle){
         validateLanguages(audio, subtitle);
         this.audioLanguage = audio;
         this.subtitleLanguage = subtitle;
@@ -101,11 +102,11 @@ public class Showtime extends BaseEntity<ShowtimeId> {
         }
     }
 
-    private void validateLanguages(String audio, String subtitle) {
-        if (audio == null || audio.isBlank()) {
+    private void validateLanguages(Language audio, Language subtitle) {
+        if (audio == null) {
             throw CommonExceptions.invalidInput("Audio language cannot be empty");
         }
-        if (subtitle == null || subtitle.isBlank()) {
+        if (subtitle == null) {
             throw CommonExceptions.invalidInput("Subtitle language cannot be empty");
         }
     }

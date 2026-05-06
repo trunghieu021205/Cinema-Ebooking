@@ -1,5 +1,6 @@
 package com.cinemaebooking.backend.showtime.application.dto.showtime;
 
+import com.cinemaebooking.backend.showtime.domain.enums.Language;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,6 +21,6 @@ public class CreateShowtimeRequest {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 
-    private String audioLanguage;
-    private String subtitleLanguage;
+    private Language audioLanguage;
+    private Language subtitleLanguage;
 }
