@@ -1,5 +1,6 @@
 package com.cinemaebooking.backend.showtime.application.port;
 
+import com.cinemaebooking.backend.showtime.domain.enums.ShowtimeStatus;
 import com.cinemaebooking.backend.showtime.domain.model.Showtime;
 import com.cinemaebooking.backend.showtime.domain.valueobject.ShowtimeId;
 import org.springframework.data.domain.Page;
@@ -7,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface ShowtimeRepository {
@@ -20,6 +22,8 @@ public interface ShowtimeRepository {
     void deleteById(ShowtimeId id);
 
     boolean existsById(ShowtimeId id);
+
+    boolean existsByRoomIdAndStatusIn(Long RoomId, List<ShowtimeStatus> status);
 
     Page<Showtime> search(
             Long cinemaId,

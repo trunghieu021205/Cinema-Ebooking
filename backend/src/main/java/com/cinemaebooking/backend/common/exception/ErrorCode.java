@@ -113,7 +113,9 @@ public enum ErrorCode {
 
     // room: 3008–3011
     ROOM_NOT_FOUND              (3008, "Không tìm thấy phòng chiếu",                       HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
-
+    ROOM_DELETE_BLOCKED_BY_SHOWTIME (3009, "Không thể xoá phòng vì vẫn còn suất chiếu đang hoạt động",
+            HttpStatus.CONFLICT,
+            ErrorType.BUSINESS),
     // seat: 3012–3020
     SEAT_NOT_FOUND              (3012, "Không tìm thấy ghế",                               HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
     SEAT_ALREADY_EXISTS         (3013, "Ghế đã tồn tại trong phòng chiếu này",             HttpStatus.CONFLICT,              ErrorType.BUSINESS),

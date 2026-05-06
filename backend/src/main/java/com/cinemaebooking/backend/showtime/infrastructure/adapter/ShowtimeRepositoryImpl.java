@@ -5,6 +5,7 @@ import com.cinemaebooking.backend.movie.infrastructure.persistence.repository.Mo
 import com.cinemaebooking.backend.room.infrastructure.persistence.repository.RoomJpaRepository;
 import com.cinemaebooking.backend.showtime.application.port.ShowtimeRepository;
 import com.cinemaebooking.backend.showtime.domain.enums.Language;
+import com.cinemaebooking.backend.showtime.domain.enums.ShowtimeStatus;
 import com.cinemaebooking.backend.showtime.domain.model.Showtime;
 import com.cinemaebooking.backend.showtime.domain.valueobject.ShowtimeId;
 import com.cinemaebooking.backend.showtime.infrastructure.mappers.ShowtimeMapper;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -63,8 +65,8 @@ public class ShowtimeRepositoryImpl implements ShowtimeRepository {
 
         entity.setStartTime(showtime.getStartTime());
         entity.setEndTime(showtime.getEndTime());
-        entity.setAudioLanguage(Language.valueOf(showtime.getAudioLanguage()));
-        entity.setSubtitleLanguage(Language.valueOf(showtime.getSubtitleLanguage()));
+        entity.setAudioLanguage(showtime.getAudioLanguage());
+        entity.setSubtitleLanguage(showtime.getSubtitleLanguage());
         entity.setStatus(showtime.getStatus());
 
         var saved = jpaRepository.save(entity);
@@ -87,6 +89,11 @@ public class ShowtimeRepositoryImpl implements ShowtimeRepository {
     @Override
     public boolean existsById(ShowtimeId id) {
         return jpaRepository.existsById(id.getValue());
+    }
+
+    @Override
+    public boolean existsByRoomIdAndStatusIn(Long roomId, List<ShowtimeStatus> status){
+        return jpaRepository.existsByRoomIdAndStatusIn(roomId, status);
     }
 
     @Override

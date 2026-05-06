@@ -21,6 +21,7 @@ const ERROR_CODE_MESSAGES: Record<number, MessageFn> = {
     2002: () => 'Email hoặc mật khẩu không đúng',
 
     3006: (p) => `Không thể xóa rạp ${p?.cinemaName} vì vẫn còn phòng chưa bị xóa`,
+    3009: (p) => `Không thể xoá phòng ${p?.roomName} vì vẫn còn suất chiếu đã lên lịch hoặc đang diễn ra`,
 }
 
 // ─── Field + Category override ─────────────────────────────────

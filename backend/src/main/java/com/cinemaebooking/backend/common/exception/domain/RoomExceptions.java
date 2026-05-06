@@ -6,6 +6,8 @@ import com.cinemaebooking.backend.room.domain.valueObject.RoomId;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+import java.util.Map;
+
 /**
  * RoomExceptions - Domain-specific exceptions for Room.
  * Responsibility:
@@ -31,4 +33,7 @@ public final class RoomExceptions {
         );
     }
 
+    public static BaseException deleteBlockedByShowtime(String name){
+        return new BaseException(ErrorCode.ROOM_DELETE_BLOCKED_BY_SHOWTIME, Map.of("roomName",name));
+    }
 }

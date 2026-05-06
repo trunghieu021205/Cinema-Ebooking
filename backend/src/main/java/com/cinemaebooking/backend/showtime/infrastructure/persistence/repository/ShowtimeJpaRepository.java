@@ -1,6 +1,7 @@
 package com.cinemaebooking.backend.showtime.infrastructure.persistence.repository;
 
 import com.cinemaebooking.backend.infrastructure.persistence.repository.SoftDeleteJpaRepository;
+import com.cinemaebooking.backend.showtime.domain.enums.ShowtimeStatus;
 import com.cinemaebooking.backend.showtime.infrastructure.persistence.entity.ShowtimeJpaEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Repository
 public interface ShowtimeJpaRepository extends SoftDeleteJpaRepository<ShowtimeJpaEntity> {
@@ -42,4 +44,6 @@ public interface ShowtimeJpaRepository extends SoftDeleteJpaRepository<ShowtimeJ
             LocalDateTime endTime,
             Long excludeId
     );
+
+    boolean existsByRoomIdAndStatusIn(Long roomId, List<ShowtimeStatus> status);
 }
