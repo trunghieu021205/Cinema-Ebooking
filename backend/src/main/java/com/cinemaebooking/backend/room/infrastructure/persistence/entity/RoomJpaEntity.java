@@ -33,8 +33,7 @@ import lombok.experimental.SuperBuilder;
 )
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SuperBuilder(toBuilder = true)
 public class RoomJpaEntity extends BaseJpaEntity {
 

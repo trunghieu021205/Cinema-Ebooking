@@ -7,9 +7,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ShowtimeSeatRepository {
-
-    Optional<ShowtimeSeat> findByShowtimeIdAndSeatId(Long showtimeId, Long seatId);
-
     void save(ShowtimeSeat showtimeSeat);
 
     /**
@@ -28,11 +25,6 @@ public interface ShowtimeSeatRepository {
      * (gọi trong DeleteShowtimeUseCase)
      */
     void deleteByShowtimeId(Long showtimeId);
-
-    /**
-     * Kiểm tra showtimeId có seat chưa (dùng cho double-generate prevention).
-     */
-    boolean existsByShowtimeId(Long showtimeId);
 
     void updateStatus(Long showtimeId, Long seatId, ShowtimeSeatStatus newStatus);
 

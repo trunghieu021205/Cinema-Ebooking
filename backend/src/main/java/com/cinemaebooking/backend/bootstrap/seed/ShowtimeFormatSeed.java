@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -14,12 +16,12 @@ public class ShowtimeFormatSeed {
     private final ShowtimeFormatRepository showtimeFormatRepository;
 
     public void seed() {
-        createIfNotExists("2D", 0L);
-        createIfNotExists("3D", 30_000L);
-        createIfNotExists("IMAX", 60_000L);
+        createIfNotExists("2D", BigDecimal.valueOf(0));
+        createIfNotExists("3D", BigDecimal.valueOf(30000));
+        createIfNotExists("IMAX", BigDecimal.valueOf(60000));
     }
 
-    private ShowtimeFormat createIfNotExists(String name, Long extraPrice) {
+    private ShowtimeFormat createIfNotExists(String name, BigDecimal extraPrice) {
         if (showtimeFormatRepository.existsByName(name)) {
             log.info("ShowtimeFormat already exists: {}", name);
             return showtimeFormatRepository.findByNameIgnoreCase(name)

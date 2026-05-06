@@ -9,6 +9,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * CinemaExceptions - Domain-specific exceptions for Cinema.
@@ -26,5 +27,9 @@ public final class CinemaExceptions {
     public static BaseException notFound(CinemaId id) {
         return new BaseException(ErrorCode.CINEMA_NOT_FOUND,
                 "Không tìm thấy rạp với id: " + id);           // debugMessage
+    }
+
+    public static BaseException hasRoom(String cinemaName){
+        return new BaseException(ErrorCode.CINEMA_HAS_UNDELETED_ROOMS, Map.of("cinemaName", cinemaName));
     }
 }

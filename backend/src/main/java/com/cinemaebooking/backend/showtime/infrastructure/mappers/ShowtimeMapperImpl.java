@@ -19,17 +19,18 @@ public class ShowtimeMapperImpl implements ShowtimeMapper {
                 .endTime(entity.getEndTime())
                 .audioLanguage(
                         entity.getAudioLanguage() != null
-                                ? entity.getAudioLanguage().name()
+                                ? entity.getAudioLanguage()
                                 : null
                 )
                 .subtitleLanguage(
                         entity.getSubtitleLanguage() != null
-                                ? entity.getSubtitleLanguage().name()
+                                ? entity.getSubtitleLanguage()
                                 : null
                 )
                 .status(entity.getStatus())
                 .movieId(entity.getMovie() != null ? entity.getMovie().getId() : null)
                 .roomId(entity.getRoom() != null ? entity.getRoom().getId() : null)
+                .roomLayoutId(entity.getRoomLayoutId())
                 .formatId(entity.getFormat() != null ? entity.getFormat().getId() : null)
                 .build();
     }
@@ -44,14 +45,15 @@ public class ShowtimeMapperImpl implements ShowtimeMapper {
                 .endTime(domain.getEndTime())
                 .audioLanguage(
                         domain.getAudioLanguage() != null
-                                ? Language.valueOf(domain.getAudioLanguage())
+                                ? domain.getAudioLanguage()
                                 : null
                 )
                 .subtitleLanguage(
                         domain.getSubtitleLanguage() != null
-                                ? Language.valueOf(domain.getSubtitleLanguage())
+                                ? domain.getSubtitleLanguage()
                                 : null
                 )
+                .roomLayoutId(domain.getRoomLayoutId())
                 .status(domain.getStatus())
                 .build();
     }

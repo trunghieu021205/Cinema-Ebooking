@@ -11,6 +11,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface RoomJpaRepository extends SoftDeleteJpaRepository<RoomJpaEntity> {
     boolean existsByName(String name);
+
+    boolean existsByCinemaId(Long cinemaId);
+
     Page<RoomJpaEntity> findByCinema_Id(Long cinemaId, Pageable pageable);
 
     boolean existsByNameAndCinemaId(String name, Long cinemaId);

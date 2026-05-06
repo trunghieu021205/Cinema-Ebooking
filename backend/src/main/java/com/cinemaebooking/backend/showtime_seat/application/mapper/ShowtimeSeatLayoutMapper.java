@@ -1,22 +1,21 @@
 package com.cinemaebooking.backend.showtime_seat.application.mapper;
 
-import com.cinemaebooking.backend.seat.domain.model.seat.Seat;
+import com.cinemaebooking.backend.room_layout.domain.model.roomLayoutSeat.RoomLayoutSeat;
 import com.cinemaebooking.backend.showtime_seat.application.dto.ShowtimeSeatLayoutResponse;
 import com.cinemaebooking.backend.showtime_seat.application.dto.ShowtimeSeatResponse;
 import com.cinemaebooking.backend.showtime_seat.domain.enums.ShowtimeSeatStatus;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Component
 public class ShowtimeSeatLayoutMapper {
 
     public ShowtimeSeatLayoutResponse toLayoutResponse(
-            List<Seat> allSeatsInRoom,
+            List<RoomLayoutSeat> allSeatsInLayout,
             Map<Long, ShowtimeSeatStatus> seatIdToStatus
     ) {
-        if (allSeatsInRoom == null || allSeatsInRoom.isEmpty()) {
+        if (allSeatsInLayout == null || allSeatsInLayout.isEmpty()) {
             return ShowtimeSeatLayoutResponse.builder()
                     .rows(Collections.emptyList())
                     .totalRows(0)
@@ -24,15 +23,13 @@ public class ShowtimeSeatLayoutMapper {
                     .build();
         }
 
-        // Tìm kích thước ma trận
-        int maxRow = allSeatsInRoom.stream()
-                .mapToInt(Seat::getRowIndex)
+        int maxRow = allSeatsInLayout.stream()
+                .mapToInt(RoomLayoutSeat::getRowIndex)
                 .max().orElse(0);
-        int maxCol = allSeatsInRoom.stream()
-                .mapToInt(Seat::getColIndex)
+        int maxCol = allSeatsInLayout.stream()
+                .mapToInt(RoomLayoutSeat::getColIndex)
                 .max().orElse(0);
 
-        // Khởi tạo ma trận với các ô null
         List<List<ShowtimeSeatResponse>> rows = new ArrayList<>(maxRow + 1);
         for (int i = 0; i <= maxRow; i++) {
             List<ShowtimeSeatResponse> row = new ArrayList<>(maxCol + 1);
@@ -42,12 +39,10 @@ public class ShowtimeSeatLayoutMapper {
             rows.add(row);
         }
 
-        // Điền ghế vào ma trận
-        for (Seat seat : allSeatsInRoom) {
+        for (RoomLayoutSeat seat : allSeatsInLayout) {
             int rowIdx = seat.getRowIndex();
             int colIdx = seat.getColIndex();
 
-            // Xác định status
             ShowtimeSeatStatus domainStatus = seatIdToStatus.get(seat.getId().getValue());
             String finalStatus = (domainStatus != null)
                     ? domainStatus.name().toLowerCase()
@@ -58,7 +53,7 @@ public class ShowtimeSeatLayoutMapper {
             }
 
             ShowtimeSeatResponse response = ShowtimeSeatResponse.builder()
-                    .seatId(seat.getId().getValue())
+                    .roomLayoutSeatId(seat.getId().getValue())
                     .label(seat.getLabel())
                     .rowIndex(rowIdx)
                     .colIndex(colIdx)

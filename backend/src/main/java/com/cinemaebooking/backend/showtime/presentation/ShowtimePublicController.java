@@ -5,6 +5,8 @@ import com.cinemaebooking.backend.showtime.application.dto.showtime.ShowtimeResp
 import com.cinemaebooking.backend.showtime.application.usecase.showtime.GetShowtimeDetailUsecase;
 import com.cinemaebooking.backend.showtime.application.usecase.showtime.GetShowtimeUsecase;
 import com.cinemaebooking.backend.showtime.domain.valueobject.ShowtimeId;
+import com.cinemaebooking.backend.showtime_seat.application.dto.ShowtimeSeatLayoutResponse;
+import com.cinemaebooking.backend.showtime_seat.application.usecase.GetSeatMapByShowtimeUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,12 +16,13 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 
 @RestController
-@RequestMapping("/api/v1/showtimes_admin")
+@RequestMapping("/api/v1/showtimes")
 @RequiredArgsConstructor
 public class ShowtimePublicController {
 
     private final GetShowtimeUsecase getShowtimesUseCase;
     private final GetShowtimeDetailUsecase getShowtimeDetailUseCase;
+    private final GetSeatMapByShowtimeUseCase getSeatMapByShowtimeUseCase;
 
     // ================== LIST (PUBLIC) ==================
     @GetMapping
@@ -36,6 +39,12 @@ public class ShowtimePublicController {
     @GetMapping("/{id}")
     public ShowtimeResponse getShowtimeById(@PathVariable Long id) {
         return getShowtimeDetailUseCase.execute(toShowtimeId(id));
+    }
+
+
+    @GetMapping("/{id}/seats")
+    public ShowtimeSeatLayoutResponse getSeatMap(@PathVariable Long id) {
+        return getSeatMapByShowtimeUseCase.execute(toShowtimeId(id));
     }
 
     // ================== HELPER ==================

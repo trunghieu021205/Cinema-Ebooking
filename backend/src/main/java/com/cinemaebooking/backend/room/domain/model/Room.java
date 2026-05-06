@@ -1,6 +1,7 @@
 package com.cinemaebooking.backend.room.domain.model;
 
 import com.cinemaebooking.backend.common.domain.BaseEntity;
+import com.cinemaebooking.backend.common.exception.ErrorCategory;
 import com.cinemaebooking.backend.room.domain.enums.RoomStatus;
 import com.cinemaebooking.backend.room.domain.enums.RoomType;
 import com.cinemaebooking.backend.room.domain.valueObject.RoomId;
@@ -55,12 +56,12 @@ public class Room extends BaseEntity<RoomId> {
     private void validate(String name, RoomType roomType, RoomStatus status) {
         if (name == null || name.trim().isEmpty()) {
             throw com.cinemaebooking.backend.common.exception.domain.CommonExceptions
-                    .invalidInput("Room name must not be empty");
+                    .invalidInput("name", ErrorCategory.REQUIRED,"Room name must not be empty");
         }
 
         if (roomType == null) {
             throw com.cinemaebooking.backend.common.exception.domain.CommonExceptions
-                    .invalidInput("Room type must not be null");
+                    .invalidInput("roomType", ErrorCategory.REQUIRED,"Room type must not be null");
         }
 
         validateStatus(status);
@@ -69,7 +70,7 @@ public class Room extends BaseEntity<RoomId> {
     private void validateStatus(RoomStatus status) {
         if (status == null) {
             throw com.cinemaebooking.backend.common.exception.domain.CommonExceptions
-                    .invalidInput("Room status must not be null");
+                    .invalidInput("status", ErrorCategory.REQUIRED,"Room status must not be null");
         }
     }
 }
