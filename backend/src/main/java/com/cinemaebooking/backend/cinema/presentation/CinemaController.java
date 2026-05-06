@@ -6,7 +6,6 @@ import com.cinemaebooking.backend.cinema.application.dto.UpdateCinemaRequest;
 import com.cinemaebooking.backend.cinema.application.usecase.*;
 import com.cinemaebooking.backend.cinema.domain.valueobject.CinemaId;
 import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
-import jakarta.annotation.security.PermitAll;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -68,7 +67,6 @@ public class CinemaController {
 
     // ================== DETAIL ==================
     @GetMapping("/{id}")
-    @PermitAll
     public CinemaResponse getCinemaDetail(@PathVariable Long id) {
 
         CinemaId cinemaId = toCinemaId(id);
@@ -77,7 +75,6 @@ public class CinemaController {
 
     // ================== LIST ==================
     @GetMapping
-    @PermitAll
     public Page<CinemaResponse> getCinemaList(@PageableDefault(size = 8) Pageable pageable) {
         return getCinemaListUseCase.execute(pageable);
     }

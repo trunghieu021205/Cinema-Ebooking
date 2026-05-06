@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -41,6 +42,7 @@ public class RoomController {
 
     // ================== CREATE ==================
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
     public RoomResponse createRoom(@Valid @RequestBody CreateRoomRequest request) {
         return createRoomUseCase.execute(request);
@@ -48,6 +50,7 @@ public class RoomController {
 
     // ================== UPDATE ==================
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public RoomResponse updateRoom(
             @PathVariable Long id,
             @Valid @RequestBody UpdateRoomRequest request) {
@@ -58,6 +61,7 @@ public class RoomController {
 
     // ================== DELETE ==================
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteRoom(@PathVariable Long id) {
 
@@ -90,8 +94,8 @@ public class RoomController {
         return getRoomsByCinemaIdUseCase.execute(cinemaId, pageable);
     }
 
-    // THÊM endpoint
     @PostMapping("/{id}/generate-layout")
+    @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
     public void generateLayout(@PathVariable Long id) {
         generateRoomLayoutUseCase.execute(toRoomId(id));
