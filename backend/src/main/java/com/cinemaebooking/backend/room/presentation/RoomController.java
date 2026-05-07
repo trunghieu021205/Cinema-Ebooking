@@ -11,6 +11,7 @@ import com.cinemaebooking.backend.room.domain.valueObject.RoomId;
 import com.cinemaebooking.backend.room_layout.application.dto.roomLayoutSeat.BulkUpdateResponse;
 import com.cinemaebooking.backend.room_layout.application.dto.roomLayoutSeat.UpdateRoomLayoutSeatsRequest;
 import com.cinemaebooking.backend.room_layout.application.usecase.roomLayout.GenerateRoomLayoutUseCase;
+import com.cinemaebooking.backend.room_layout.application.usecase.roomLayout.GetRoomLayoutByDateUseCase;
 import com.cinemaebooking.backend.room_layout.application.usecase.roomLayout.GetRoomLayoutUseCase;
 import com.cinemaebooking.backend.room_layout.application.usecase.roomLayout.UpdateRoomLayoutSeatsUseCase;
 import jakarta.validation.Valid;
@@ -21,6 +22,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 
 /**
  * RoomController - REST API for Room resource.
@@ -42,6 +45,7 @@ public class RoomController {
     private final GetRoomByIdUseCase getRoomByIdUseCase;
     private final GenerateRoomLayoutUseCase generateRoomLayoutUseCase;
     private final GetRoomLayoutUseCase getRoomLayoutUseCase;
+    private final GetRoomLayoutByDateUseCase getRoomLayoutByDateUseCase;
     private final UpdateRoomLayoutSeatsUseCase updateRoomLayoutSeatsUseCase;
 
     // ================== CREATE ==================
@@ -106,8 +110,13 @@ public class RoomController {
     }
 
     @GetMapping("/{id}/layout")
-    public RoomLayoutDetailResponse getLayout(@PathVariable Long id) {
-        return getRoomLayoutUseCase.execute(id);
+    public RoomLayoutDetailResponse getLayout(
+            @PathVariable Long id,
+            @RequestParam(required = false) LocalDate date) {
+        if (date == null) {
+            return getRoomLayoutUseCase.execute(id);
+        }
+        return getRoomLayoutByDateUseCase.execute(id, date);
     }
 
     @PostMapping("/{id}/layouts/update-seats")

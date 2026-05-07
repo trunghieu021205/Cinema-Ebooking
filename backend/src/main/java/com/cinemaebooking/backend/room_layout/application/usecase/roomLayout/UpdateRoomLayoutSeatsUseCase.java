@@ -43,6 +43,13 @@ public class UpdateRoomLayoutSeatsUseCase {
                 .orElseThrow(() -> RoomLayoutExceptions.noCurrentLayout(roomId, LocalDate.now()));
         Long currentLayoutId = currentLayout.getId().getValue();
 
+        RoomLayout latestLayout = roomLayoutRepository.findLatestByRoomId(roomId)
+                .orElseThrow(() -> RoomLayoutExceptions.noLayoutFound(roomId));
+
+        if (effectiveDate.isBefore(latestLayout.getEffectiveDate())) {
+            throw RoomLayoutExceptions.effectiveDateTooEarly(effectiveDate, latestLayout.getEffectiveDate());
+        }
+
         // 1. Lấy tất cả ghế liên quan trong layout hiện tại để xử lý
         List<RoomLayoutSeat> allSeatsInCurrentLayout = seatRepository.findByRoomLayoutId(currentLayoutId);
         Map<Long, RoomLayoutSeat> seatMap = allSeatsInCurrentLayout.stream()

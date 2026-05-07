@@ -17,6 +17,11 @@ public final class RoomLayoutExceptions {
                 "RoomLayout not found: " + id);
     }
 
+    public static BaseException noLayoutFound(Long roomId) {
+        return new BaseException(ErrorCode.ROOM_LAYOUT_NOT_FOUND,
+                "No layout found for room " + roomId);
+    }
+
     public static BaseException noCurrentLayout(Long roomId, LocalDate date) {
         return new BaseException(ErrorCode.ROOM_LAYOUT_NO_CURRENT,
                 "No current layout for room " + roomId + " at date " + date);
@@ -37,6 +42,22 @@ public final class RoomLayoutExceptions {
     public static BaseException invalidEffectiveDate(LocalDate date) {
         return new BaseException(ErrorCode.ROOM_LAYOUT_INVALID_EFFECTIVE_DATE,
                 "Invalid effective date: " + date);
+    }
+
+    // ================== VALIDATION ==================
+    public static BaseException effectiveDateTooEarly(LocalDate newDate, LocalDate latestDate) {
+        return new BaseException(ErrorCode.ROOM_LAYOUT_INVALID_EFFECTIVE_DATE,
+                String.format("Effective date %s cannot be earlier than latest layout effective date %s", newDate, latestDate));
+    }
+
+    public static BaseException noLayoutForDate(Long roomId, LocalDate date) {
+        return new BaseException(ErrorCode.ROOM_LAYOUT_NO_CURRENT,
+                String.format("No layout found for room %d on date %s", roomId, date));
+    }
+
+    public static BaseException layoutVersionConflict(LocalDate requestedDate, LocalDate latestEffectiveDate) {
+        return new BaseException(ErrorCode.ROOM_LAYOUT_INVALID_EFFECTIVE_DATE,
+                String.format("Cannot create layout with effective date %s because a newer layout with effective date %s already exists", requestedDate, latestEffectiveDate));
     }
 
     // ================== SEAT RELATED ==================
