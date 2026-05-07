@@ -6,6 +6,8 @@ import com.cinemaebooking.backend.showtime.domain.valueobject.ShowtimeFormatId;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.math.BigDecimal;
+
 /**
  * ShowtimeFormat: Domain entity đại diện cho format trình chiếu (2D, 3D, IMAX,...).
  *
@@ -38,9 +40,9 @@ public class ShowtimeFormat extends BaseEntity<ShowtimeFormatId> {
     /**
      * Giá phụ thu của format
      */
-    private Long extraPrice;
+    private BigDecimal extraPrice;
 
-    public void update(String name, Long extraPrice) {
+    public void update(String name, BigDecimal extraPrice) {
         validateName(name);
         validatePrice(extraPrice);
 
@@ -56,8 +58,8 @@ public class ShowtimeFormat extends BaseEntity<ShowtimeFormatId> {
         }
     }
 
-    private void validatePrice(Long price) {
-        if (price == null || price < 0) {
+    private void validatePrice(BigDecimal price) {
+        if (price == null) {
             throw CommonExceptions.invalidInput("Extra price must be >= 0");
         }
     }

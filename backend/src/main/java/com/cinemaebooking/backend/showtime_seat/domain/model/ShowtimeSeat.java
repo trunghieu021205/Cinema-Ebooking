@@ -1,13 +1,16 @@
 package com.cinemaebooking.backend.showtime_seat.domain.model;
 
 import com.cinemaebooking.backend.common.domain.BaseEntity;
+import com.cinemaebooking.backend.common.exception.ErrorCategory;
 import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
-import com.cinemaebooking.backend.seat.domain.model.seat.Seat;
+import com.cinemaebooking.backend.room_layout.domain.model.roomLayoutSeat.RoomLayoutSeat;
 import com.cinemaebooking.backend.showtime.domain.valueobject.ShowtimeId;
 import com.cinemaebooking.backend.showtime_seat.domain.enums.ShowtimeSeatStatus;
 import com.cinemaebooking.backend.showtime_seat.domain.valueobject.ShowtimeSeatId;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
+
+import java.math.BigDecimal;
 
 /**
  * Domain Model: ShowtimeSeat
@@ -23,43 +26,34 @@ import lombok.experimental.SuperBuilder;
 public class ShowtimeSeat extends BaseEntity<ShowtimeSeatId> {
 
     private final Long showtimeId;
-    private final Long seatId;
+    private final Long roomLayoutSeatId;
     private final ShowtimeSeatStatus status;
+    private final BigDecimal price;
 
     /**
      * Validate dữ liệu domain:
      * - Domain chỉ check dữ liệu nội tại, không check tồn tại trong DB
      */
-    public void validate() {
+
+    public static ShowtimeSeat from(RoomLayoutSeat roomLayoutSeat, ShowtimeId showtimeId, BigDecimal price) {
         if (showtimeId == null) {
-            throw CommonExceptions.invalidInput("ShowtimeId must not be null");
+            throw CommonExceptions.invalidInput("showtimeId", ErrorCategory.REQUIRED,"ShowtimeId must not be null");
         }
 
-        if (seatId == null) {
-            throw CommonExceptions.invalidInput("SeatId must not be null");
-        }
-    }
-    public static ShowtimeSeat from(Seat seat, ShowtimeId showtimeId) {
-
-        if (seat == null) {
-            throw CommonExceptions.invalidInput("Seat must not be null");
+        if (roomLayoutSeat.getId() == null) {
+            throw CommonExceptions.invalidInput("roomLayoutSeatId", ErrorCategory.REQUIRED,"RoomLayoutSeatId must not be null");
         }
 
-        if (showtimeId == null) {
-            throw CommonExceptions.invalidInput("ShowtimeId must not be null");
-        }
 
-        if (seat.getId() == null || seat.getId().getValue() == null) {
-            throw CommonExceptions.invalidInput("SeatId must not be null");
-        }
-
+        if (price == null) throw CommonExceptions.invalidInput("price",ErrorCategory.REQUIRED,"Price must not be null");
+        if (price.compareTo(BigDecimal.ZERO) < 0) throw CommonExceptions.invalidInput("price",ErrorCategory.INVALID_VALUE,"Giá ghế không được âm");
         ShowtimeSeat showtimeSeat = ShowtimeSeat.builder()
                 .showtimeId(showtimeId.getValue())
-                .seatId(seat.getId().getValue())
+                .roomLayoutSeatId(roomLayoutSeat.getId().getValue())
                 .status(ShowtimeSeatStatus.AVAILABLE)
+                .price(price)
                 .build();
 
-        showtimeSeat.validate();
 
         return showtimeSeat;
     }}

@@ -19,6 +19,7 @@ export interface ApiError {
   code: number
   message: string
   type: string
+  params?: Record<string, any>
   details: ApiErrorDetail[] | null
 }
 

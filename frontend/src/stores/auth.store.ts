@@ -39,4 +39,9 @@ export const useAuthStore = defineStore('auth', () => {
         isAdmin,
         isActive,
     }
+},{
+    persist: {
+        key: 'auth',
+        paths: ['user'],   // chỉ persist user, token đã tự lưu localStorage thủ công
+    }
 })

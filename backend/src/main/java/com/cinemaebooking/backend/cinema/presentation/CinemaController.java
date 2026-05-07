@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -36,13 +37,16 @@ public class CinemaController {
 
     // ================== CREATE ==================
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
     public CinemaResponse createCinema(@RequestBody CreateCinemaRequest request) {
         return createCinemaUseCase.execute(request);
     }
 
     // ================== UPDATE ==================
+
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public CinemaResponse updateCinema(
             @PathVariable Long id,
             @RequestBody UpdateCinemaRequest request) {
@@ -54,6 +58,7 @@ public class CinemaController {
     // ================== DELETE ==================
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasRole('ADMIN')")
     public void deleteCinema(@PathVariable Long id) {
 
         CinemaId cinemaId = toCinemaId(id);

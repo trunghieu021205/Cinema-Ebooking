@@ -2,7 +2,7 @@ package com.cinemaebooking.backend.common.exception.domain;
 
 import com.cinemaebooking.backend.common.exception.BaseException;
 import com.cinemaebooking.backend.common.exception.ErrorCode;
-import com.cinemaebooking.backend.seat.domain.valueObject.seatType.SeatTypeId;
+import com.cinemaebooking.backend.room_layout.domain.valueObject.seatType.SeatTypeId;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 

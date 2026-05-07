@@ -33,16 +33,11 @@ public interface ShowtimeSeatJpaRepository extends JpaRepository<ShowtimeSeatJpa
     /**
      * Tìm ShowtimeSeat theo suất chiếu và ghế
      */
-    Optional<ShowtimeSeatJpaEntity> findByShowtimeIdAndSeatId(Long showtimeId, Long seatId);
+    Optional<ShowtimeSeatJpaEntity> findByShowtimeIdAndRoomLayoutSeatId(Long showtimeId, Long roomLayoutSeatId);
 
     /**
      * Lấy tất cả ghế thuộc một suất chiếu
      */
     List<ShowtimeSeatJpaEntity> findByShowtimeId(Long showtimeId);
-
-    /**
-     * Kiểm tra ghế có tồn tại trong suất chiếu không
-     */
-    boolean existsByShowtimeIdAndSeatId(Long showtimeId, Long seatId);
 
 }
