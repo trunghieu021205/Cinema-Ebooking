@@ -1,9 +1,9 @@
 package com.cinemaebooking.backend.showtime_seat.application.mapper;
 
-import com.cinemaebooking.backend.room_layout.domain.model.roomLayoutSeat.RoomLayoutSeat;
 import com.cinemaebooking.backend.showtime_seat.application.dto.ShowtimeSeatLayoutResponse;
 import com.cinemaebooking.backend.showtime_seat.application.dto.ShowtimeSeatResponse;
-import com.cinemaebooking.backend.showtime_seat.domain.enums.ShowtimeSeatStatus;
+
+import com.cinemaebooking.backend.showtime_seat.domain.model.ShowtimeSeat;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -11,11 +11,8 @@ import java.util.*;
 @Component
 public class ShowtimeSeatLayoutMapper {
 
-    public ShowtimeSeatLayoutResponse toLayoutResponse(
-            List<RoomLayoutSeat> allSeatsInLayout,
-            Map<Long, ShowtimeSeatStatus> seatIdToStatus
-    ) {
-        if (allSeatsInLayout == null || allSeatsInLayout.isEmpty()) {
+    public ShowtimeSeatLayoutResponse toLayoutResponse(List<ShowtimeSeat> showtimeSeats) {
+        if (showtimeSeats == null || showtimeSeats.isEmpty()) {
             return ShowtimeSeatLayoutResponse.builder()
                     .rows(Collections.emptyList())
                     .totalRows(0)
@@ -23,13 +20,15 @@ public class ShowtimeSeatLayoutMapper {
                     .build();
         }
 
-        int maxRow = allSeatsInLayout.stream()
-                .mapToInt(RoomLayoutSeat::getRowIndex)
+        // Lấy kích thước lưới từ chính ShowtimeSeat
+        int maxRow = showtimeSeats.stream()
+                .mapToInt(ShowtimeSeat::getRowIndex)
                 .max().orElse(0);
-        int maxCol = allSeatsInLayout.stream()
-                .mapToInt(RoomLayoutSeat::getColIndex)
+        int maxCol = showtimeSeats.stream()
+                .mapToInt(ShowtimeSeat::getColIndex)
                 .max().orElse(0);
 
+        // Khởi tạo ma trận rows
         List<List<ShowtimeSeatResponse>> rows = new ArrayList<>(maxRow + 1);
         for (int i = 0; i <= maxRow; i++) {
             List<ShowtimeSeatResponse> row = new ArrayList<>(maxCol + 1);
@@ -39,26 +38,22 @@ public class ShowtimeSeatLayoutMapper {
             rows.add(row);
         }
 
-        for (RoomLayoutSeat seat : allSeatsInLayout) {
-            int rowIdx = seat.getRowIndex();
-            int colIdx = seat.getColIndex();
+        for (ShowtimeSeat showtimeSeat : showtimeSeats) {
+            int rowIdx = showtimeSeat.getRowIndex();
+            int colIdx = showtimeSeat.getColIndex();
 
-            ShowtimeSeatStatus domainStatus = seatIdToStatus.get(seat.getId().getValue());
-            String finalStatus = (domainStatus != null)
-                    ? domainStatus.name().toLowerCase()
-                    : "available";
-
-            if (!seat.isActive()) {
-                finalStatus = "disabled";
+            String status = showtimeSeat.getStatus().name().toLowerCase();
+            if (!showtimeSeat.isActive()) {
+                status = "disabled";
             }
 
             ShowtimeSeatResponse response = ShowtimeSeatResponse.builder()
-                    .roomLayoutSeatId(seat.getId().getValue())
-                    .label(seat.getLabel())
+                    .roomLayoutSeatId(showtimeSeat.getRoomLayoutSeatId())
+                    .seatNumber(showtimeSeat.getSeatNumber())
                     .rowIndex(rowIdx)
                     .colIndex(colIdx)
-                    .seatTypeId(seat.getSeatTypeId())
-                    .status(finalStatus)
+                    .seatTypeId(showtimeSeat.getSeatTypeId())
+                    .status(status)
                     .build();
 
             rows.get(rowIdx).set(colIdx, response);

@@ -13,7 +13,6 @@ public class RoomLayoutSeatResponse {
     Long id;
     Integer rowIndex;
     Integer colIndex;
-    String label;
     SeatStatus status;
     Long seatTypeId;
     Long roomLayoutId;

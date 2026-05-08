@@ -27,33 +27,35 @@ public class ShowtimeSeat extends BaseEntity<ShowtimeSeatId> {
 
     private final Long showtimeId;
     private final Long roomLayoutSeatId;
+    private String seatNumber;
+    private Integer rowIndex;
+    private Integer colIndex;
+    private Long seatTypeId;
+    private boolean active;
     private final ShowtimeSeatStatus status;
     private final BigDecimal price;
 
-    /**
-     * Validate dữ liệu domain:
-     * - Domain chỉ check dữ liệu nội tại, không check tồn tại trong DB
-     */
 
-    public static ShowtimeSeat from(RoomLayoutSeat roomLayoutSeat, ShowtimeId showtimeId, BigDecimal price) {
-        if (showtimeId == null) {
-            throw CommonExceptions.invalidInput("showtimeId", ErrorCategory.REQUIRED,"ShowtimeId must not be null");
-        }
-
-        if (roomLayoutSeat.getId() == null) {
-            throw CommonExceptions.invalidInput("roomLayoutSeatId", ErrorCategory.REQUIRED,"RoomLayoutSeatId must not be null");
-        }
-
-
-        if (price == null) throw CommonExceptions.invalidInput("price",ErrorCategory.REQUIRED,"Price must not be null");
-        if (price.compareTo(BigDecimal.ZERO) < 0) throw CommonExceptions.invalidInput("price",ErrorCategory.INVALID_VALUE,"Giá ghế không được âm");
-        ShowtimeSeat showtimeSeat = ShowtimeSeat.builder()
-                .showtimeId(showtimeId.getValue())
-                .roomLayoutSeatId(roomLayoutSeat.getId().getValue())
-                .status(ShowtimeSeatStatus.AVAILABLE)
+    public static ShowtimeSeat from(RoomLayoutSeat seat, Long showtimeId, BigDecimal price, int totalCols) {
+        String seatNumber = buildSeatNumber(seat.getRowIndex(), seat.getColIndex(), totalCols);
+        return ShowtimeSeat.builder()
+                .roomLayoutSeatId(seat.getId().getValue())
+                .showtimeId(showtimeId)
+                .seatNumber(seatNumber)
+                .rowIndex(seat.getRowIndex())
+                .colIndex(seat.getColIndex())
+                .seatTypeId(seat.getSeatTypeId())
+                .active(seat.isActive())
                 .price(price)
+                .status(ShowtimeSeatStatus.AVAILABLE)
                 .build();
+    }
 
-
-        return showtimeSeat;
-    }}
+    private static String buildSeatNumber(int rowIndex, int colIndex, int totalCols) {
+        char rowLetter = (char) ('A' + rowIndex - 1);
+        // Map cột: colIndex=1 (trái nhất) → displayCol = totalCols (phải)
+        //         colIndex=totalCols (phải nhất) → displayCol = 1 (trái)
+        int displayedCol = totalCols - colIndex + 1;
+        return String.format("%s%d", rowLetter, displayedCol);
+    }
+}

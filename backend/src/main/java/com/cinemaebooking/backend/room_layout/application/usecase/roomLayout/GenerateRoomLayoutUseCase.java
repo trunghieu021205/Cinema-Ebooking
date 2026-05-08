@@ -8,7 +8,6 @@ import com.cinemaebooking.backend.room.application.port.RoomRepository;
 import com.cinemaebooking.backend.room.domain.model.Room;
 import com.cinemaebooking.backend.room.domain.valueObject.RoomId;
 import com.cinemaebooking.backend.room_layout.application.port.roomLayout.RoomLayoutRepository;
-import com.cinemaebooking.backend.room_layout.application.port.roomLayoutSeat.RoomLayoutSeatRepository;
 import com.cinemaebooking.backend.room_layout.application.port.seatType.SeatTypeRepository;
 import com.cinemaebooking.backend.room_layout.domain.enums.SeatStatus;
 import com.cinemaebooking.backend.room_layout.domain.model.roomLayout.RoomLayout;
@@ -65,7 +64,6 @@ public class GenerateRoomLayoutUseCase {
                         .roomLayoutId(null)
                         .rowIndex(r + 1)
                         .colIndex(c + 1)
-                        .label(buildLabel(r, c))
                         .status(SeatStatus.ACTIVE)
                         .seatTypeId(standardType.getId().getValue())
                         .coupleGroupId(coupleGroupId)
@@ -82,10 +80,5 @@ public class GenerateRoomLayoutUseCase {
                 .totalCols(totalCols)
                 .seats(seats)
                 .build();
-    }
-
-    private String buildLabel(int rowIndex, int colIndex) {
-        char rowChar = (char) ('A' + rowIndex);
-        return String.valueOf(rowChar) + (colIndex + 1);
     }
 }

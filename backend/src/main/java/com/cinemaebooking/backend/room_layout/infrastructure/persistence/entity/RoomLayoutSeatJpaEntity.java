@@ -34,9 +34,6 @@ public class RoomLayoutSeatJpaEntity extends BaseJpaEntity {
     @Column(nullable = false)
     private Integer colIndex;
 
-    @Column(nullable = false, length = 20)
-    private String label;  // denormalized, set 1 lần lúc generate
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
     private SeatStatus status;

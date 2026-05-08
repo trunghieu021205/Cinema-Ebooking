@@ -27,6 +27,10 @@ public class ShowtimeSeatMapperImpl implements ShowtimeSeatMapper {
                 .id(domain.getId() != null ? domain.getId().getValue() : null)
                 .roomLayoutSeat(seat)
                 .showtime(showtime)
+                .seatNumber(domain.getSeatNumber())
+                .rowIndex(domain.getRowIndex())
+                .colIndex(domain.getColIndex())
+                .seatTypeId(domain.getSeatTypeId())
                 .price(domain.getPrice())
                 .status(domain.getStatus())
                 .build();
@@ -39,6 +43,10 @@ public class ShowtimeSeatMapperImpl implements ShowtimeSeatMapper {
                 .id(ShowtimeSeatId.ofNullable(entity.getId()))
                 .showtimeId(entity.getShowtime().getId())
                 .roomLayoutSeatId(entity.getRoomLayoutSeat().getId())
+                .seatNumber(entity.getSeatNumber())
+                .rowIndex(entity.getRowIndex())
+                .colIndex(entity.getColIndex())
+                .seatTypeId(entity.getSeatTypeId())
                 .price(entity.getPrice())
                 .status(entity.getStatus())
                 .build();
