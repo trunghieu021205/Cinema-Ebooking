@@ -1,10 +1,7 @@
 package com.cinemaebooking.backend.user_coupon.presentation;
 
-import com.cinemaebooking.backend.user_coupon.application.dto.RedeemCouponRequest;
-import com.cinemaebooking.backend.user_coupon.application.dto.UserCouponResponse;
-import com.cinemaebooking.backend.user_coupon.application.usecase.GetUserCouponDetailUseCase;
-import com.cinemaebooking.backend.user_coupon.application.usecase.GetUserCouponListUseCase;
-import com.cinemaebooking.backend.user_coupon.application.usecase.RedeemCouponUseCase;
+import com.cinemaebooking.backend.user_coupon.application.dto.*;
+import com.cinemaebooking.backend.user_coupon.application.usecase.*;
 import com.cinemaebooking.backend.user_coupon.domain.valueobject.UserCouponId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,6 +18,10 @@ public class UserCouponController {
     private final RedeemCouponUseCase redeemCouponUseCase;
     private final GetUserCouponListUseCase getListUseCase;
     private final GetUserCouponDetailUseCase getDetailUseCase;
+    private final UseUserCouponUseCase useCouponUseCase;
+    private final RestoreUserCouponUsageUseCase restoreUsageUseCase;
+    private final ExpireUserCouponsUseCase expireUserCouponsUseCase;
+    private final RevokeUserCouponUseCase revokeUserCouponUseCase;
 
     @PostMapping("/redeem")
     @ResponseStatus(HttpStatus.CREATED)
@@ -37,5 +38,26 @@ public class UserCouponController {
     @GetMapping("/{id}")
     public UserCouponResponse detail(@PathVariable Long id) {
         return getDetailUseCase.execute(UserCouponId.of(id));
+    }
+
+    @PostMapping("/use")
+    public UserCouponResponse use(@RequestBody UseUserCouponRequest request) {
+        return useCouponUseCase.execute(request);
+    }
+
+    @PostMapping("/restore")
+    public UserCouponResponse restore(@RequestBody RestoreUserCouponRequest request) {
+        return restoreUsageUseCase.execute(request);
+    }
+
+    @PostMapping("/expire")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void expire() {
+        expireUserCouponsUseCase.execute();
+    }
+
+    @PostMapping("/revoke")
+    public UserCouponResponse revoke(@RequestBody RevokeUserCouponRequest request) {
+        return revokeUserCouponUseCase.execute(request);
     }
 }
