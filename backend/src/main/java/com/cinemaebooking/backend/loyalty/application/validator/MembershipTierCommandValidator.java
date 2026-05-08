@@ -22,7 +22,12 @@ public class MembershipTierCommandValidator {
             throw CommonExceptions.invalidInput("Name must not be blank");
         if (request.getMinSpendingRequired() == null || request.getMinSpendingRequired().compareTo(BigDecimal.ZERO) < 0)
             throw MembershipTierExceptions.invalidSpending();
-        // Dùng findByName thay existsByName
+        if (request.getDiscountPercent() == null ||
+                request.getDiscountPercent().compareTo(BigDecimal.ZERO) < 0 ||
+                        request.getDiscountPercent().compareTo(BigDecimal.ONE) > 0
+        )
+            throw MembershipTierExceptions.invalidDiscountPercent();
+        if (request.getDiscountPercent().compareTo(BigDecimal.ZERO) > 0)        // Dùng findByName thay existsByName
         if (repository.findByName(request.getName()).isPresent())
             throw MembershipTierExceptions.duplicateName(request.getName());
     }

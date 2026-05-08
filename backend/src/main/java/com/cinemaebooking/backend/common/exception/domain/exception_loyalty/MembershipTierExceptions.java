@@ -18,6 +18,9 @@ public final class MembershipTierExceptions {
     public static BaseException invalidSpending() {
         return CommonExceptions.invalidInput("Minimum spending must be >= 0");
     }
+    public static BaseException invalidDiscountPercent() {
+        return CommonExceptions.invalidInput("Discount Percent must be >= 0, Discount Percent must be <1");
+    }
     public static BaseException invalidPointRates() {
         return CommonExceptions.invalidInput("Point rates must be > 0");
     }
