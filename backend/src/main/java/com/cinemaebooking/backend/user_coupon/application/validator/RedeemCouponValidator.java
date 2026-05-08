@@ -1,7 +1,11 @@
 package com.cinemaebooking.backend.user_coupon.application.validator;
 
+import com.cinemaebooking.backend.common.exception.ErrorDetail;
 import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import com.cinemaebooking.backend.common.exception.domain.UserCouponExceptions;
+import com.cinemaebooking.backend.common.validation.engine.ValidationContext;
+import com.cinemaebooking.backend.common.validation.engine.ValidationRule;
+import com.cinemaebooking.backend.common.validation.factory.ValidationFactory;
 import com.cinemaebooking.backend.user_coupon.application.dto.RedeemCouponRequest;
 import com.cinemaebooking.backend.user_coupon.application.port.CouponPort;
 import com.cinemaebooking.backend.user_coupon.application.port.LoyaltyPort;
@@ -10,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -23,25 +29,28 @@ public class RedeemCouponValidator {
         if (request == null) {
             throw CommonExceptions.invalidInput("Redeem request must not be null");
         }
+
+        // ========== FORMAT VALIDATION ==========
+        var profile = ValidationFactory.userCoupon();
+        executeRules(request.getUserId(), "userId", profile.userIdRules());
+        executeRules(request.getCouponId(), "couponId", profile.couponIdRules());
+
         Long userId = request.getUserId();
         Long couponId = request.getCouponId();
 
-        if (userId == null || couponId == null) {
-            throw CommonExceptions.invalidInput("userId and couponId must not be null");
-        }
-
+        // ========== BUSINESS RULES ==========
         LocalDateTime now = LocalDateTime.now();
-        var coupon = couponPort.findValidCoupon(couponId, now)
+        var snapshot = couponPort.findValidCoupon(couponId, now)
                 .orElseThrow(() -> UserCouponExceptions.couponNotFound(couponId));
 
-        if (!coupon.active()) {
+        if (!snapshot.active()) {
             throw UserCouponExceptions.couponNotActive(couponId);
         }
-        if (coupon.expiryDate() != null && coupon.expiryDate().isBefore(now)) {
+        if (snapshot.expiryDate() != null && snapshot.expiryDate().isBefore(now)) {
             throw UserCouponExceptions.couponExpired(couponId);
         }
 
-        int pointsRequired = coupon.pointsToRedeem();
+        int pointsRequired = snapshot.pointsToRedeem();
         if (pointsRequired > 0) {
             int userPoints = loyaltyPort.getUserPoints(userId);
             if (userPoints < pointsRequired) {
@@ -51,6 +60,19 @@ public class RedeemCouponValidator {
 
         if (userCouponRepository.existsByUserIdAndCouponId(userId, couponId)) {
             throw UserCouponExceptions.alreadyExists(userId, couponId);
+        }
+    }
+
+    private <T> void executeRules(T value, String fieldName, List<ValidationRule<T>> rules) {
+        ValidationContext<T> context = new ValidationContext<>(value, fieldName);
+        for (ValidationRule<T> rule : rules) {
+            Optional<ErrorDetail> errorOpt = rule.validate(context);
+            if (errorOpt.isPresent()) {
+                ErrorDetail error = errorOpt.get();
+                throw CommonExceptions.invalidInput(
+                        error.getField() + ": " + error.getReason()
+                );
+            }
         }
     }
 }
