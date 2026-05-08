@@ -32,6 +32,7 @@ public class RoomLayoutMapperImpl implements RoomLayoutMapper{
                 .totalRows(entity.getTotalRows())
                 .totalCols(entity.getTotalCols())
                 .seats(new ArrayList<>())
+                .createdAt(entity.getCreatedAt())
                 .build();
     }
 
@@ -46,6 +47,7 @@ public class RoomLayoutMapperImpl implements RoomLayoutMapper{
                 .effectiveDate(entity.getEffectiveDate())
                 .totalRows(entity.getTotalRows())
                 .totalCols(entity.getTotalCols())
+                .createdAt(entity.getCreatedAt())
                 .seats(seatEntities != null ? seatEntities.stream().map(roomLayoutSeatMapper::toDomain).toList(): new ArrayList<>())
                 .build();
 

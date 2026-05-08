@@ -13,7 +13,6 @@ public class RoomLayoutDetailResponse {
     private Long id;
     private Integer layoutVersion;
     private LocalDate effectiveDate;
-    private String description;
     int totalRows;
     int totalCols;
     List<List<RoomLayoutSeatResponse>> rows;

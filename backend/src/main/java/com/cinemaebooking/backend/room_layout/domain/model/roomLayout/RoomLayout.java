@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -26,6 +27,8 @@ public class RoomLayout extends BaseEntity<RoomLayoutId> {
     private Integer totalCols;
 
     private List<RoomLayoutSeat> seats;
+
+    private LocalDateTime createdAt;
 
     private RoomLayout(RoomLayoutBuilder<?, ?> builder) {
         super(builder);

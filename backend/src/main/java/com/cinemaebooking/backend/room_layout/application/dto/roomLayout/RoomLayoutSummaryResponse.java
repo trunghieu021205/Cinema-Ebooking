@@ -12,7 +12,6 @@ public class RoomLayoutSummaryResponse {
     private Long id;
     private Integer layoutVersion;
     private LocalDate effectiveDate;
-    private String description;
     private Integer totalRows;
     private Integer totalCols;
     private LocalDateTime createdAt;

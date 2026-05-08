@@ -8,8 +8,11 @@ import com.cinemaebooking.backend.room.application.dto.RoomResponse;
 import com.cinemaebooking.backend.room.application.dto.UpdateRoomRequest;
 import com.cinemaebooking.backend.room.application.usecase.*;
 import com.cinemaebooking.backend.room.domain.valueObject.RoomId;
+import com.cinemaebooking.backend.room_layout.application.dto.roomLayout.RoomLayoutSummaryResponse;
 import com.cinemaebooking.backend.room_layout.application.dto.roomLayoutSeat.BulkUpdateResponse;
 import com.cinemaebooking.backend.room_layout.application.dto.roomLayoutSeat.UpdateRoomLayoutSeatsRequest;
+import com.cinemaebooking.backend.room_layout.application.mapper.roomLayout.RoomLayoutDtoMapper;
+import com.cinemaebooking.backend.room_layout.application.port.roomLayout.RoomLayoutRepository;
 import com.cinemaebooking.backend.room_layout.application.usecase.roomLayout.GenerateRoomLayoutUseCase;
 import com.cinemaebooking.backend.room_layout.application.usecase.roomLayout.GetRoomLayoutByDateUseCase;
 import com.cinemaebooking.backend.room_layout.application.usecase.roomLayout.GetRoomLayoutUseCase;
@@ -24,6 +27,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * RoomController - REST API for Room resource.
@@ -47,6 +52,9 @@ public class RoomController {
     private final GetRoomLayoutUseCase getRoomLayoutUseCase;
     private final GetRoomLayoutByDateUseCase getRoomLayoutByDateUseCase;
     private final UpdateRoomLayoutSeatsUseCase updateRoomLayoutSeatsUseCase;
+
+    private final RoomLayoutRepository roomLayoutRepository;
+    private final RoomLayoutDtoMapper layoutMapper;
 
     // ================== CREATE ==================
     @PostMapping
@@ -117,6 +125,14 @@ public class RoomController {
             return getRoomLayoutUseCase.execute(id);
         }
         return getRoomLayoutByDateUseCase.execute(id, date);
+    }
+
+    @GetMapping("/{id}/layouts")
+    public List<RoomLayoutSummaryResponse> getAllLayouts(@PathVariable Long id) {
+        return roomLayoutRepository.findAllByRoomIdOrderByLayoutVersionDesc(id)
+                .stream()
+                .map(layoutMapper::toSummaryResponse)
+                .collect(Collectors.toList());
     }
 
     @PostMapping("/{id}/layouts/update-seats")
