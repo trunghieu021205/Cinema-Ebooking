@@ -76,6 +76,7 @@ public class GenerateRoomLayoutUseCase {
         return RoomLayout.builder()
                 .roomId(room.getId().getValue())
                 .layoutVersion(1)
+                .roomType(room.getRoomType())
                 .effectiveDate(LocalDate.now())
                 .totalRows(totalRows)
                 .totalCols(totalCols)

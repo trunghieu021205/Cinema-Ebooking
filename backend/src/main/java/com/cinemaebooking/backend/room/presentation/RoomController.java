@@ -10,13 +10,13 @@ import com.cinemaebooking.backend.room.application.usecase.*;
 import com.cinemaebooking.backend.room.domain.valueObject.RoomId;
 import com.cinemaebooking.backend.room_layout.application.dto.roomLayout.RoomLayoutSummaryResponse;
 import com.cinemaebooking.backend.room_layout.application.dto.roomLayoutSeat.BulkUpdateResponse;
-import com.cinemaebooking.backend.room_layout.application.dto.roomLayoutSeat.UpdateRoomLayoutSeatsRequest;
+import com.cinemaebooking.backend.room_layout.application.dto.roomLayout.UpdateRoomLayoutRequest;
 import com.cinemaebooking.backend.room_layout.application.mapper.roomLayout.RoomLayoutDtoMapper;
 import com.cinemaebooking.backend.room_layout.application.port.roomLayout.RoomLayoutRepository;
 import com.cinemaebooking.backend.room_layout.application.usecase.roomLayout.GenerateRoomLayoutUseCase;
 import com.cinemaebooking.backend.room_layout.application.usecase.roomLayout.GetRoomLayoutByDateUseCase;
 import com.cinemaebooking.backend.room_layout.application.usecase.roomLayout.GetRoomLayoutUseCase;
-import com.cinemaebooking.backend.room_layout.application.usecase.roomLayout.UpdateRoomLayoutSeatsUseCase;
+import com.cinemaebooking.backend.room_layout.application.usecase.roomLayout.UpdateRoomLayoutUseCase;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -51,7 +51,7 @@ public class RoomController {
     private final GenerateRoomLayoutUseCase generateRoomLayoutUseCase;
     private final GetRoomLayoutUseCase getRoomLayoutUseCase;
     private final GetRoomLayoutByDateUseCase getRoomLayoutByDateUseCase;
-    private final UpdateRoomLayoutSeatsUseCase updateRoomLayoutSeatsUseCase;
+    private final UpdateRoomLayoutUseCase updateRoomLayoutUseCase;
 
     private final RoomLayoutRepository roomLayoutRepository;
     private final RoomLayoutDtoMapper layoutMapper;
@@ -135,13 +135,13 @@ public class RoomController {
                 .collect(Collectors.toList());
     }
 
-    @PostMapping("/{id}/layouts/update-seats")
+    @PostMapping("/{id}/layouts/update")
     @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
     public BulkUpdateResponse updateSeatsInLayout(
             @PathVariable Long id,
-            @Valid @RequestBody UpdateRoomLayoutSeatsRequest request) {
-        return updateRoomLayoutSeatsUseCase.execute(id, request.effectiveDate(), request.updates());
+            @Valid @RequestBody UpdateRoomLayoutRequest request) {
+        return updateRoomLayoutUseCase.execute(id, request.effectiveDate(), request.roomType(), request.updates());
     }
 
     // ================== HELPER ==================

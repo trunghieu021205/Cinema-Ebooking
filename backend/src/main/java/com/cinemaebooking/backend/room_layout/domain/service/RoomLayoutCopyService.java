@@ -1,5 +1,6 @@
 package com.cinemaebooking.backend.room_layout.domain.service;
 
+import com.cinemaebooking.backend.room.domain.enums.RoomType;
 import com.cinemaebooking.backend.room_layout.domain.enums.SeatStatus;
 import com.cinemaebooking.backend.room_layout.domain.model.roomLayout.RoomLayout;
 import com.cinemaebooking.backend.room_layout.domain.model.roomLayoutSeat.RoomLayoutSeat;
@@ -15,7 +16,8 @@ public class RoomLayoutCopyService {
 
     public RoomLayout createNextLayout(RoomLayout sourceLayout,
                                        LocalDate effectiveDate,
-                                       Map<Long, SeatChange> changes) {
+                                       Map<Long, SeatChange> changes,
+                                       RoomType newRoomType) {
         List<RoomLayoutSeat> newSeats = sourceLayout.getSeats().stream()
                 .map(oldSeat -> {
                     SeatChange change = changes.get(oldSeat.getId().getValue());
@@ -52,6 +54,7 @@ public class RoomLayoutCopyService {
                 .effectiveDate(effectiveDate)
                 .totalRows(sourceLayout.getTotalRows())
                 .totalCols(sourceLayout.getTotalCols())
+                .roomType(newRoomType)
                 .seats(newSeats)
                 .build();
     }

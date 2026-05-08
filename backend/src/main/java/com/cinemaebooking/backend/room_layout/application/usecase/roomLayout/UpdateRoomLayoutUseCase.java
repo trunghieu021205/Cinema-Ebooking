@@ -3,6 +3,7 @@ package com.cinemaebooking.backend.room_layout.application.usecase.roomLayout;
 import com.cinemaebooking.backend.common.exception.ErrorCategory;
 import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import com.cinemaebooking.backend.common.exception.domain.RoomLayoutExceptions;
+import com.cinemaebooking.backend.room.domain.enums.RoomType;
 import com.cinemaebooking.backend.room_layout.application.dto.roomLayoutSeat.BulkUpdateResponse;
 import com.cinemaebooking.backend.room_layout.application.dto.roomLayoutSeat.SeatUpdateRequest;
 import com.cinemaebooking.backend.room_layout.application.port.roomLayout.RoomLayoutRepository;
@@ -22,7 +23,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class UpdateRoomLayoutSeatsUseCase {
+public class UpdateRoomLayoutUseCase {
 
     private final RoomLayoutRepository roomLayoutRepository;
     private final RoomLayoutSeatRepository seatRepository;
@@ -32,9 +33,11 @@ public class UpdateRoomLayoutSeatsUseCase {
     @Transactional
     public BulkUpdateResponse execute(Long roomId,
                                       LocalDate effectiveDate,
+                                      RoomType  roomType,
                                       List<SeatUpdateRequest> updates) {
         if (roomId == null) throw CommonExceptions.invalidInput("roomId", ErrorCategory.REQUIRED,"roomId must not be null");
         if (effectiveDate == null) throw CommonExceptions.invalidInput("effectiveDate", ErrorCategory.REQUIRED,"effectiveDate must not be null");
+        if (roomType == null) throw CommonExceptions.invalidInput("roomType", ErrorCategory.REQUIRED, "roomType must not be null");
         if (updates == null || updates.isEmpty()) {
             throw CommonExceptions.invalidInput("updates", ErrorCategory.REQUIRED,"updates must not be empty");
         }
@@ -153,7 +156,7 @@ public class UpdateRoomLayoutSeatsUseCase {
         }
 
         // 4. Tạo layout mới
-        RoomLayout newLayout = copyService.createNextLayout(currentLayout, effectiveDate, changeMap);
+        RoomLayout newLayout = copyService.createNextLayout(currentLayout, effectiveDate, changeMap, roomType);
         roomLayoutRepository.create(newLayout);
 
         return new BulkUpdateResponse(changeMap.size(), errors);
