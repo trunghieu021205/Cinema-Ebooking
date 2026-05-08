@@ -66,11 +66,8 @@ export function useLoginForm(emit: (event: string) => void) {
                 password: password.value,
             })
 
-            localStorage.setItem('accessToken', loginData.accessToken)
-            localStorage.setItem('refreshToken', loginData.refreshToken)
-
             const userProfile = await userApi.getMe(loginData.accessToken)
-            auth.setAuth(userProfile, loginData.accessToken)
+            auth.setAuth(userProfile, loginData.accessToken, loginData.refreshToken)
 
             router.push(
                 loginData.role === 'ADMIN'
