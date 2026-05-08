@@ -35,8 +35,21 @@ import java.time.LocalDateTime;
  * @author Hieu Nguyen
  * @since 2026
  */
+
 @Entity
-@Table(name = "loyalty_accounts")
+@Table(
+        name = "loyalty_accounts",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_loyalty_accounts_user_id_deleted",
+                        columnNames = {"user_id","deleted"}
+                ),
+                @UniqueConstraint(
+                        name = "uk_loyalty_accounts_loyalty_number_deleted",
+                        columnNames = {"loyalty_number","deleted"}
+                )
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -49,13 +62,13 @@ public class LoyaltyAccountJpaEntity extends BaseJpaEntity {
      *
      * <p>Một User chỉ có duy nhất một LoyaltyAccount nên userId là unique.
      */
-    @Column(name = "user_id", nullable = false, unique = true)
+    @Column(name = "user_id", nullable = false)
     private Long userId;
 
     /**
      * Mã số thẻ loyalty (unique, có thể tự động sinh)
      */
-    @Column(unique = true, length = 50)
+    @Column(length = 50)
     private String loyaltyNumber;
 
     /**
