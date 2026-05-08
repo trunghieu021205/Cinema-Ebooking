@@ -15,7 +15,7 @@ public final class UserCouponExceptions {
 
     public static BaseException alreadyExists(Long userId, Long couponId) {
         return new BaseException(ErrorCode.USER_COUPON_ALREADY_EXISTS,
-                "User already has this coupon: userId=" + userId + ", couponId=" + couponId);
+                "User " + userId + " already owns coupon " + couponId);
     }
 
     public static BaseException couponNotFound(Long couponId) {
@@ -25,16 +25,31 @@ public final class UserCouponExceptions {
 
     public static BaseException couponNotActive(Long couponId) {
         return new BaseException(ErrorCode.COUPON_INVALID,
-                "Coupon is not active: " + couponId);
+                "Coupon " + couponId + " is not active");
     }
 
     public static BaseException couponExpired(Long couponId) {
         return new BaseException(ErrorCode.COUPON_EXPIRED,
-                "Coupon has expired: " + couponId);
+                "Coupon " + couponId + " has expired");
     }
 
     public static BaseException insufficientPoints(Long userId, int required, int available) {
         return new BaseException(ErrorCode.LOYALTY_INSUFFICIENT_POINTS,
-                "User " + userId + " has insufficient points (required: " + required + ", available: " + available + ")");
+                "User " + userId + " has insufficient points (need: " + required + ", have: " + available + ")");
+    }
+
+    public static BaseException notOwnedByUser(UserCouponId id, Long userId) {
+        return new BaseException(ErrorCode.USER_COUPON_NOT_FOUND,
+                "User coupon " + id + " does not belong to user " + userId);
+    }
+
+    public static BaseException notAvailable(UserCouponId id) {
+        return new BaseException(ErrorCode.USER_COUPON_EXPIRED,
+                "User coupon " + id + " is not available for use");
+    }
+
+    public static BaseException noRemainingUsage(UserCouponId id) {
+        return new BaseException(ErrorCode.USER_COUPON_ALREADY_USED,
+                "User coupon " + id + " has no remaining usage");
     }
 }
