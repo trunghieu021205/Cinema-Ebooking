@@ -21,9 +21,4 @@ public final class GenreExceptions {
                 "Genres not found with ids: " + ids);
     }
 
-    public static BaseException duplicateName(String name) {
-
-        return new BaseException(ErrorCode.GENRE_ALREADY_EXISTS,
-                "Genre already exists with name: " + name);
-    }
 }

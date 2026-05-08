@@ -5,6 +5,7 @@ import com.cinemaebooking.backend.user.domain.valueObject.UserId;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -14,13 +15,17 @@ import java.util.Date;
 @Component
 public class JwtProviderImpl implements JwtProvider {
 
-    // ⚠️ nên đưa vào application.yml sau này
-    private static final String SECRET = "my-secret-key-my-secret-key-my-secret-key-123456";
+    @Value("${jwt.secret}")
+    private String secret;
 
-    private static final long EXPIRATION = 86400000; // 1 day
+    @Value("${jwt.access.expiration:900000}")
+    private long accessExpiration;
+
+    @Value("${jwt.refresh.expiration:604800000}")
+    private long refreshExpiration;
 
     private Key getSigningKey() {
-        return Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
+        return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
     @Override
@@ -29,7 +34,17 @@ public class JwtProviderImpl implements JwtProvider {
                 .setSubject(String.valueOf(userId.getValue()))
                 .claim("role", role)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
+                .setExpiration(new Date(System.currentTimeMillis() + accessExpiration))
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    @Override
+    public String generateRefreshToken(Long userId) {
+        return Jwts.builder()
+                .setSubject(String.valueOf(userId))
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + refreshExpiration))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }

@@ -12,7 +12,14 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * SeatValidationProfile - Validation rules for Seat domain.
+ * SeatValidationProfile - Collection of validation rule sets for Seat domain.
+ * Responsibility:
+ * - Provide predefined validation rule groups for Seat-related fields
+ * - Ensure consistency of validation across Seat use cases (create/update)
+ * - Centralize validation logic for seat domain inputs
+ *
+ * @author Hieu Nguyen
+ * @since 2026
  */
 public class SeatValidationProfile {
 
@@ -21,35 +28,71 @@ public class SeatValidationProfile {
 
     private SeatValidationProfile() {}
 
-    // ================== ROW LABEL ==================
+    // ================== ROW INDEX ==================
 
-    public List<ValidationRule<String>> rowLabelRules() {
-        return StringValidationBuilder.create()
-                .notBlank()
-                .length(1, 3)
-                .pattern(
-                        ValidationPatterns.ROW_LABEL,
-                        "INVALID_ROW_LABEL"
-                )
-                .build();
-    }
-
-    // ================== COLUMN NUMBER ==================
-
-    public List<ValidationRule<Integer>> columnNumberRules() {
+    public List<ValidationRule<Integer>> rowIndexRules() {
         return ValidationBuilder.<Integer>create()
                 .notNull()
                 .custom(context -> {
                     Integer value = context.getValue();
+                    if (value != null && value < 0) {
+                        return Optional.of(new ErrorDetail(
+                                context.getField(),
+                                ErrorCategory.INVALID_VALUE,
+                                "rowIndex must not be negative"
+                        ));
+                    }
+                    return Optional.empty();
+                })
+                .build();
+    }
 
+    // ================== COL INDEX ==================
+
+    public List<ValidationRule<Integer>> colIndexRules() {
+        return ValidationBuilder.<Integer>create()
+                .notNull()
+                .custom(context -> {
+                    Integer value = context.getValue();
+                    if (value != null && value < 0) {
+                        return Optional.of(new ErrorDetail(
+                                context.getField(),
+                                ErrorCategory.INVALID_VALUE,
+                                "colIndex must not be negative"
+                        ));
+                    }
+                    return Optional.empty();
+                })
+                .build();
+    }
+
+    // ================== LABEL ==================
+
+    public List<ValidationRule<String>> labelRules() {
+        return StringValidationBuilder.create()
+                .notBlank()
+                .length(2, 3)
+                .pattern(
+                        ValidationPatterns.SEAT_LABEL,
+                        "contains invalid characters"
+                )
+                .build();
+    }
+
+    // ================== SEAT TYPE ID ==================
+
+    // nullable khi mới generate layout — chỉ validate khi update
+    public List<ValidationRule<Long>> seatTypeIdRules() {
+        return ValidationBuilder.<Long>create()
+                .notNull()
+                .custom(context -> {
+                    Long value = context.getValue();
                     if (value != null && value <= 0) {
-                        return Optional.of(
-                                new ErrorDetail(
-                                        context.getField(),
-                                        ErrorCategory.INVALID_VALUE,
-                                        "columnNumber must be greater than 0"
-                                )
-                        );
+                        return Optional.of(new ErrorDetail(
+                                context.getField(),
+                                ErrorCategory.INVALID_VALUE,
+                                "seatTypeId must be positive"
+                        ));
                     }
                     return Optional.empty();
                 })
@@ -71,37 +114,12 @@ public class SeatValidationProfile {
                 .notNull()
                 .custom(context -> {
                     Long value = context.getValue();
-
                     if (value != null && value <= 0) {
-                        return Optional.of(
-                                new ErrorDetail(
-                                        context.getField(),
-                                        ErrorCategory.INVALID_VALUE,
-                                        "roomId must be positive"
-                                )
-                        );
-                    }
-                    return Optional.empty();
-                })
-                .build();
-    }
-
-    // ================== SEAT TYPE ID ==================
-
-    public List<ValidationRule<Long>> seatTypeIdRules() {
-        return ValidationBuilder.<Long>create()
-                .notNull()
-                .custom(context -> {
-                    Long value = context.getValue();
-
-                    if (value != null && value <= 0) {
-                        return Optional.of(
-                                new ErrorDetail(
-                                        context.getField(),
-                                        ErrorCategory.INVALID_VALUE,
-                                        "seatTypeId must be positive"
-                                )
-                        );
+                        return Optional.of(new ErrorDetail(
+                                context.getField(),
+                                ErrorCategory.INVALID_VALUE,
+                                "roomId must be positive"
+                        ));
                     }
                     return Optional.empty();
                 })

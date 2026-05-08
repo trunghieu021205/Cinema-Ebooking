@@ -51,8 +51,6 @@ public class UpdateSeatUsecase {
 
     private void applyUpdate(Seat seat, UpdateSeatRequest request) {
         seat.update(
-                request.getRowLabel(),
-                request.getColumnNumber(),
                 request.getSeatTypeId(),
                 request.getSeatStatus()
         );

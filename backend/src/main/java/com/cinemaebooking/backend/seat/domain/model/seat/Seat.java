@@ -5,32 +5,26 @@ import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import com.cinemaebooking.backend.seat.domain.enums.SeatStatus;
 import com.cinemaebooking.backend.seat.domain.valueObject.seat.SeatId;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 @Getter
 @SuperBuilder(toBuilder = true)
 public class Seat extends BaseEntity<SeatId> {
 
-    private String rowLabel;
-    private Integer columnNumber;
+    private Integer rowIndex;   // 0-based, sync với Room.numberOfRows
+    private Integer colIndex;   // 0-based, sync với Room.numberOfCols
+    private String label;       // "A1", "B3" — generated 1 lần, readonly sau đó
     private SeatStatus status;
+    @Setter
     private Long seatTypeId;
     private Long roomId;
-
+    private Long coupleGroupId;
     // ================== BUSINESS METHODS ==================
 
-    public void update(String rowLabel, Integer columnNumber, Long seatTypeId, SeatStatus status) {
-        validate(rowLabel, columnNumber, status, seatTypeId);
-
-        this.rowLabel = rowLabel;
-        this.columnNumber = columnNumber;
-        this.seatTypeId = seatTypeId;
-        this.status = status;
-
-    }
-
-    public void changeStatus(SeatStatus status) {
+    public void update(Long seatTypeId, SeatStatus status) {
         validateStatus(status);
+        this.seatTypeId = seatTypeId;
         this.status = status;
     }
 
@@ -42,23 +36,7 @@ public class Seat extends BaseEntity<SeatId> {
         this.status = SeatStatus.INACTIVE;
     }
 
-    // ================== VALIDATION ==================
-
-    private void validate(String rowLabel, Integer columnNumber, SeatStatus status, Long seatTypeId) {
-
-        if (rowLabel == null || rowLabel.trim().isEmpty()) {
-            throw CommonExceptions.invalidInput("Row label must not be empty");
-        }
-
-        if (columnNumber == null || columnNumber <= 0) {
-            throw CommonExceptions.invalidInput("Column number must be positive");
-        }
-
-        if (seatTypeId == null || seatTypeId <= 0) {
-            throw CommonExceptions.invalidInput("Seat type id must be valid");
-        }
-        validateStatus(status);
-    }
+    public  void markActive() { this.status = SeatStatus.ACTIVE; }
 
     private void validateStatus(SeatStatus status) {
         if (status == null) {

@@ -33,7 +33,13 @@ export function useCinema() {
   function handleError(err: unknown) {
     const e = err as ApiRejected
     fieldErrors.value  = e.fieldErrors  ?? {}
-    globalErrors.value = e.globalErrors ?? [e.message ?? 'Đã có lỗi xảy ra']
+    if (e.globalErrors?.length) {
+      globalErrors.value = e.globalErrors
+    } else if (!Object.values(fieldErrors.value).some(Boolean)) {
+      globalErrors.value = [e.message ?? 'Đã có lỗi xảy ra'] 
+    } else {
+      globalErrors.value = []
+    }
   }
 
   function clearErrors() {
@@ -52,8 +58,6 @@ export function useCinema() {
       nextPageCache.value = res.content
       nextPageDirty.value = false
     } catch {
-      // Prefetch fail → không critical, chỉ clear cache
-      // Khi user navigate sẽ fetchList bình thường
       nextPageCache.value = []
     }
   }

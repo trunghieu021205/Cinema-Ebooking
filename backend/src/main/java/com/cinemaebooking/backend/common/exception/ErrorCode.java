@@ -106,18 +106,12 @@ public enum ErrorCode {
     // ===================== CATALOG =====================
     // movie: 3001–3004
     MOVIE_NOT_FOUND             (3001, "Không tìm thấy phim",                              HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
-    MOVIE_ALREADY_EXISTS        (3002, "Phim đã tồn tại",                                  HttpStatus.CONFLICT,              ErrorType.BUSINESS),
-    MOVIE_INVALID_STATUS        (3003, "Trạng thái phim không hợp lệ",                     HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
-    MOVIE_INVALID_RELEASE_DATE  (3004, "Ngày phát hành phim không hợp lệ",                 HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
 
     // cinema: 3005–3007
     CINEMA_NOT_FOUND            (3005, "Không tìm thấy rạp chiếu",                         HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
 
     // room: 3008–3011
     ROOM_NOT_FOUND              (3008, "Không tìm thấy phòng chiếu",                       HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
-    ROOM_ALREADY_EXISTS         (3009, "Phòng chiếu đã tồn tại trong rạp này",             HttpStatus.CONFLICT,              ErrorType.BUSINESS),
-    ROOM_INVALID_STATUS         (3010, "Trạng thái phòng chiếu không hợp lệ",              HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
-    ROOM_INVALID_CAPACITY       (3011, "Sức chứa phòng chiếu không hợp lệ",                HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
 
     // seat: 3012–3020
     SEAT_NOT_FOUND              (3012, "Không tìm thấy ghế",                               HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
@@ -147,7 +141,6 @@ public enum ErrorCode {
 
     // genre: 3032–3033
     GENRE_NOT_FOUND             (3032, "Không tìm thấy thể loại phim",                     HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
-    GENRE_ALREADY_EXISTS        (3033, "Thể loại phim đã tồn tại",                         HttpStatus.CONFLICT,              ErrorType.BUSINESS),
 
     // ===================== PRODUCT =====================
     COMBO_NOT_FOUND             (3401, "Không tìm thấy combo",                             HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),

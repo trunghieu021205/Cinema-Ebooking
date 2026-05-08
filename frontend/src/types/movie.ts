@@ -1,0 +1,39 @@
+// src/types/movie.types.ts
+import type { GenreResponse } from './genre.types'
+
+export type AgeRating = 'P' | 'T13' | 'T16' | 'T18'
+export type MovieStatus = 'COMING_SOON' | 'NOW_SHOWING' | 'ENDED'
+
+export interface MovieResponse {
+  id: number
+  title: string
+  description: string
+  duration: number
+  ageRating: AgeRating
+  releaseDate: string // ISO date
+  status: MovieStatus
+  posterUrl: string
+  bannerUrl: string
+  director: string
+  actors: string
+  genres: GenreResponse[]
+  rating: number | null
+  ratingCount: number
+}
+
+export interface CreateMovieRequest {
+  title: string
+  description: string
+  duration: number
+  ageRating: AgeRating
+  releaseDate: string
+  posterUrl: string
+  bannerUrl: string
+  director: string
+  actors: string
+  genreIds: number[]
+}
+
+export interface UpdateMovieRequest extends CreateMovieRequest {
+  status: MovieStatus
+}

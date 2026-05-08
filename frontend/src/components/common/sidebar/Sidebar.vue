@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import SidebarMenuItem from '@/components/common/sidebar/SidebarMenuItem.vue'
 import { useSidebarMenu } from '@/composables/useSidebarMenu'
-import { useUIStore } from '@/store/ui.store'
-import { useAuthStore } from '@/store/auth.store'
+import { useUIStore } from '@/stores/ui.store'
+import { useAuthStore } from '@/stores/auth.store'
 
 const auth = useAuthStore()
 const ui = useUIStore()
