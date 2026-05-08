@@ -31,7 +31,7 @@ public class RedeemCouponUseCase {
                 request.getUserId(),
                 request.getCouponId(),
                 LocalDateTime.now(),
-                coupon.perUserUsage(),   // số lần dùng còn lại = perUserUsage
+                coupon.perUserUsage(),
                 coupon.expiryDate()
         );
 
