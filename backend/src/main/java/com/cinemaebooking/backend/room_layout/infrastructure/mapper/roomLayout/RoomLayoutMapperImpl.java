@@ -5,7 +5,6 @@ import com.cinemaebooking.backend.room_layout.domain.valueObject.roomLayout.Room
 import com.cinemaebooking.backend.room_layout.infrastructure.mapper.roomLayoutSeat.RoomLayoutSeatMapper;
 import com.cinemaebooking.backend.room_layout.infrastructure.persistence.entity.RoomLayoutJpaEntity;
 import com.cinemaebooking.backend.room_layout.infrastructure.persistence.entity.RoomLayoutSeatJpaEntity;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -28,10 +27,12 @@ public class RoomLayoutMapperImpl implements RoomLayoutMapper{
                 .id(entity.getId() != null ? new RoomLayoutId(entity.getId()) : null)
                 .roomId(entity.getRoomId())
                 .layoutVersion(entity.getLayoutVersion())
+                .roomType(entity.getRoomType())
                 .effectiveDate(entity.getEffectiveDate())
                 .totalRows(entity.getTotalRows())
                 .totalCols(entity.getTotalCols())
                 .seats(new ArrayList<>())
+                .createdAt(entity.getCreatedAt())
                 .build();
     }
 
@@ -43,9 +44,11 @@ public class RoomLayoutMapperImpl implements RoomLayoutMapper{
                 .id(entity.getId() != null ? new RoomLayoutId(entity.getId()) : null)
                 .roomId(entity.getRoomId())
                 .layoutVersion(entity.getLayoutVersion())
+                .roomType(entity.getRoomType())
                 .effectiveDate(entity.getEffectiveDate())
                 .totalRows(entity.getTotalRows())
                 .totalCols(entity.getTotalCols())
+                .createdAt(entity.getCreatedAt())
                 .seats(seatEntities != null ? seatEntities.stream().map(roomLayoutSeatMapper::toDomain).toList(): new ArrayList<>())
                 .build();
 
@@ -59,6 +62,7 @@ public class RoomLayoutMapperImpl implements RoomLayoutMapper{
                 .id(domain.getId() != null ? domain.getId().getValue() : null)
                 .roomId(domain.getRoomId())
                 .layoutVersion(domain.getLayoutVersion())
+                .roomType(domain.getRoomType())
                 .effectiveDate(domain.getEffectiveDate())
                 .totalRows(domain.getTotalRows())
                 .totalCols(domain.getTotalCols())

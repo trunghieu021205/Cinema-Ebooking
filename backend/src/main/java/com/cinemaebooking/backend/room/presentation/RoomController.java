@@ -8,11 +8,15 @@ import com.cinemaebooking.backend.room.application.dto.RoomResponse;
 import com.cinemaebooking.backend.room.application.dto.UpdateRoomRequest;
 import com.cinemaebooking.backend.room.application.usecase.*;
 import com.cinemaebooking.backend.room.domain.valueObject.RoomId;
+import com.cinemaebooking.backend.room_layout.application.dto.roomLayout.RoomLayoutSummaryResponse;
 import com.cinemaebooking.backend.room_layout.application.dto.roomLayoutSeat.BulkUpdateResponse;
-import com.cinemaebooking.backend.room_layout.application.dto.roomLayoutSeat.UpdateRoomLayoutSeatsRequest;
+import com.cinemaebooking.backend.room_layout.application.dto.roomLayout.UpdateRoomLayoutRequest;
+import com.cinemaebooking.backend.room_layout.application.mapper.roomLayout.RoomLayoutDtoMapper;
+import com.cinemaebooking.backend.room_layout.application.port.roomLayout.RoomLayoutRepository;
 import com.cinemaebooking.backend.room_layout.application.usecase.roomLayout.GenerateRoomLayoutUseCase;
+import com.cinemaebooking.backend.room_layout.application.usecase.roomLayout.GetRoomLayoutByDateUseCase;
 import com.cinemaebooking.backend.room_layout.application.usecase.roomLayout.GetRoomLayoutUseCase;
-import com.cinemaebooking.backend.room_layout.application.usecase.roomLayout.UpdateRoomLayoutSeatsUseCase;
+import com.cinemaebooking.backend.room_layout.application.usecase.roomLayout.UpdateRoomLayoutUseCase;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,6 +25,10 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * RoomController - REST API for Room resource.
@@ -42,7 +50,11 @@ public class RoomController {
     private final GetRoomByIdUseCase getRoomByIdUseCase;
     private final GenerateRoomLayoutUseCase generateRoomLayoutUseCase;
     private final GetRoomLayoutUseCase getRoomLayoutUseCase;
-    private final UpdateRoomLayoutSeatsUseCase updateRoomLayoutSeatsUseCase;
+    private final GetRoomLayoutByDateUseCase getRoomLayoutByDateUseCase;
+    private final UpdateRoomLayoutUseCase updateRoomLayoutUseCase;
+
+    private final RoomLayoutRepository roomLayoutRepository;
+    private final RoomLayoutDtoMapper layoutMapper;
 
     // ================== CREATE ==================
     @PostMapping
@@ -106,17 +118,30 @@ public class RoomController {
     }
 
     @GetMapping("/{id}/layout")
-    public RoomLayoutDetailResponse getLayout(@PathVariable Long id) {
-        return getRoomLayoutUseCase.execute(id);
+    public RoomLayoutDetailResponse getLayout(
+            @PathVariable Long id,
+            @RequestParam(required = false) LocalDate date) {
+        if (date == null) {
+            return getRoomLayoutUseCase.execute(id);
+        }
+        return getRoomLayoutByDateUseCase.execute(id, date);
     }
 
-    @PostMapping("/{id}/layouts/update-seats")
+    @GetMapping("/{id}/layouts")
+    public List<RoomLayoutSummaryResponse> getAllLayouts(@PathVariable Long id) {
+        return roomLayoutRepository.findAllByRoomIdOrderByLayoutVersionDesc(id)
+                .stream()
+                .map(layoutMapper::toSummaryResponse)
+                .collect(Collectors.toList());
+    }
+
+    @PostMapping("/{id}/layouts/update")
     @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
     public BulkUpdateResponse updateSeatsInLayout(
             @PathVariable Long id,
-            @Valid @RequestBody UpdateRoomLayoutSeatsRequest request) {
-        return updateRoomLayoutSeatsUseCase.execute(id, request.effectiveDate(), request.updates());
+            @Valid @RequestBody UpdateRoomLayoutRequest request) {
+        return updateRoomLayoutUseCase.execute(id, request.effectiveDate(), request.roomType(), request.updates());
     }
 
     // ================== HELPER ==================

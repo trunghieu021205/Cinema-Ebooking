@@ -15,7 +15,6 @@ public class RoomLayoutSeat extends BaseEntity<RoomLayoutSeatId> {
 
     private Integer rowIndex;   // 0-based, sync với Room.numberOfRows
     private Integer colIndex;   // 0-based, sync với Room.numberOfCols
-    private String label;       // "A1", "B3" — generated 1 lần, readonly sau đó
     private SeatStatus status;
     @Setter
     private Long seatTypeId;
