@@ -5,6 +5,8 @@ import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import com.cinemaebooking.backend.common.exception.domain.RoomLayoutExceptions;
 import com.cinemaebooking.backend.room_layout.application.dto.roomLayout.RoomLayoutDetailResponse;
 import com.cinemaebooking.backend.room_layout.application.dto.roomLayoutSeat.RoomLayoutSeatResponse;
+import com.cinemaebooking.backend.room_layout.application.helper.SeatGridBuilder;
+import com.cinemaebooking.backend.room_layout.application.mapper.roomLayout.RoomLayoutDtoMapper;
 import com.cinemaebooking.backend.room_layout.application.mapper.roomLayoutSeat.RoomLayoutSeatResponseMapper;
 import com.cinemaebooking.backend.room_layout.application.port.roomLayout.RoomLayoutRepository;
 import com.cinemaebooking.backend.room_layout.domain.model.roomLayout.RoomLayout;
@@ -12,8 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -21,7 +21,8 @@ import java.util.List;
 public class GetRoomLayoutUseCase {
 
     private final RoomLayoutRepository roomLayoutRepository;
-    private final RoomLayoutSeatResponseMapper mapper;
+    private final RoomLayoutSeatResponseMapper seatMapper;
+    private final RoomLayoutDtoMapper dtoMapper;
 
     public RoomLayoutDetailResponse execute(Long roomId) {
         if (roomId == null) {
@@ -33,26 +34,12 @@ public class GetRoomLayoutUseCase {
 
         List<RoomLayoutSeatResponse> seatResponses = currentLayout.getSeats()
                 .stream()
-                .map(mapper::toResponse)
+                .map(seatMapper::toResponse)
                 .toList();
 
-        return buildRoomLayout(seatResponses, currentLayout.getTotalRows(), currentLayout.getTotalCols());
+        List<List<RoomLayoutSeatResponse>> grid = SeatGridBuilder.build(seatResponses, currentLayout.getTotalRows(), currentLayout.getTotalCols());
+
+        return dtoMapper.toDetailResponse(currentLayout, grid);
     }
 
-    private RoomLayoutDetailResponse buildRoomLayout(List<RoomLayoutSeatResponse> seats, int totalRows, int totalCols) {
-        List<List<RoomLayoutSeatResponse>> grid = new ArrayList<>(totalRows);
-        for (int r = 1; r <= totalRows; r++) {
-            int rowIndex = r;
-            List<RoomLayoutSeatResponse> row = seats.stream()
-                    .filter(seat -> seat.getRowIndex() == rowIndex)
-                    .sorted(Comparator.comparing(RoomLayoutSeatResponse::getColIndex))
-                    .toList();
-            grid.add(row);
-        }
-        return RoomLayoutDetailResponse.builder()
-                .rows(grid)
-                .totalRows(totalRows)
-                .totalCols(totalCols)
-                .build();
-    }
 }

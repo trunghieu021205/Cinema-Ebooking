@@ -37,6 +37,7 @@ public class RoomLayout extends BaseEntity<RoomLayoutId> {
         this.effectiveDate = builder.effectiveDate;
         this.totalRows = builder.totalRows;
         this.totalCols = builder.totalCols;
+        this.createdAt = builder.createdAt;
         this.seats = builder.seats != null ? List.copyOf(builder.seats) : null;
         validate();
     }
