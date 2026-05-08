@@ -18,6 +18,6 @@
 <script setup lang="ts">
 import Sidebar from '@/components/common/sidebar/Sidebar.vue'
 import TopBar from '@/components/common/topbar/TopBar.vue';
-import { useUIStore } from '@/store/ui.store'
+import { useUIStore } from '@/stores/ui.store'
 const ui = useUIStore()
 </script>

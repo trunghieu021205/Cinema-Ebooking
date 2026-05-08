@@ -1,70 +1,187 @@
-import axios from 'axios'
-import type { ApiResponse } from '@/types/auth.types'
+import axios, { AxiosError } from 'axios'
+import type { InternalAxiosRequestConfig } from 'axios'
+import type { LoginResponse } from '@/types/auth.types'
+import type { ApiResponse, ApiError } from '@/types/common.types'
 import { mapFieldErrors } from '@/utils/errorMapper'
 
+
+const BASE_URL = 'http://localhost:8080/api/v1'
+
 const apiClient = axios.create({
-    baseURL: 'http://localhost:8080/api/v1',
+    baseURL: BASE_URL,
     timeout: 10000,
     headers: { 'Content-Type': 'application/json' },
 })
 
+const PUBLIC_ENDPOINTS = [
+  '/auth/login',
+  '/auth/register',
+  '/auth/forgot_password',
+  '/auth/reset_password',
+  '/auth/refresh_token' 
+]
+
+const isPublicEndpoint = (url?: string): boolean => {
+  if (!url) return false
+  return PUBLIC_ENDPOINTS.some(publicPath => url.includes(publicPath))
+}
+
 // ================= REQUEST =================
 apiClient.interceptors.request.use((config) => {
-    const token = localStorage.getItem('token')
+    if (isPublicEndpoint(config.url)) return config 
+    const token = localStorage.getItem('accessToken')
     if (token) config.headers.Authorization = `Bearer ${token}`
     return config
 })
 
 // ================= RESPONSE =================
+
+
+let isRefreshing = false
+let failedQueue: Array<{
+    resolve: (value?: any) => void
+    reject: (reason?: any) => void
+}> = []
+
+const processQueue = (error: any = null, token: string | null = null) => {
+    failedQueue.forEach(({ resolve, reject, config }) => {
+        if (error) {
+            reject(error)
+        } else {
+            if (token) config.headers.Authorization = `Bearer ${token}`
+            resolve(apiClient(config))   // retry ngay trong queue thay vì dùng .then()
+        }
+    })
+    failedQueue = []
+}
+
+const logout = () => {
+    localStorage.removeItem('accessToken')
+    localStorage.removeItem('refreshToken')
+    window.dispatchEvent(new CustomEvent('auth:logout'))  // giữ để store cleanup nếu cần
+
+    if (!window.location.pathname.includes('/')) {
+        window.location.href = '/'
+    }
+}
+
 apiClient.interceptors.response.use(
     (response) => {
         const res: ApiResponse<any> = response.data
-
-        // 🔥 unwrap ApiResponse
         if (res && typeof res.success === 'boolean') {
             if (!res.success) {
-                const mapped = mapFieldErrors(res.error)
-
+                const apiError: ApiError | undefined = res.error                       // ← khai báo đúng chỗ
+                const mapped = mapFieldErrors(apiError ?? null)
                 return Promise.reject({
                     type: 'api',
                     fieldErrors: mapped.fieldErrors,
                     globalErrors: mapped.globalErrors,
-                    code: res.error?.code ?? null,
-                    message: res.error?.message ?? 'Lỗi từ server',
-                    raw: res.error
+                    code: apiError?.code ?? null,
+                    message: apiError?.message ?? 'Lỗi từ server',
+                    raw: apiError,
                 })
             }
-
             return res.data
         }
-
         return response.data
     },
 
-    (error) => {
+    async (error: AxiosError) => {
+        const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
         const status = error.response?.status
-        const apiError = error.response?.data?.error
+        const apiError: ApiError | undefined = (error.response?.data as any)?.error
+        const url = originalRequest.url
 
-        // ================= 401 =================
-        if (status === 401) {
-            const token = localStorage.getItem('token')
-            if (token) {
-                localStorage.removeItem('token')
-                window.location.href = '/'
-            }
+        if (status !== 401) {
+            const mapped = mapFieldErrors(apiError ?? null)
+            return Promise.reject({
+                type: 'http',
+                fieldErrors: mapped.fieldErrors,
+                globalErrors: mapped.globalErrors,
+                code: apiError?.code ?? null,
+                message: apiError?.message ?? 'Đã có lỗi xảy ra',
+                status,
+                raw: apiError,
+            })
         }
 
-        const mapped = mapFieldErrors(apiError)
+        if (isPublicEndpoint(url)) {
+            const mapped = mapFieldErrors(apiError ?? null)
+            return Promise.reject({
+                type: 'api',
+                fieldErrors: mapped.fieldErrors,
+                globalErrors: mapped.globalErrors,
+                code: apiError?.code ?? null,
+                message: apiError?.message ?? 'Đã có lỗi xảy ra',
+                status,
+                raw: apiError,
+            })
+        }
 
-        return Promise.reject({
-            type: 'http',
-            fieldErrors: mapped.fieldErrors,
-            globalErrors: mapped.globalErrors,
-            code: apiError?.code ?? null,
-            message: apiError?.message ?? 'Đã có lỗi xảy ra',
-            status,
-            raw: apiError
-        })
+        if (originalRequest._retry) {
+            logout()
+            return Promise.reject(error)
+        }
+
+        if (url?.includes('/auth/refresh_token')) {
+            logout()
+            return Promise.reject(error)
+        }
+
+        originalRequest._retry = true
+
+        if (isRefreshing) {
+            return new Promise((resolve, reject) => {
+                failedQueue.push({ resolve, reject, config: originalRequest })
+            })
+                .then(() => apiClient(originalRequest))
+                .catch(err => Promise.reject(err))
+        }
+
+        isRefreshing = true
+
+        const refreshToken = localStorage.getItem('refreshToken')
+        if (!refreshToken) {
+            isRefreshing = false  // ✅ Reset trước khi logout
+            logout()
+            return Promise.reject(error)
+        }
+
+        try {
+
+            const { data } = await axios.post<ApiResponse<LoginResponse>>(
+                `${BASE_URL}/auth/refresh_token`,
+                { refreshToken },
+                { headers: { 'Content-Type': 'application/json' } }
+            )
+
+            if (!data.success || !data.data?.accessToken || !data.data?.refreshToken) {
+                throw new Error('Invalid refresh response')
+            }
+
+            const { accessToken: newAccessToken, refreshToken: newRefreshToken } = data.data
+
+            localStorage.setItem('accessToken', newAccessToken)
+            localStorage.setItem('refreshToken', newRefreshToken)
+
+            apiClient.defaults.headers.common.Authorization = `Bearer ${newAccessToken}`
+            originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
+
+            try {
+                const { useAuthStore } = await import('@/stores/auth.store')
+                await useAuthStore().fetchMe()
+            } catch {
+            }
+
+            processQueue(null, newAccessToken)
+            return apiClient(originalRequest)
+        } catch (refreshError) {
+            processQueue(refreshError)
+            logout()
+            return Promise.reject(refreshError)
+        } finally {
+            isRefreshing = false
+        }
     }
 )
 

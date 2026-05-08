@@ -16,27 +16,26 @@ public class RefreshTokenUseCase {
     private final UserRepository userRepository;
 
     public LoginResponse execute(RefreshTokenRequest request) {
-
         if (request == null || request.getRefreshToken() == null) {
             throw UserExceptions.invalidCredentials();
         }
 
-        String refreshToken = request.getRefreshToken();
+        String oldRefreshToken = request.getRefreshToken();
 
-        // 1. extract userId
-        var userId = jwtProvider.extractUserId(refreshToken);
+        // 1. Validate refresh token (signature + expiration) and extract userId
+        var userId = jwtProvider.extractUserId(oldRefreshToken);
 
-        // 2. load user (ĐỂ LẤY ROLE)
+        // 2. Load user to get role
         var user = userRepository.findById(userId)
                 .orElseThrow(UserExceptions::unauthorized);
 
-        // 3. generate new access token
-        String token = jwtProvider.generateToken(user.getId(), user.getRole().name());
+        // 3. Generate new access token (short-lived)
+        String newAccessToken = jwtProvider.generateToken(user.getId(), user.getRole().name());
 
-        // 4. return full response
-        return new LoginResponse(
-                token,
-                user.getRole()
-        );
+        // 4. Generate new refresh token (rotation)
+        String newRefreshToken = jwtProvider.generateRefreshToken(user.getId().getValue());
+
+        // 5. Return both tokens + role
+        return new LoginResponse(newAccessToken, newRefreshToken, user.getRole().name());
     }
 }

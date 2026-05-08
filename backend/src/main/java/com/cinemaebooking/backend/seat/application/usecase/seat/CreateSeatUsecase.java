@@ -40,11 +40,24 @@ public class CreateSeatUsecase {
 
     private Seat buildSeat(CreateSeatRequest request) {
         return Seat.builder()
-                .rowLabel(request.getRowLabel())
-                .columnNumber(request.getColumnNumber())
+                .rowIndex(request.getRowIndex())
+                .colIndex(request.getColIndex())
+                .label(resolveLabel(request))
                 .seatTypeId(request.getSeatTypeId())
                 .roomId(request.getRoomId())
                 .status(SeatStatus.ACTIVE)
                 .build();
+    }
+
+    private String resolveLabel(CreateSeatRequest request) {
+        if (request.getLabel() != null && !request.getLabel().isBlank()) {
+            return request.getLabel();
+        }
+        return buildLabel(request.getRowIndex(), request.getColIndex());
+    }
+
+    private String buildLabel(Integer rowIndex, Integer colIndex) {
+        char rowChar = (char) ('A' + rowIndex);
+        return String.valueOf(rowChar) + (colIndex + 1);
     }
 }

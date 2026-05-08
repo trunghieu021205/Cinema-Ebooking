@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UpdateRoomRequest {
     private String name;
-    private Integer totalSeats;
     private RoomType roomType;
     private RoomStatus status;
 }

@@ -1,11 +1,11 @@
 package com.cinemaebooking.backend.seat.presentation.seat;
 
+import com.cinemaebooking.backend.common.exception.ErrorCategory;
 import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
-import com.cinemaebooking.backend.seat.application.dto.seat.CreateSeatRequest;
-import com.cinemaebooking.backend.seat.application.dto.seat.SeatResponse;
-import com.cinemaebooking.backend.seat.application.dto.seat.UpdateSeatRequest;
+import com.cinemaebooking.backend.seat.application.dto.seat.*;
 import com.cinemaebooking.backend.seat.application.usecase.seat.*;
 import com.cinemaebooking.backend.seat.domain.valueObject.seat.SeatId;
+import com.cinemaebooking.backend.seat.domain.valueObject.seatType.SeatTypeId;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -14,6 +14,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -25,8 +26,10 @@ public class SeatController {
     private final UpdateSeatUsecase updateSeatUsecase;
     private final DeleteSeatUsecase deleteSeatUsecase;
     private final GetSeatByIdUsecase getSeatByIdUsecase;
-    private final FindSeatsByRoomIdUsecase findSeatsByRoomIdUsecase;
     private final GetAllSeatsUsecase getAllSeatsUsecase;
+    private final BulkActiveSeatUseCase bulkActiveSeatUseCase;
+    private final BulkInactiveSeatUseCase bulkInactiveSeatUseCase;
+    private final BulkUpdateSeatTypeUseCase bulkUpdateSeatTypeUseCase;
 
     // ================== CREATE ==================
     @PostMapping
@@ -58,6 +61,24 @@ public class SeatController {
         return updateSeatUsecase.execute(toSeatId(id), request);
     }
 
+    // ================== BULK UPDATE ==================
+    @PatchMapping("/bulk-activate")
+    public BulkUpdateResponse bulkActivateSeats(@Valid @RequestBody BulkSeatIdsRequest request) {
+        List<SeatId> seatIds = toSeatIds(request.seatIds());
+        return bulkActiveSeatUseCase.execute(seatIds);
+    }
+
+    @PatchMapping("/bulk-inactivate")
+    public BulkUpdateResponse bulkInactivateSeats(@Valid @RequestBody BulkSeatIdsRequest request) {
+        List<SeatId> seatIds = toSeatIds(request.seatIds());
+        return bulkInactiveSeatUseCase.execute(seatIds);
+    }
+
+    @PatchMapping("/bulk-type")
+    public BulkUpdateResponse bulkUpdateTypeSeats(@Valid @RequestBody BulkUpdateSeatTypeRequest request) {
+        List<SeatId> seatIds = toSeatIds(request.seatIds());
+        return bulkUpdateSeatTypeUseCase.execute(seatIds, toSeatTypeId(request.seatTypeId()));
+    }
     // ================== DELETE ==================
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -65,19 +86,25 @@ public class SeatController {
         deleteSeatUsecase.execute(toSeatId(id));
     }
 
-    // ================== LIST BY ROOM ==================
-    @GetMapping("/room/{roomId}")
-    public List<SeatResponse> getSeatsByRoomId(
-            @PathVariable Long roomId
-    ) {
-        return findSeatsByRoomIdUsecase.execute(roomId);
-    }
-
     // ================== HELPER ==================
     private SeatId toSeatId(Long id) {
         if (id == null) {
-            throw CommonExceptions.invalidInput("Seat id must not be null");
+            throw CommonExceptions.invalidInput("seatId", ErrorCategory.REQUIRED, "seatId must not be null");
         }
         return new SeatId(id);
+    }
+
+    private SeatTypeId toSeatTypeId(Long id) {
+        if (id == null) {
+            throw CommonExceptions.invalidInput("seatTypeId", ErrorCategory.REQUIRED, "seatTypeId must not be null");
+        }
+        return new SeatTypeId(id);
+    }
+
+    private List<SeatId> toSeatIds(List<Long> seatIds) {
+        if (seatIds == null) {
+            return Collections.emptyList();
+        }
+        return seatIds.stream().map(this::toSeatId).toList();
     }
 }

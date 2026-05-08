@@ -17,6 +17,8 @@ public interface ShowtimeFormatRepository {
 
     Optional<ShowtimeFormat> findById(ShowtimeFormatId id);
 
+    Optional<ShowtimeFormat> findByNameIgnoreCase(String name);
+
     Page<ShowtimeFormat> findAll(Pageable pageable);
 
     boolean existsByName(String name);

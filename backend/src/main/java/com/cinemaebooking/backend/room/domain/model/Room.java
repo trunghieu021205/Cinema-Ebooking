@@ -12,20 +12,25 @@ import lombok.experimental.SuperBuilder;
 public class Room extends BaseEntity<RoomId> {
 
     private String name;
-    private Integer totalSeats;
     private RoomType roomType;
+    private Integer numberOfRows;
+    private Integer numberOfCols;
+    private Integer totalSeats;
     private RoomStatus status;
     private Long cinemaId;
 
     // ================== BUSINESS METHODS ==================
 
-    public void update(String name, Integer totalSeats, RoomType roomType, RoomStatus status) {
-        validate(name, totalSeats, roomType, status);
-
+    public void update(String name, RoomType roomType, RoomStatus status) {
+        validate(name, roomType, status);
         this.name = name;
-        this.totalSeats = totalSeats;
         this.roomType = roomType;
         this.status = status;
+    }
+
+    public int computeTotalSeats() {
+        if(this.numberOfRows == null || this.numberOfCols == null) return 0;
+        return this.numberOfRows * this.numberOfCols;
     }
 
     public void changeStatus(RoomStatus status) {
@@ -47,15 +52,10 @@ public class Room extends BaseEntity<RoomId> {
 
     // ================== VALIDATION ==================
 
-    private void validate(String name, Integer totalSeats, RoomType roomType, RoomStatus status) {
+    private void validate(String name, RoomType roomType, RoomStatus status) {
         if (name == null || name.trim().isEmpty()) {
             throw com.cinemaebooking.backend.common.exception.domain.CommonExceptions
                     .invalidInput("Room name must not be empty");
-        }
-
-        if (totalSeats == null || totalSeats <= 0) {
-            throw com.cinemaebooking.backend.common.exception.domain.CommonExceptions
-                    .invalidInput("Total seats must be positive");
         }
 
         if (roomType == null) {

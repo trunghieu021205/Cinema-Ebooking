@@ -22,15 +22,7 @@ import lombok.experimental.SuperBuilder;
  * @since 2026
  */
 @Entity
-@Table(
-        name = "seats",
-        uniqueConstraints = {
-                @UniqueConstraint(
-                        name = "uk_seats_room_id_row_label_column_number_deleted",
-                        columnNames = {"room_id", "row_label", "column_number", "deleted"}
-                )
-        }
-)
+@Table(name = "seats")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -38,12 +30,14 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder(toBuilder = true)
 public class SeatJpaEntity extends BaseJpaEntity {
 
-    @Column(nullable = false, length = 50)
-    private String rowLabel;
-
-    @Positive
     @Column(nullable = false)
-    private Integer columnNumber;
+    private Integer rowIndex;
+
+    @Column(nullable = false)
+    private Integer colIndex;
+
+    @Column(nullable = false, length = 20)
+    private String label;  // denormalized, set 1 lần lúc generate
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
@@ -57,13 +51,6 @@ public class SeatJpaEntity extends BaseJpaEntity {
     @JoinColumn(name = "room_id", nullable = false)
     private RoomJpaEntity room;
 
-    @Transient
-    public String getSeatNumber() {
-        return rowLabel + columnNumber;
-    }
-
-    @Override
-    protected void beforeSoftDelete() {
-        this.rowLabel = this.markDeleted(this.rowLabel);
-    }
+    @Column(name = "couple_group_id", nullable = false)
+    private Long coupleGroupId;
 }

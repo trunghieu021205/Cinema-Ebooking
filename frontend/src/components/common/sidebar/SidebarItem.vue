@@ -14,7 +14,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { useUIStore } from '@/store/ui.store'
+import { useUIStore } from '@/stores/ui.store'
 const ui = useUIStore()
 const props = defineProps({
     item: Object, // { key, label, icon, to }

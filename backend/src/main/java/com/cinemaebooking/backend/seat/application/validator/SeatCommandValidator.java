@@ -8,152 +8,118 @@ import com.cinemaebooking.backend.seat.application.dto.seat.CreateSeatRequest;
 import com.cinemaebooking.backend.seat.application.dto.seat.UpdateSeatRequest;
 import com.cinemaebooking.backend.seat.application.port.seat.SeatRepository;
 import com.cinemaebooking.backend.seat.domain.enums.SeatStatus;
-import com.cinemaebooking.backend.seat.domain.model.seat.Seat;
 import com.cinemaebooking.backend.seat.domain.valueObject.seat.SeatId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+/**
+ * SeatCommandValidator
+ * Responsibility:
+ * - Validate input structure (create/update)
+ * - Validate domain business rules (uniqueness)
+ *
+ * @author Hieu Nguyen
+ * @since 2026
+ */
 @Component
 @RequiredArgsConstructor
 public class SeatCommandValidator {
 
     private final SeatRepository seatRepository;
 
-    // ================== CREATE ==================
+    // ================== PUBLIC API ==================
 
     public void validateCreateRequest(CreateSeatRequest request) {
-
-        validateCreateInput(request);
-
-        validateFields(
-                request.getRowLabel(),
-                request.getColumnNumber(),
-                null,
-                request.getSeatTypeId(),
-                request.getRoomId()
-        );
-
-        validateDuplicateForCreate(
-                normalize(request.getRowLabel()),
-                request.getColumnNumber(),
-                request.getRoomId()
-        );
+        validateRequest(request, null, false);
     }
-
-    // ================== UPDATE ==================
 
     public void validateUpdateRequest(SeatId id, UpdateSeatRequest request) {
-
-        validateUpdateInput(id, request);
-
-        Seat existingSeat = seatRepository.findById(id)
-                .orElseThrow(() -> SeatExceptions.notFound(id));
-
-        Long roomId = existingSeat.getRoomId();
-
-        validateFields(
-                request.getRowLabel(),
-                request.getColumnNumber(),
-                request.getSeatStatus(),
-                request.getSeatTypeId(),
-                null
-        );
-
-        validateDuplicateForUpdate(
-                id,
-                roomId,
-                normalize(request.getRowLabel()),
-                request.getColumnNumber()
-        );
-    }
-
-    // ================== INPUT ==================
-
-    private void validateCreateInput(CreateSeatRequest request) {
-        if (request == null) {
-            throw CommonExceptions.invalidInput("Request must not be null");
-        }
-    }
-
-    private void validateUpdateInput(SeatId id, UpdateSeatRequest request) {
-        if (id == null || request == null) {
+        if (id == null) {
             throw CommonExceptions.invalidInput("Seat id and request must not be null");
         }
+        validateRequest(request, id, true);
     }
 
-    // ================== FIELD VALIDATION ==================
+    // ================== CORE VALIDATION ==================
 
-    private void validateFields(
-            String rowLabel,
-            Integer columnNumber,
-            SeatStatus status,
-            Long seatTypeId,
-            Long roomId
-    ) {
-
-        var profile = ValidationFactory.seat();
-
-        ValidationEngine.of()
-                .validate(rowLabel, "rowLabel", profile.rowLabelRules())
-                .validate(columnNumber, "columnNumber", profile.columnNumberRules())
-                .validate(status, "status", profile.statusRules())
-                .validate(seatTypeId, "seatTypeId", profile.seatTypeIdRules())
-                .validate(roomId, "roomId", profile.roomIdRules())
-                .throwIfInvalid();
-
-    }
-
-    // ================== BUSINESS - CREATE ==================
-
-    private void validateDuplicateForCreate(
-            String rowLabel,
-            Integer columnNumber,
-            Long roomId
-    ) {
-
-        if (rowLabel == null || columnNumber == null || roomId == null) return;
-
-        boolean exists = seatRepository
-                .existsByRoomIdAndRowLabelAndColumnNumber(
-                        roomId,
-                        rowLabel,
-                        columnNumber
-                );
-
-        if (exists) {
-            throw SeatExceptions.duplicateSeatPosition(rowLabel, columnNumber, roomId);
+    private void validateRequest(Object requestObj, SeatId id, boolean isUpdate) {
+        if (requestObj == null) {
+            throw CommonExceptions.invalidInput(isUpdate
+                    ? "Seat id and request must not be null"
+                    : "Create seat request must not be null");
         }
-    }
 
-    // ================== BUSINESS - UPDATE ==================
+        Integer rowIndex  = extractRowIndex(requestObj);
+        Integer colIndex  = extractColIndex(requestObj);
+        String label      = extractLabel(requestObj);
+        Long seatTypeId   = extractSeatTypeId(requestObj);
+        SeatStatus status = extractStatus(requestObj);
+        Long roomId       = extractRoomId(requestObj);
 
-    private void validateDuplicateForUpdate(
-            SeatId id,
-            Long roomId,
-            String rowLabel,
-            Integer columnNumber
-    ) {
+        // ================== PHASE 1: FORMAT VALIDATION ==================
+        ValidationEngine engine = ValidationEngine.of();
 
-        if (id == null || roomId == null || rowLabel == null || columnNumber == null) return;
-
-        boolean exists = seatRepository
-                .existsByRoomIdAndRowLabelAndColumnNumberAndIdNot(
-                        roomId,
-                        rowLabel,
-                        columnNumber,
-                        id
-                );
-
-        if (exists) {
-            throw SeatExceptions.duplicateSeatPosition(rowLabel, columnNumber, roomId);
+        if (!isUpdate) {
+            engine
+                    .validate(rowIndex, "rowIndex", ValidationFactory.seat().rowIndexRules())
+                    .validate(colIndex, "colIndex", ValidationFactory.seat().colIndexRules())
+                    .validate(label, "label", ValidationFactory.seat().labelRules())
+                    .validate(roomId, "roomId", ValidationFactory.seat().roomIdRules());
         }
+
+        if (isUpdate) {
+            engine
+                    .validate(seatTypeId, "seatTypeId", ValidationFactory.seat().seatTypeIdRules())
+                    .validate(status, "status", ValidationFactory.seat().statusRules());
+        }
+
+        if (engine.hasErrors()) {
+            engine.throwIfInvalid();
+            return;
+        }
+
+        // ================== PHASE 2: BUSINESS VALIDATION ==================
+        if (!isUpdate) {
+            engine.validateUnique(
+                    rowIndex + "," + colIndex,
+                    "rowIndex",
+                    value -> seatRepository.existsByRoomIdAndRowIndexAndColIndex(roomId, rowIndex, colIndex)
+            );
+        }
+
+        engine.throwIfInvalid();
     }
 
-    // ================== NORMALIZE ==================
+    // ================== EXTRACTORS ==================
 
-    private String normalize(String value) {
-        if (value == null) return null;
-        String trimmed = value.trim();
-        return trimmed.isEmpty() ? null : trimmed;
+    private Integer extractRowIndex(Object request) {
+        if (request instanceof CreateSeatRequest req) return req.getRowIndex();
+        return null;
+    }
+
+    private Integer extractColIndex(Object request) {
+        if (request instanceof CreateSeatRequest req) return req.getColIndex();
+        return null;
+    }
+
+    private String extractLabel(Object request) {
+        if (request instanceof CreateSeatRequest req) return req.getLabel();
+        return null;
+    }
+
+    private Long extractSeatTypeId(Object request) {
+        if (request instanceof CreateSeatRequest req) return req.getSeatTypeId();
+        if (request instanceof UpdateSeatRequest req) return req.getSeatTypeId();
+        return null;
+    }
+
+    private SeatStatus extractStatus(Object request) {
+        if (request instanceof UpdateSeatRequest req) return req.getSeatStatus();
+        return null;
+    }
+
+    private Long extractRoomId(Object request) {
+        if (request instanceof CreateSeatRequest req) return req.getRoomId();
+        return null;
     }
 }

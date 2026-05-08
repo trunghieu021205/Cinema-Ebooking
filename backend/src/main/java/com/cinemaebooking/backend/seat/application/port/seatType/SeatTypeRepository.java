@@ -24,4 +24,6 @@ public interface SeatTypeRepository {
     boolean existsByName(String name);
 
     boolean existsByNameAndIdNot(String name, SeatTypeId id);
+
+    Optional<SeatType> findByNameIgnoreCase(String name);
 }

@@ -43,6 +43,14 @@ public class RoomJpaEntity extends BaseJpaEntity {
 
     @Positive
     @Column(nullable = false)
+    private Integer numberOfRows;
+
+    @Positive
+    @Column(nullable = false)
+    private Integer numberOfCols;
+
+    @Positive
+    @Column(nullable = false)
     private Integer totalSeats;
 
     @Enumerated(EnumType.STRING)

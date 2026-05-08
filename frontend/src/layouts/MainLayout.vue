@@ -14,7 +14,7 @@
 import Footer from '@/components/common/Footer.vue'
 import Header from '@/components/common/header/Header.vue';
 import LoginModal from '@/components/common/login/LoginModal.vue';
-import { useUIStore } from '@/store/ui.store';
+import { useUIStore } from '@/stores/ui.store';
 import { ref } from 'vue';
 
 const ui = useUIStore()

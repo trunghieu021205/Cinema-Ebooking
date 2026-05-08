@@ -23,19 +23,6 @@ public final class RoomExceptions {
                 "Room not found: " + id);
     }
 
-    // ================== DUPLICATE ==================
-
-    public static BaseException duplicateRoomName(String name) {
-        return new BaseException(ErrorCode.ROOM_ALREADY_EXISTS,
-                "Room already exist with: " + name);
-    }
-
-    public static BaseException duplicateRoomInCinema(String name, Long cinemaId) {
-        return new BaseException(ErrorCode.ROOM_ALREADY_EXISTS,
-                "Room already exists with name: " + name + " in cinema: " + cinemaId
-        );
-    }
-
     // ================== BUSINESS RULE ==================
 
     public static BaseException inactiveRoom(RoomId id) {
@@ -44,13 +31,4 @@ public final class RoomExceptions {
         );
     }
 
-    public static BaseException invalidCapacity(Integer seats) {
-        String message = "Room capacity must not be null";
-        if(seats != null) {
-            message = "Room capacity must be positive";
-        }
-        return CommonExceptions.invalidInput(
-                message
-        );
-    }
 }

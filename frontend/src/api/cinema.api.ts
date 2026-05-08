@@ -4,9 +4,8 @@ import type {
   CinemaResponse,
   CreateCinemaRequest,
   UpdateCinemaRequest,
-  Page,
 } from '@/cinema/types/cinema'
-
+import type { Page } from '@/types/common.types'
 export const cinemaApi = {
 
   // GET /api/v1/cinemas?page=0&size=8

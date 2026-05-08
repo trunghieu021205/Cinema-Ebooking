@@ -21,11 +21,3 @@ export interface UpdateCinemaRequest {
   status: CinemaStatus
 }
 
-// Spring Data Page wrapper
-export interface Page<T> {
-  content: T[]
-  totalElements: number
-  totalPages: number
-  number: number   // current page (0-indexed)
-  size: number
-}

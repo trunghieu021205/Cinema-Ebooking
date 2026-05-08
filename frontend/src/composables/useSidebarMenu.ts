@@ -35,6 +35,18 @@ export function useSidebarMenu(adminPath = '/admin') {
         const sidebarChildren = route.children?.filter((c) => c.meta?.sidebar)
 
         if (sidebarChildren?.length) {
+          // Chỉ 1 child có sidebar meta → unwrap thành direct link
+          // Tránh render SidebarGroup với duy nhất 1 item không có ý nghĩa
+          if (sidebarChildren.length === 1) {
+            return {
+              key: route.path,
+              label,
+              icon,
+              to: router.resolve({ name: sidebarChildren[0].name }).path,
+            }
+          }
+
+          // Nhiều hơn 1 → group bình thường
           return {
             key: route.path,
             label,
@@ -42,7 +54,6 @@ export function useSidebarMenu(adminPath = '/admin') {
             children: sidebarChildren.map((child) => ({
               key: String(child.name ?? child.path),
               label: (child.meta!.sidebar as { label: string }).label,
-              // router.resolve để lấy path tuyệt đối, tránh nối string thủ công
               to: router.resolve({ name: child.name }).path,
             })),
           }
