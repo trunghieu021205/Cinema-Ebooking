@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -37,4 +38,6 @@ public interface UserCouponJpaRepository extends SoftDeleteJpaRepository<UserCou
     Page<UserCouponJpaEntity> findByUserIdAndExpiredAtAfter(Long userId, LocalDateTime now, Pageable pageable);
 
     Page<UserCouponJpaEntity> findByUserIdAndUsageRemainGreaterThan(Long userId, Integer usageRemain, Pageable pageable);
+
+    List<UserCouponJpaEntity> findByStatusAndExpiredAtBefore(UserCouponStatus status, LocalDateTime dateTime);
 }
