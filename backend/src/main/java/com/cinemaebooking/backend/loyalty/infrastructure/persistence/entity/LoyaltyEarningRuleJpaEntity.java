@@ -43,7 +43,16 @@ import java.math.BigDecimal;
  * @since 2026
  */
 @Entity
-@Table(name = "loyalty_earning_rules")
+@Table(
+        name = "loyalty_earning_rules",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_loyalty_earning_rules_membership_tier_id_earning_type_deleted",
+                        columnNames = {"membership_tier_id", "earning_type", "deleted"}
+                )
+        }
+)
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -102,4 +111,8 @@ public class LoyaltyEarningRuleJpaEntity extends BaseJpaEntity {
      */
     @Column(nullable = false)
     private Integer priority = 0;
+    @Override
+    protected void beforeSoftDelete() {
+        this.earningType = markDeleted(this.earningType);
+    }
 }
