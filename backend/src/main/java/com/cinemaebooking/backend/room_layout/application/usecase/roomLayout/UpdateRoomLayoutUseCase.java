@@ -42,20 +42,17 @@ public class UpdateRoomLayoutUseCase {
             throw CommonExceptions.invalidInput("updates", ErrorCategory.REQUIRED,"updates must not be empty");
         }
 
-        RoomLayout currentLayout = roomLayoutRepository.findCurrentByRoomIdAndDate(roomId, LocalDate.now())
-                .orElseThrow(() -> RoomLayoutExceptions.noCurrentLayout(roomId, LocalDate.now()));
-        Long currentLayoutId = currentLayout.getId().getValue();
-
         RoomLayout latestLayout = roomLayoutRepository.findLatestByRoomId(roomId)
                 .orElseThrow(() -> RoomLayoutExceptions.noLayoutFound(roomId));
+        Long latestLayoutId = latestLayout.getId().getValue();
 
-        if (effectiveDate.isBefore(latestLayout.getEffectiveDate())) {
+        if (effectiveDate.isBefore(latestLayout.getEffectiveDate()) || effectiveDate.equals(latestLayout.getEffectiveDate())) {
             throw RoomLayoutExceptions.effectiveDateTooEarly(effectiveDate, latestLayout.getEffectiveDate());
         }
 
-        // 1. Lấy tất cả ghế liên quan trong layout hiện tại để xử lý
-        List<RoomLayoutSeat> allSeatsInCurrentLayout = seatRepository.findByRoomLayoutId(currentLayoutId);
-        Map<Long, RoomLayoutSeat> seatMap = allSeatsInCurrentLayout.stream()
+        // 1. Lấy tất cả ghế liên quan trong layout để xử lý
+        List<RoomLayoutSeat> allSeatsInLatestLayout = seatRepository.findByRoomLayoutId(latestLayoutId);
+        Map<Long, RoomLayoutSeat> seatMap = allSeatsInLatestLayout.stream()
                 .collect(Collectors.toMap(s -> s.getId().getValue(), s -> s));
 
         Map<Long, RoomLayoutCopyService.SeatChange> changeMap = new HashMap<>();
@@ -83,7 +80,7 @@ public class UpdateRoomLayoutUseCase {
 
         // 3. Xử lý ghế đôi (couple)
         // 3a. Map coupleGroupId -> list seats
-        Map<Long, List<RoomLayoutSeat>> coupleGroupMap = allSeatsInCurrentLayout.stream()
+        Map<Long, List<RoomLayoutSeat>> coupleGroupMap = allSeatsInLatestLayout.stream()
                 .filter(s -> s.getCoupleGroupId() != null)
                 .collect(Collectors.groupingBy(RoomLayoutSeat::getCoupleGroupId));
 
@@ -156,7 +153,7 @@ public class UpdateRoomLayoutUseCase {
         }
 
         // 4. Tạo layout mới
-        RoomLayout newLayout = copyService.createNextLayout(currentLayout, effectiveDate, changeMap, roomType);
+        RoomLayout newLayout = copyService.createNextLayout(latestLayout, effectiveDate, changeMap, roomType);
         roomLayoutRepository.create(newLayout);
 
         return new BulkUpdateResponse(changeMap.size(), errors);
