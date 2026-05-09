@@ -9,10 +9,12 @@ import com.cinemaebooking.backend.room_layout.application.dto.roomLayoutSeat.Sea
 import com.cinemaebooking.backend.room_layout.application.port.roomLayout.RoomLayoutRepository;
 import com.cinemaebooking.backend.room_layout.application.port.roomLayoutSeat.RoomLayoutSeatRepository;
 import com.cinemaebooking.backend.room_layout.application.port.seatType.SeatTypeRepository;
+import com.cinemaebooking.backend.room_layout.domain.enums.SeatStatus;
 import com.cinemaebooking.backend.room_layout.domain.model.roomLayout.RoomLayout;
 import com.cinemaebooking.backend.room_layout.domain.model.roomLayoutSeat.RoomLayoutSeat;
 import com.cinemaebooking.backend.room_layout.domain.service.RoomLayoutCopyService;
 import com.cinemaebooking.backend.room_layout.domain.valueObject.seatType.SeatTypeId;
+import com.cinemaebooking.backend.showtime.application.port.ShowtimeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +30,7 @@ public class UpdateRoomLayoutUseCase {
     private final RoomLayoutRepository roomLayoutRepository;
     private final RoomLayoutSeatRepository seatRepository;
     private final SeatTypeRepository seatTypeRepository;
+    private final ShowtimeRepository showtimeRepository;
     private final RoomLayoutCopyService copyService;
 
     @Transactional
@@ -43,12 +46,33 @@ public class UpdateRoomLayoutUseCase {
                 .orElseThrow(() -> RoomLayoutExceptions.noLayoutFound(roomId));
         Long latestLayoutId = latestLayout.getId().getValue();
 
-        if (effectiveDate.isBefore(latestLayout.getEffectiveDate()) || effectiveDate.equals(latestLayout.getEffectiveDate())) {
-            throw RoomLayoutExceptions.effectiveDateTooEarly(effectiveDate, latestLayout.getEffectiveDate());
-        }
-
         boolean roomTypeChanged = !roomType.equals(latestLayout.getRoomType());
         boolean hasSeatUpdates = updates != null && !updates.isEmpty();
+
+        boolean isUsed = showtimeRepository.existsByRoomLayoutId(latestLayoutId);
+
+        if (isUsed) {
+            if (effectiveDate.isBefore(latestLayout.getEffectiveDate()) || effectiveDate.equals(latestLayout.getEffectiveDate())) {
+                throw RoomLayoutExceptions.effectiveDateTooEarly(effectiveDate, latestLayout.getEffectiveDate());
+            }
+        }else{
+            Integer currentVersion = latestLayout.getLayoutVersion();
+            if (currentVersion > 1) {
+                // Có version trước (version - 1)
+                RoomLayout previousLayout = roomLayoutRepository.findByRoomIdAndLayoutVersion(roomId, currentVersion - 1)
+                        .orElseThrow(() -> new IllegalStateException("Previous version not found but version > 1"));
+                if (effectiveDate.isBefore(previousLayout.getEffectiveDate())) {
+                    throw CommonExceptions.invalidInput("effectiveDate", ErrorCategory.INVALID_VALUE,
+                            String.format("Effective date cannot be earlier than previous version's effective date (%s)", previousLayout.getEffectiveDate()));
+                }
+            } else {
+                // Là version đầu tiên (version 1)
+                if (effectiveDate.isBefore(LocalDate.now())) {
+                    throw CommonExceptions.invalidInput("effectiveDate", ErrorCategory.INVALID_VALUE,
+                            "Effective date cannot be in the past for the first layout version");
+                }
+            }
+        }
 
         if (!roomTypeChanged && !hasSeatUpdates) {
             throw CommonExceptions.invalidInput("updates", ErrorCategory.REQUIRED,
@@ -87,7 +111,6 @@ public class UpdateRoomLayoutUseCase {
                     .filter(s -> s.getCoupleGroupId() != null)
                     .collect(Collectors.groupingBy(RoomLayoutSeat::getCoupleGroupId));
 
-            // 3b. Trường hợp chuyển thành ghế đôi (newTypeId == 3)
             Set<Long> additionalSeatIds = new HashSet<>();
             for (Map.Entry<Long, RoomLayoutCopyService.SeatChange> entry : new HashMap<>(changeMap).entrySet()) {
                 Long seatId = entry.getKey();
@@ -151,10 +174,46 @@ public class UpdateRoomLayoutUseCase {
             }
         }
 
-        RoomLayout newLayout = copyService.createNextLayout(latestLayout, effectiveDate, changeMap, roomType);
-        roomLayoutRepository.create(newLayout);
 
-        return new BulkUpdateResponse(changeMap.size(), errors);
+
+        if (!isUsed){
+            // ========== CẬP NHẬT TRỰC TIẾP (IN-PLACE) ==========
+            latestLayout.setRoomType(roomType);
+            latestLayout.setEffectiveDate(effectiveDate);
+            roomLayoutRepository.update(latestLayout);  // hoặc save(latestLayout) nếu là JPA
+
+            // Cập nhật từng ghế (nếu có thay đổi)
+            if (!changeMap.isEmpty()) {
+                // Lấy lại danh sách ghế hiện tại (có thể dùng seatMap đã có từ trên)
+                // Nhưng seatMap đã được tạo từ đầu, ta có thể dùng lại nếu đảm bảo không bị thay đổi
+                // Tuy nhiên để an toàn, lấy lại từ DB hoặc dùng seatMap đã có
+                List<RoomLayoutSeat> currentSeats = seatRepository.findByRoomLayoutId(latestLayoutId);
+                Map<Long, RoomLayoutSeat> seatMapForUpdate = currentSeats.stream()
+                        .collect(Collectors.toMap(s -> s.getId().getValue(), s -> s));
+
+                for (Map.Entry<Long, RoomLayoutCopyService.SeatChange> entry : changeMap.entrySet()) {
+                    Long seatId = entry.getKey();
+                    RoomLayoutSeat seat = seatMapForUpdate.get(seatId);
+                    if (seat == null) continue;
+                    RoomLayoutCopyService.SeatChange change = entry.getValue();
+                    if (change.newStatus() != null) {
+                        if (change.newStatus() == SeatStatus.ACTIVE) seat.markActive();
+                        else seat.markInactive();
+                    }
+                    if (change.newSeatTypeId() != null) {
+                        seat.setSeatTypeId(change.newSeatTypeId());
+                    }
+                    seatRepository.save(seat);
+                }
+            }
+
+            return new BulkUpdateResponse(changeMap.size(), Collections.emptyList());
+            }else{
+                RoomLayout newLayout = copyService.createNextLayout(latestLayout, effectiveDate, changeMap, roomType);
+                roomLayoutRepository.create(newLayout);
+
+                return new BulkUpdateResponse(changeMap.size(), errors);
+            }
     }
 
 }

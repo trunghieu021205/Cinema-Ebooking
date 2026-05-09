@@ -7,6 +7,7 @@ import com.cinemaebooking.backend.room.domain.enums.RoomType;
 import com.cinemaebooking.backend.room_layout.domain.model.roomLayoutSeat.RoomLayoutSeat;
 import com.cinemaebooking.backend.room_layout.domain.valueObject.roomLayout.RoomLayoutId;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
@@ -23,8 +24,9 @@ public class RoomLayout extends BaseEntity<RoomLayoutId> {
 
     private Integer layoutVersion;
 
+    @Setter
     private RoomType roomType;
-
+    @Setter
     private LocalDate effectiveDate;
 
     private Integer totalRows;

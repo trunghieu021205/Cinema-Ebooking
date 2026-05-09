@@ -48,6 +48,15 @@ public class RoomLayoutRepositoryImpl implements RoomLayoutRepository {
     }
 
     @Override
+    public void update(RoomLayout layout) {
+        var oldEntity = jpaRepository.findByIdOrThrow(layout.getId().getValue());
+
+        oldEntity.setRoomType(layout.getRoomType());
+        oldEntity.setEffectiveDate(layout.getEffectiveDate());
+
+    }
+
+    @Override
     public Optional<RoomLayout> findById(RoomLayoutId id) {
         return jpaRepository.findById(id.getValue())
                 .map(entity -> {

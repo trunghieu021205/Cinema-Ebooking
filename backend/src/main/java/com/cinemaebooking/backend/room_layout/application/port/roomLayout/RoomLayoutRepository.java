@@ -11,6 +11,8 @@ public interface RoomLayoutRepository {
 
     RoomLayout create(RoomLayout roomLayout);
 
+    void update(RoomLayout roomLayout);
+
     Optional<RoomLayout> findById(RoomLayoutId id);
 
     Optional<RoomLayout> findCurrentByRoomIdAndDate(Long roomId, LocalDate date);
