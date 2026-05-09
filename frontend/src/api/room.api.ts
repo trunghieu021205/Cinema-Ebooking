@@ -1,11 +1,11 @@
 import apiClient from '@/api/axios'
 import type { RoomResponse, CreateRoomRequest, UpdateRoomRequest } from '@/types/room'
-import type { Page } from '@/types/common.types'
+import type { NestedPage } from '@/types/common.types'
 
 export const roomApi = {
 
   getListByCinema: (cinemaId: number, page = 0, size = 8) =>
-    apiClient.get<Page<RoomResponse>>(`/rooms/cinema/${cinemaId}`, {
+    apiClient.get<NestedPage<RoomResponse>>(`/rooms/cinema/${cinemaId}`, {
       params: { page, size, sort: 'id,desc' },
     }),
 

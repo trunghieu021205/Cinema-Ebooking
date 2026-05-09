@@ -5,14 +5,14 @@ import type {
   UpdateShowtimeRequest,
   ShowtimeFormatResponse,
 } from '@/types/showtime'
-import type { Page } from '@/types/common.types'
+import type { NestedPage } from '@/types/common.types'
 
 // ─── Showtime API ─────────────────────────────────────────────────────────────
 export const showtimeApi = {
 
   // GET /api/v1/showtimes?roomId=X&page=0&size=8
   getListByRoom: (roomId: number, page = 0, size = 8) =>
-    apiClient.get<Page<ShowtimeResponse>>('/showtimes', {
+    apiClient.get<NestedPage<ShowtimeResponse>>('/showtimes', {
       params: { roomId, page, size, sort: 'startTime,desc' },
     }),
 

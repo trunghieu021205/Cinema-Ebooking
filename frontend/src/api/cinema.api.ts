@@ -5,12 +5,12 @@ import type {
   CreateCinemaRequest,
   UpdateCinemaRequest,
 } from '@/cinema/types/cinema'
-import type { Page } from '@/types/common.types'
+import type { NestedPage } from '@/types/common.types'
 export const cinemaApi = {
 
   // GET /api/v1/cinemas?page=0&size=8
   getList: (page = 0, size = 8) =>
-    apiClient.get<Page<CinemaResponse>>(`/cinemas`, { params: { page, size, sort: 'id,desc' } }),
+    apiClient.get<NestedPage<CinemaResponse>>(`/cinemas`, { params: { page, size, sort: 'id,desc' } }),
 
   // GET /api/v1/cinemas/{id}
   getById: (id: number) =>
