@@ -61,7 +61,6 @@ public class UpdateRoomUseCase {
     private void applyUpdate(Room room, UpdateRoomRequest request) {
         room.update(
                 request.getName(),
-                request.getRoomType(),
                 request.getStatus()
         );
     }

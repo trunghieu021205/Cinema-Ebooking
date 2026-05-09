@@ -1,5 +1,5 @@
 export type SeatStatus = 'ACTIVE' | 'INACTIVE'
-
+import type { RoomType } from "@types/room"
 export interface SeatResponse {
   id:            number
   rowIndex:      number
@@ -14,7 +14,7 @@ export interface SeatResponse {
 export interface RoomLayoutResponse {
   id:             number
   layoutVersion: number
-  roomType:      "TYPE_2D" | "TYPE_3D" | "IMAX"
+  roomType:      RoomType
   effectiveDate:  string      
   totalRows:      number
   totalCols:      number
@@ -28,7 +28,7 @@ export interface SeatUpdateRequest {
 
 export interface UpdateRoomLayoutRequest {
   effectiveDate: string  
-  roomType:      "TYPE_2D" | "TYPE_3D" | "IMAX"
+  roomType:      RoomType
   updates:       SeatUpdateRequest[]
 }
 
@@ -36,7 +36,7 @@ export interface UpdateRoomLayoutRequest {
 export interface RoomLayoutSummaryResponse {
   id:            number
   layoutVersion: number
-  roomType:      "TYPE_2D" | "TYPE_3D" | "IMAX"
+  roomType:      RoomType
   effectiveDate: string
   totalRows:     number
   totalCols:     number

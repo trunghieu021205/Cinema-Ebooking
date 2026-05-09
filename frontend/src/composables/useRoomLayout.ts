@@ -11,6 +11,8 @@ export function useRoomLayout() {
   const selectedVersionId = ref<number | null>(null)
   const selectedVersion = ref<RoomLayoutSummaryResponse | null>(null) 
 
+  const selectedRoomType = ref<string>('TYPE_2D')
+
   const today = computed(() => {
     const d = new Date();
     const year = d.getFullYear();
@@ -29,7 +31,12 @@ export function useRoomLayout() {
     }
   }, { immediate: true })
 
-
+  watch(layout, (newLayout) => {
+  if (newLayout) {
+    selectedRoomType.value = newLayout.roomType
+  }
+  })
+  
   async function fetchLayout(roomId: number, date?: string) {
     isLoading.value = true
     error.value = null
@@ -121,5 +128,7 @@ export function useRoomLayout() {
     onViewDateChange,
     goToVersion,
     syncSelectedVersion,
+
+    selectedRoomType,
   }
 }

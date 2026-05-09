@@ -129,7 +129,6 @@ export function useRoom(cinemaId: number) {
     clearErrors()
     const body: UpdateRoomRequest = {
       name:     item.name,
-      roomType: item.roomType,
       status:   item.status,
     }
     try {

@@ -22,6 +22,5 @@ export interface CreateRoomRequest {
 
 export interface UpdateRoomRequest {
   name:     string
-  roomType: RoomType
   status:   RoomStatus
 }

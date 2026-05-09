@@ -27,6 +27,7 @@
                 <h1 class="text-lg font-semibold text-text-admin-primary">Sơ đồ ghế</h1>
                 <p v-if="layout" class="text-sm text-text-admin-tertiary">
                     {{ layout.totalRows }} hàng × {{ layout.totalCols }} cột
+                    <span class="font-medium">{{ formatRoomType(layout.roomType) }}</span>
                 </p>
             </div>
         </div>
@@ -70,7 +71,8 @@
                 <select v-model="selectedVersionId" @change="goToVersion(roomId)"
                     class="text-sm border rounded-lg px-2.5 py-1.5 bg-white shadow-sm text-slate-700 outline-none cursor-pointer hover:border-slate-400 transition-colors">
                     <option v-for="v in layoutVersions" :key="v.id" :value="v.id">
-                        v{{ v.layoutVersion }} · {{ formatDateTime(v.effectiveDate, false) }}
+                        v{{ v.layoutVersion }} · {{ formatRoomType(v.roomType) }} · {{ formatDateTime(v.effectiveDate,
+                            false) }}
                         {{ v.id === layout?.id ? '(hiện tại)' : '' }}
                     </option>
                 </select>
@@ -83,12 +85,50 @@
 
         </div>
 
+        <!-- Thanh công cụ áp dụng thay đổi (chỉ hiện khi là phiên bản mới nhất) -->
+        <div v-if="isLatestLayout" class="pr-6 mt-4 bg-white border border-slate-200 rounded-lg p-3 shadow-sm">
+            <div class="flex items-center gap-3 flex-wrap">
+                <div>
+                    <label class="text-sm font-medium text-slate-700">Ngày hiệu lực:</label>
+                    <input type="date" v-model="effectiveDate" class="ml-2 border rounded px-2 py-1 text-sm" />
+                </div>
+                <div>
+                    <label class="text-sm font-medium text-slate-700">Loại phòng:</label>
+                    <select v-model="selectedRoomType" class="ml-2 border rounded px-2 py-1 text-sm">
+                        <option :value="layout?.roomType">Giữ nguyên ({{ formatRoomType(layout?.roomType) }})</option>
+                        <option v-for="type in roomTypes" :key="type.value" :value="type.value">{{ type.label }}
+                        </option>
+                    </select>
+                </div>
+                <BaseButton variant="primary" @click="applyAllChanges(roomId)" :disabled="!hasChanges">
+                    Áp dụng tất cả
+                </BaseButton>
+            </div>
+
+            <!-- Thông báo lỗi nếu có -->
+            <div v-if="applyError" class="mt-3 bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">
+                <p class="font-semibold mb-1">Không thể áp dụng thay đổi</p>
+                <ul v-if="applyError.globalErrors?.length" class="list-disc list-inside mb-1">
+                    <li v-for="(msg, idx) in applyError.globalErrors" :key="idx">{{ msg }}</li>
+                </ul>
+                <ul v-if="applyError.fieldErrors && Object.keys(applyError.fieldErrors).length"
+                    class="list-disc list-inside">
+                    <li v-for="(msg, field) in applyError.fieldErrors" :key="field">
+                        <span class="font-mono text-xs bg-red-100 px-1 rounded">{{ field }}</span>: {{ msg }}
+                    </li>
+                </ul>
+                <p v-if="!applyError.globalErrors?.length && !applyError.fieldErrors && applyError.message"
+                    class="mt-1">
+                    {{ applyError.message }}
+                </p>
+            </div>
+        </div>
+
         <!-- Pending changes panel -->
-        <div v-if="hasChanges" class="pr-6 mt-4 bg-amber-50 border border-amber-200 rounded-lg p-3">
+        <div v-if="changeList.length > 0" class="pr-6 mt-4 bg-amber-50 border border-amber-200 rounded-lg p-3">
             <div class="flex justify-between items-center">
-                <h3 class="font-semibold text-amber-800">Thay đổi đang chờ ({{ changeList.length }})</h3>
-                <button @click="clearAll()" class="text-xs text-red-500 hover:underline">Xóa tất
-                    cả</button>
+                <h3 class="font-semibold text-amber-800">Thay đổi ghế đang chờ ({{ changeList.length }})</h3>
+                <button @click="clearAll()" class="text-xs text-red-500 hover:underline">Xóa tất cả</button>
             </div>
             <div class="mt-2 flex flex-wrap gap-2 max-h-32 overflow-auto p-1">
                 <div v-for="group in groupedChangeList" :key="group.seatIds.join(',')"
@@ -111,38 +151,6 @@
                     <button @click="group.seatIds.forEach(id => removeChange(id))"
                         class="ml-1 text-red-400 hover:text-red-600 text-xs leading-none">✕</button>
                 </div>
-            </div>
-            <div class="mt-3 flex gap-3 items-end">
-                <div>
-                    <label class="text-sm font-medium">Ngày hiệu lực:</label>
-                    <input type="date" v-model="effectiveDate" class="ml-2 border rounded px-2 py-1 text-sm" />
-                </div>
-                <BaseButton variant="primary" @click="applyAllChanges(roomId)"
-                    :disabled="!hasChanges || !effectiveDate">
-                    Áp dụng tất cả
-                </BaseButton>
-            </div>
-            <div v-if="applyError" class="mt-3 bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">
-                <p class="font-semibold mb-1">Không thể áp dụng thay đổi</p>
-
-                <!-- Lỗi chung / global -->
-                <ul v-if="applyError.globalErrors?.length" class="list-disc list-inside mb-1">
-                    <li v-for="(msg, idx) in applyError.globalErrors" :key="idx">{{ msg }}</li>
-                </ul>
-
-                <!-- Lỗi gắn với field (nếu có) -->
-                <ul v-if="applyError.fieldErrors && Object.keys(applyError.fieldErrors).length"
-                    class="list-disc list-inside">
-                    <li v-for="(msg, field) in applyError.fieldErrors" :key="field">
-                        <span class="font-mono text-xs bg-red-100 px-1 rounded">{{ field }}</span>: {{ msg }}
-                    </li>
-                </ul>
-
-                <!-- Fallback nếu chỉ có message -->
-                <p v-if="!applyError.globalErrors?.length && !applyError.fieldErrors && applyError.message"
-                    class="mt-1">
-                    {{ applyError.message }}
-                </p>
             </div>
         </div>
 
@@ -234,7 +242,7 @@ roomApi.getById(roomId)
 
 // Layout data
 const { layout, isLoading, error, fetchLayout, layoutVersions, viewDate, selectedVersionId, selectedVersion, latestLayout, isLatestLayout, today,
-    fetchLayoutHistory, fetchCurrentLayout, onViewDateChange, goToVersion, syncSelectedVersion } = useRoomLayout()
+    fetchLayoutHistory, fetchCurrentLayout, onViewDateChange, goToVersion, syncSelectedVersion, selectedRoomType } = useRoomLayout()
 
 const effectiveDate = ref(today.value)
 
@@ -252,7 +260,7 @@ const {
     hasChanges,
     changeList,
     applyAllChanges,
-} = useApplyLayoutChanges(layout, effectiveDate, fetchLayout, fetchLayoutHistory, syncSelectedVersion)
+} = useApplyLayoutChanges(layout, effectiveDate, fetchLayout, fetchLayoutHistory, syncSelectedVersion, selectedRoomType)
 
 
 const formatDateTime = (dateStr?: string | null, includeTime: boolean = true): string => {
@@ -273,6 +281,16 @@ const formatDateTime = (dateStr?: string | null, includeTime: boolean = true): s
     const seconds = d.getSeconds().toString().padStart(2, '0')
     return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`
 }
+
+function formatRoomType(type: string) {
+    return type === 'TYPE_2D' ? '2D' : type === 'TYPE_3D' ? '3D' : type === 'IMAX' ? 'IMAX' : type;
+}
+
+const roomTypes = [
+    { label: '2D', value: 'TYPE_2D' },
+    { label: '3D', value: 'TYPE_3D' },
+    { label: 'IMAX', value: 'IMAX' },
+];
 
 const getTypeLabel = (typeId: number) => SEAT_TYPE_CONFIGS[typeId]?.label || `Loại ${typeId}`
 

@@ -22,10 +22,9 @@ public class Room extends BaseEntity<RoomId> {
 
     // ================== BUSINESS METHODS ==================
 
-    public void update(String name, RoomType roomType, RoomStatus status) {
-        validate(name, roomType, status);
+    public void update(String name, RoomStatus status) {
+        validate(name, status);
         this.name = name;
-        this.roomType = roomType;
         this.status = status;
     }
 
@@ -53,15 +52,10 @@ public class Room extends BaseEntity<RoomId> {
 
     // ================== VALIDATION ==================
 
-    private void validate(String name, RoomType roomType, RoomStatus status) {
+    private void validate(String name, RoomStatus status) {
         if (name == null || name.trim().isEmpty()) {
             throw com.cinemaebooking.backend.common.exception.domain.CommonExceptions
                     .invalidInput("name", ErrorCategory.REQUIRED,"Room name must not be empty");
-        }
-
-        if (roomType == null) {
-            throw com.cinemaebooking.backend.common.exception.domain.CommonExceptions
-                    .invalidInput("roomType", ErrorCategory.REQUIRED,"Room type must not be null");
         }
 
         validateStatus(status);

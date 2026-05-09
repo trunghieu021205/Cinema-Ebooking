@@ -20,9 +20,10 @@ export function useApplyLayoutChanges(
   effectiveDate: Ref<string>,
   fetchLayout: (roomId: number, date?: string) => Promise<void>,
   fetchLayoutHistory: (roomId: number) => Promise<void>,
-  syncSelectedVersion: () => void
+  syncSelectedVersion: () => void,
+  selectedRoomType?: Ref<string>
 ) {
-  const { changes, addChange, removeChange, clearAll, hasChanges, changeList } = usePendingChanges()
+  const { changes, addChange, removeChange, clearAll, hasChanges: hasSeatChanges, changeList } = usePendingChanges()
 
   const applyError = ref<MappedError | null>(null)
     
@@ -33,7 +34,13 @@ export function useApplyLayoutChanges(
         if (seat) return seat
     }
     return undefined
-  }
+    }
+    
+  const hasChanges = computed(() => {
+    if (hasSeatChanges.value) return true
+    if (layout.value && selectedRoomType.value !== layout.value.roomType) return true
+    return false
+  })
     
 
   function addChangeSmart(seatId: number, newStatus?: SeatStatus | null, newSeatTypeId?: number | null) {
@@ -150,11 +157,10 @@ export function useApplyLayoutChanges(
       })
       processed.add(change.seatId)
       }
-      console.log('Grouped changes:', groups) // debug log
     return groups
   })
 
-  const pendingSeatIds = computed(() => changeList.value.map(c => c.seatId))
+    const pendingSeatIds = computed(() => changeList.value.map(c => c.seatId))
 
   const previewLayout = computed(() => {
     if (!layout.value || changeList.value.length === 0) return layout.value
@@ -185,10 +191,11 @@ export function useApplyLayoutChanges(
       newStatus: change.newStatus,
       newSeatTypeId: change.newSeatTypeId,
     }))
-    try {
+      try {
+      console.log('Applying changes:', selectedRoomType.value, updates)
       await layoutApi.updateLayoutSeats(roomId, {
         effectiveDate: effectiveDate.value,
-        roomType: layout.value?.roomType || 'TYPE_2D',
+        roomType: selectedRoomType.value,
         updates,
       })
       clearAll()
