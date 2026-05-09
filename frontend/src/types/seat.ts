@@ -1,50 +1,54 @@
 export type SeatStatus = 'ACTIVE' | 'INACTIVE'
 
 export interface SeatResponse {
-  id:         number
-  rowIndex:   number
-  colIndex:   number
-  label:      string
-  status:     SeatStatus
-  seatTypeId: number
-  roomId:     number
+  id:            number
+  rowIndex:      number
+  colIndex:      number
+  label:         string
+  status:        SeatStatus
+  seatTypeId:    number
+  roomLayoutId:  number     
+  coupleGroupId: number | null
 }
 
 export interface RoomLayoutResponse {
-  rows:      SeatResponse[][]  // rows[rowIndex][colIndex]
-  totalRows: number
-  totalCols: number
+  id:             number
+  layoutVersion: number
+  roomType:      "TYPE_2D" | "TYPE_3D" | "IMAX"
+  effectiveDate:  string      
+  totalRows:      number
+  totalCols:      number
+  rows:           SeatResponse[][]
+}
+export interface SeatUpdateRequest {
+  seatId:         number
+  newStatus?:     SeatStatus | null
+  newSeatTypeId?: number | null
 }
 
-// ==================== BULK UPDATE TYPES ====================
+export interface UpdateRoomLayoutRequest {
+  effectiveDate: string  
+  roomType:      "TYPE_2D" | "TYPE_3D" | "IMAX"
+  updates:       SeatUpdateRequest[]
+}
 
-// Response chung cho tất cả bulk operations
+// Summary dùng cho dropdown chọn phiên bản layout
+export interface RoomLayoutSummaryResponse {
+  id:            number
+  layoutVersion: number
+  roomType:      "TYPE_2D" | "TYPE_3D" | "IMAX"
+  effectiveDate: string
+  totalRows:     number
+  totalCols:     number
+  createdAt:     Date
+}
+
+// Response trả về sau khi bulk-update thành công
 export interface BulkUpdateResponse {
-  successCount: number;
-  errors: BulkError[];
+  updatedCount: number
+  newLayoutId:  number
+  message?:     string
 }
-
-export interface BulkError {
-  seatId: number;
-  reason: string;
-}
-
-// Request cho bulk-update loại ghế
-export interface BulkTypeRequest {
-  seatIds: number[];
-  seatTypeId: number;
-}
-
-// Request cho bulk-activate và bulk-inactivate (chỉ seatIds)
-export interface BulkSeatIdsRequest {
-  seatIds: number[];
-}
-
-// ── Seat type color config ────────────────────────────────────────────────────
-// Sửa key (seatTypeId) cho đúng với giá trị backend trả về.
-// Hiện tại giả định: 1 = STANDARD, 2 = VIP, 3 = COUPLE.
-// bg / border / text là Tailwind utility classes → đổi màu ở đây.
-
 export interface SeatTypeStyle {
   label:  string
   bg:     string   // background khi ACTIVE

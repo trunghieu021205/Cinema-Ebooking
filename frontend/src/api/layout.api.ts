@@ -1,22 +1,21 @@
-import apiClient from '@/api/axios'
-import type { RoomLayoutResponse, BulkUpdateResponse, BulkSeatIdsRequest,BulkTypeRequest  } from '@/types/seat'
+import apiClient from './axios'
+import type {
+  RoomLayoutResponse,
+  RoomLayoutSummaryResponse,
+  BulkUpdateResponse,
+  UpdateRoomLayoutRequest,
+} from '@/types/seat'
 
 export const layoutApi = {
+  // Lấy layout theo ngày (nếu không có date -> layout hiện tại)
+  getLayout: (roomId: number, date?: string) =>
+    apiClient.get<RoomLayoutResponse>(`/rooms/${roomId}/layout`, { params: date ? { date } : {} }),
 
-  // GET /api/v1/rooms/:roomId/layout
-  // Trả về grid 2D ghế của phòng — dùng cho RoomLayoutPage.
-  getByRoom: (roomId: number) =>
-        apiClient.get<RoomLayoutResponse>(`/rooms/${roomId}/layout`),
-    
-  // Bulk active (không cần roomId)
-  bulkActivate: (data: BulkSeatIdsRequest) =>
-    apiClient.patch<BulkUpdateResponse>(`/seats/bulk-activate`, data),
+  // Lấy danh sách các phiên bản layout (để hiển thị hint)
+  getLayoutHistory: (roomId: number) =>
+    apiClient.get<RoomLayoutSummaryResponse[]>(`/rooms/${roomId}/layouts`),
 
-  // Bulk inactive
-  bulkInactivate: (data: BulkSeatIdsRequest) =>
-    apiClient.patch<BulkUpdateResponse>(`/seats/bulk-inactivate`, data),
-
-  // Bulk update seat type
-  bulkUpdateSeatType: (data: BulkTypeRequest) =>
-    apiClient.patch<BulkUpdateResponse>(`/seats/bulk-type`, data),
+  // Tạo layout mới với các thay đổi
+  updateLayoutSeats: (roomId: number, data: UpdateRoomLayoutRequest) =>
+    apiClient.post<BulkUpdateResponse>(`/rooms/${roomId}/layouts/update`, data),
 }

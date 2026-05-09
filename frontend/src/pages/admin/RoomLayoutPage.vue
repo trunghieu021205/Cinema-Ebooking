@@ -44,37 +44,176 @@
             </div>
         </div>
 
-        <!-- Grid và Panel (cùng hàng, flex) -->
-        <div v-else-if="layout" class="relative pr-6">
-            <div class="flex gap-6">
-                <!-- Seat map container (để gắn drag-select) -->
-                <div ref="gridContainer" class="flex-1 overflow-x-auto">
-                    <SeatGrid ref="seatGridRef" :layout="layout" :config="adminSeatGridConfig"
-                        :selected-ids="Array.from(selectedIds)" @seat-click="handleSeatClick"
-                        @couple-click="handleCoupleClick" />
-                </div>
+        <!-- Thanh công cụ xem layout theo ngày và phiên bản -->
+        <div class="flex items-center gap-2 pr-6 mt-4">
 
-                <!-- Panel chỉnh sửa (hiện khi có ghế chọn) -->
-                <AdminSeatPanel v-if="selectedIds.size > 0" :room-id="roomId" :selected-seat-ids="selectedIds"
-                    @update-success="refreshAfterUpdate" @clear-selection="clearSelection" />
+            <!-- Date input -->
+            <div class="flex items-center gap-1.5 border rounded-lg px-2.5 py-1.5 bg-white shadow-sm">
+                <CalendarDays class="size-3.5 text-slate-400 shrink-0" />
+                <input type="date" v-model="viewDate" @change="onViewDateChange(roomId)"
+                    class="text-sm text-slate-700 outline-none w-32 bg-transparent" />
+            </div>
+
+            <!-- Nút "Hôm nay" — tiện ích nhỏ, reset về layout hiện tại -->
+            <button @click="fetchCurrentLayout(roomId)" title="Xem layout hôm nay"
+                class="flex items-center gap-1 px-2 py-1.5 text-xs text-slate-500 border rounded-lg bg-white shadow-sm hover:bg-slate-50 hover:text-slate-700 transition-colors">
+                <RotateCcw class="size-3" />
+                Hôm nay
+            </button>
+
+            <!-- Divider -->
+            <div class="h-5 w-px bg-slate-200 mx-1" />
+
+            <!-- Version selector — chỉ hiện khi có data -->
+            <div v-if="layoutVersions?.length" class="flex items-center gap-2">
+                <span class="text-xs text-slate-400 font-medium uppercase tracking-wide">Phiên bản</span>
+                <select v-model="selectedVersionId" @change="goToVersion(roomId)"
+                    class="text-sm border rounded-lg px-2.5 py-1.5 bg-white shadow-sm text-slate-700 outline-none cursor-pointer hover:border-slate-400 transition-colors">
+                    <option v-for="v in layoutVersions" :key="v.id" :value="v.id">
+                        v{{ v.layoutVersion }} · {{ formatDateTime(v.effectiveDate, false) }}
+                        {{ v.id === layout?.id ? '(hiện tại)' : '' }}
+                    </option>
+                </select>
+                <span
+                    class="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded whitespace-nowrap flex items-center gap-1">
+                    <Clock12 class="size-3.5" />
+                    Tạo: {{ formatDateTime(selectedVersion?.createdAt, true) }}
+                </span>
+            </div>
+
+        </div>
+
+        <!-- Pending changes panel -->
+        <div v-if="hasChanges" class="pr-6 mt-4 bg-amber-50 border border-amber-200 rounded-lg p-3">
+            <div class="flex justify-between items-center">
+                <h3 class="font-semibold text-amber-800">Thay đổi đang chờ ({{ changeList.length }})</h3>
+                <button @click="clearAll()" class="text-xs text-red-500 hover:underline">Xóa tất
+                    cả</button>
+            </div>
+            <div class="mt-2 flex flex-wrap gap-2 max-h-32 overflow-auto p-1">
+                <div v-for="group in groupedChangeList" :key="group.seatIds.join(',')"
+                    class="inline-flex items-center gap-1 bg-white rounded-full px-2 py-0.5 text-xs border border-amber-200 shadow-sm">
+                    <strong class="text-amber-800">{{ group.labels.join(' ') }}</strong>
+                    <template v-if="group.newStatus != null && group.newSeatTypeId != null">
+                        <span class="text-gray-400">→</span>
+                        <span class="text-green-600 font-medium">{{ group.newStatus }}</span>
+                        <span class="text-gray-400">▪</span>
+                        <span class="text-blue-600">{{ getTypeLabel(group.newSeatTypeId) }}</span>
+                    </template>
+                    <template v-else-if="group.newStatus != null">
+                        <span class="text-gray-400">→</span>
+                        <span class="text-green-600 font-medium">{{ group.newStatus }}</span>
+                    </template>
+                    <template v-else-if="group.newSeatTypeId != null">
+                        <span class="text-gray-400">→</span>
+                        <span class="text-blue-600">{{ getTypeLabel(group.newSeatTypeId) }}</span>
+                    </template>
+                    <button @click="group.seatIds.forEach(id => removeChange(id))"
+                        class="ml-1 text-red-400 hover:text-red-600 text-xs leading-none">✕</button>
+                </div>
+            </div>
+            <div class="mt-3 flex gap-3 items-end">
+                <div>
+                    <label class="text-sm font-medium">Ngày hiệu lực:</label>
+                    <input type="date" v-model="effectiveDate" class="ml-2 border rounded px-2 py-1 text-sm" />
+                </div>
+                <BaseButton variant="primary" @click="applyAllChanges(roomId)"
+                    :disabled="!hasChanges || !effectiveDate">
+                    Áp dụng tất cả
+                </BaseButton>
+            </div>
+            <div v-if="applyError" class="mt-3 bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">
+                <p class="font-semibold mb-1">Không thể áp dụng thay đổi</p>
+
+                <!-- Lỗi chung / global -->
+                <ul v-if="applyError.globalErrors?.length" class="list-disc list-inside mb-1">
+                    <li v-for="(msg, idx) in applyError.globalErrors" :key="idx">{{ msg }}</li>
+                </ul>
+
+                <!-- Lỗi gắn với field (nếu có) -->
+                <ul v-if="applyError.fieldErrors && Object.keys(applyError.fieldErrors).length"
+                    class="list-disc list-inside">
+                    <li v-for="(msg, field) in applyError.fieldErrors" :key="field">
+                        <span class="font-mono text-xs bg-red-100 px-1 rounded">{{ field }}</span>: {{ msg }}
+                    </li>
+                </ul>
+
+                <!-- Fallback nếu chỉ có message -->
+                <p v-if="!applyError.globalErrors?.length && !applyError.fieldErrors && applyError.message"
+                    class="mt-1">
+                    {{ applyError.message }}
+                </p>
             </div>
         </div>
+
+        <div v-if="changeList.length > 0" class="pr-6 mt-2">
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-2 text-xs text-blue-700 flex items-center gap-2">
+                <Eye class="size-3.5" />
+                Đang xem trước layout sau khi áp dụng các thay đổi. Ghế có viền xanh đứt nét sẽ được cập nhật.
+            </div>
+        </div>
+
+        <!-- Loading / Error / Empty states -->
+        <div v-if="isLoading" class="flex items-center justify-center mt-16 text-slate-400 gap-2">
+            <svg class="animate-spin size-5" viewBox="0 0 24 24" fill="none">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+            </svg>
+            Đang tải layout...
+        </div>
+
+        <div v-else-if="error"
+            class="mt-8 mx-auto max-w-md bg-red-50 border border-red-200 rounded-lg p-4 text-sm text-red-700">
+            <p class="font-semibold mb-1">Không thể tải layout</p>
+            <p class="text-red-500">{{ error }}</p>
+            <button @click="fetchLayout(roomId, today.value)" class="mt-3 text-xs underline hover:text-red-800">Thử
+                lại</button>
+        </div>
+
+        <!-- Seat grid (giữ nguyên cấu trúc) -->
+        <div v-if="layout" class="relative pr-6 mt-6">
+            <div ref="gridContainer" class="overflow-x-auto">
+                <SeatGrid ref="seatGridRef" :layout="previewLayout || layout" :config="adminSeatGridConfig"
+                    :disabled="!isLatestLayout" :pending-seat-ids="pendingSeatIds"
+                    :selected-ids="Array.from(selectedIds)" @seat-click="handleSeatClick"
+                    @couple-click="handleCoupleClick" />
+            </div>
+        </div>
+        <div v-if="!isLatestLayout && !isLoading" class="pr-6 mt-2">
+            <div
+                class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm text-amber-800 flex items-start gap-2">
+                <AlertTriangle class="size-4 shrink-0 mt-0.5" />
+                <div>
+                    <strong>Bạn đang xem phiên bản layout cũ (v{{ layout?.layoutVersion }}).</strong><br />
+                    Chỉ có phiên bản mới nhất (v{{ latestLayout?.layoutVersion }}) mới có thể chỉnh sửa.
+                    Vui lòng chọn phiên bản này từ dropdown "Phiên bản" để tiếp
+                    tục.
+                </div>
+            </div>
+        </div>
+        <!-- Admin panel (phiên bản mới) -->
+        <AdminSeatPanel v-if="selectedIds.size > 0 && isLatestLayout" :selected-seat-ids="selectedIds"
+            @apply-change="onApplyChange" @clear-selection="clearSelection" />
 
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ChevronRight } from 'lucide-vue-next'
+import { ChevronRight, CalendarDays, RotateCcw, Clock12, AlertTriangle, Eye } from 'lucide-vue-next'
 import SeatGrid from '@/components/seat/SeatGrid.vue'
 import AdminSeatPanel from '@/components/seat/AdminSeatPanel.vue'
+import BaseButton from '@/components/ui/button/BaseButton.vue'
 import { adminSeatGridConfig } from '@/components/seat/seatGridConfig'
 import { useRoomLayout } from '@/composables/useRoomLayout'
 import { useSeatSelection } from '@/composables/useSeatSelection'
+import { useApplyLayoutChanges } from '@/composables/useApplyLayoutChanges'
 import { roomApi } from '@/api/room.api'
 import { cinemaApi } from '@/api/cinema.api'
-import type { SeatResponse } from '@/types/seat'
+import { layoutApi } from '@/api/layout.api'
+import type { SeatResponse, RoomLayoutSummaryResponse, SeatStatus } from '@/types/seat'
+import { SEAT_TYPE_CONFIGS } from '@/components/seat/seatGridConfig'
 
 const route = useRoute()
 const router = useRouter()
@@ -85,70 +224,100 @@ const cinemaName = ref('...')
 const roomName = ref('...')
 
 cinemaApi.getById(cinemaId)
-    .then((c) => { cinemaName.value = c.name })
+    .then((res) => { cinemaName.value = res.data.name })
     .catch(() => { cinemaName.value = `Cinema #${cinemaId}` })
 
 roomApi.getById(roomId)
-    .then((r) => { roomName.value = r.name })
+    .then((res) => { roomName.value = res.data.name })
     .catch(() => { roomName.value = `Phòng #${roomId}` })
 
+
 // Layout data
-const { layout, isLoading, error, fetchLayout } = useRoomLayout()
+const { layout, isLoading, error, fetchLayout, layoutVersions, viewDate, selectedVersionId, selectedVersion, latestLayout, isLatestLayout, today,
+    fetchLayoutHistory, fetchCurrentLayout, onViewDateChange, goToVersion, syncSelectedVersion } = useRoomLayout()
+
+const effectiveDate = ref(today.value)
 
 // Selection logic
 const { selectedIds, toggleSeat, toggleCouple, clearSelection, initDragSelect } = useSeatSelection()
-const gridContainer = ref<HTMLElement | null>(null)
-let cleanupDrag: (() => void) | undefined
 
-// Xử lý click ghế đơn (truyền event để hỗ trợ Ctrl+Click)
-function handleSeatClick(seat: SeatResponse, event: MouseEvent) {
-    toggleSeat(seat, event)
+const {
+    applyError,
+    groupedChangeList,
+    pendingSeatIds,
+    previewLayout,
+    addChange,
+    removeChange,
+    clearAll,
+    hasChanges,
+    changeList,
+    applyAllChanges,
+} = useApplyLayoutChanges(layout, effectiveDate, fetchLayout, fetchLayoutHistory, syncSelectedVersion)
+
+
+const formatDateTime = (dateStr?: string | null, includeTime: boolean = true): string => {
+    if (!dateStr) return '—'
+    const d = new Date(dateStr)
+    if (isNaN(d.getTime())) return dateStr
+
+    const day = d.getDate().toString().padStart(2, '0')
+    const month = (d.getMonth() + 1).toString().padStart(2, '0')
+    const year = d.getFullYear()
+
+    if (!includeTime) {
+        return `${day}/${month}/${year}`
+    }
+
+    const hours = d.getHours().toString().padStart(2, '0')
+    const minutes = d.getMinutes().toString().padStart(2, '0')
+    const seconds = d.getSeconds().toString().padStart(2, '0')
+    return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`
 }
 
-// Hàm xử lý click ghế đôi
-function handleCoupleClick(left: SeatResponse, right: SeatResponse, event: MouseEvent) {
-    toggleCouple(left, right, event)
-}
+const getTypeLabel = (typeId: number) => SEAT_TYPE_CONFIGS[typeId]?.label || `Loại ${typeId}`
 
-// Sau khi cập nhật thành công (bulk update)
-async function refreshAfterUpdate() {
-    await fetchLayout(roomId)
+// Nhận sự kiện từ AdminSeatPanel: thêm vào pending changes
+function onApplyChange(payload: { seatIds: number[]; newStatus?: SeatStatus; newSeatTypeId?: number }) {
+    payload.seatIds.forEach(id => addChange(id, payload.newStatus, payload.newSeatTypeId))
     clearSelection()
 }
 
-// Khởi tạo drag-select khi grid được render
+// Drag-select setup 
 const seatGridRef = ref<InstanceType<typeof SeatGrid> | null>(null)
+const gridContainer = ref<HTMLElement | null>(null)
+let cleanupDrag: (() => void) | undefined
 
-function setupDragSelect() {
-    const el = seatGridRef.value?.gridEl
-    if (el && !cleanupDrag) {
-        cleanupDrag = initDragSelect(el)
-    }
-}
-
-onMounted(async () => {
-    await fetchLayout(roomId)
-    // Đợi DOM update rồi gắn drag
-    await new Promise(resolve => setTimeout(resolve, 0))
-    setupDragSelect()
-})
-
-// Khi layout thay đổi (sau update), cần gắn lại drag-select vì DOM có thể bị thay thế
-// Dùng watch để theo dõi layout
-import { watch } from 'vue'
-watch(layout, () => {
-    // Delay nhỏ để DOM render xong
-    setTimeout(() => {
+watch(
+    () => seatGridRef.value?.gridEl,
+    (el) => {
+        // Cleanup instance cũ nếu có (layout đổi → SeatGrid remount)
         if (cleanupDrag) {
             cleanupDrag()
             cleanupDrag = undefined
         }
-        setupDragSelect()
-    }, 0)
-})
+        if (el) {
+            cleanupDrag = initDragSelect(el)
+        }
+    }
+)
 
-// Cleanup khi component unmount
 onUnmounted(() => {
     if (cleanupDrag) cleanupDrag()
 })
+
+onMounted(async () => {
+    await Promise.all([
+        fetchCurrentLayout(roomId),
+        fetchLayoutHistory(roomId)
+    ])
+    syncSelectedVersion()
+})
+
+function handleSeatClick(seat: SeatResponse, event: MouseEvent) {
+    toggleSeat(seat, event)
+}
+
+function handleCoupleClick(left: SeatResponse, right: SeatResponse, event: MouseEvent) {
+    toggleCouple(left, right, event)
+}
 </script>
