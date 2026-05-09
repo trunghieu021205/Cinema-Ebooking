@@ -107,4 +107,12 @@ public class RoomLayoutRepositoryImpl implements RoomLayoutRepository {
                     return layoutMapper.toDomainWithSeats(entity, seats);
                 });
     }
+
+    @Override
+    public List<RoomLayout> findCurrentByRoomIdsAndDate(List<Long> roomIds,LocalDate date){
+        List<RoomLayoutJpaEntity> entities = jpaRepository.findCurrentByRoomIdsAndDate(roomIds, date);
+        return entities.stream()
+                .map(layoutMapper::toDomain)
+                .collect(Collectors.toList());
+    }
 }

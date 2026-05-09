@@ -3,6 +3,7 @@ package com.cinemaebooking.backend.room.presentation;
 import com.cinemaebooking.backend.common.exception.ErrorCategory;
 import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import com.cinemaebooking.backend.room.application.dto.CreateRoomRequest;
+import com.cinemaebooking.backend.room.application.dto.RoomIdResponse;
 import com.cinemaebooking.backend.room_layout.application.dto.roomLayout.RoomLayoutDetailResponse;
 import com.cinemaebooking.backend.room.application.dto.RoomResponse;
 import com.cinemaebooking.backend.room.application.dto.UpdateRoomRequest;
@@ -60,14 +61,14 @@ public class RoomController {
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
-    public RoomResponse createRoom(@Valid @RequestBody CreateRoomRequest request) {
+    public RoomIdResponse createRoom(@Valid @RequestBody CreateRoomRequest request) {
         return createRoomUseCase.execute(request);
     }
 
     // ================== UPDATE ==================
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public RoomResponse updateRoom(
+    public RoomIdResponse updateRoom(
             @PathVariable Long id,
             @Valid @RequestBody UpdateRoomRequest request) {
 

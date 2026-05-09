@@ -1,6 +1,7 @@
 package com.cinemaebooking.backend.room.application.usecase;
 
 import com.cinemaebooking.backend.common.exception.domain.RoomExceptions;
+import com.cinemaebooking.backend.room.application.dto.RoomIdResponse;
 import com.cinemaebooking.backend.room.application.dto.RoomResponse;
 import com.cinemaebooking.backend.room.application.dto.UpdateRoomRequest;
 import com.cinemaebooking.backend.room.application.mapper.RoomResponseMapper;
@@ -28,10 +29,9 @@ import org.springframework.stereotype.Service;
 public class UpdateRoomUseCase {
 
     private final RoomRepository roomRepository;
-    private final RoomResponseMapper mapper;
     private final RoomCommandValidator validator;
 
-    public RoomResponse execute(RoomId id, UpdateRoomRequest request) {
+    public RoomIdResponse execute(RoomId id, UpdateRoomRequest request) {
 
         // ================== VALIDATION ==================
         validator.validateUpdateRequest(id, request);
@@ -43,10 +43,9 @@ public class UpdateRoomUseCase {
         applyUpdate(room, request);
 
         // ================== PERSIST ==================
-        Room saved = persist(room);
+        var saved = persist(room);
 
-        // ================== MAP RESPONSE ==================
-        return mapper.toRoomResponse(saved);
+        return new RoomIdResponse(saved.getId().getValue());
     }
 
     // ================== PRIVATE METHODS ==================

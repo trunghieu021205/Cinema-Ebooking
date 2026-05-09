@@ -31,7 +31,6 @@ public class RoomLayoutMapperImpl implements RoomLayoutMapper{
                 .effectiveDate(entity.getEffectiveDate())
                 .totalRows(entity.getTotalRows())
                 .totalCols(entity.getTotalCols())
-                .seats(new ArrayList<>())
                 .createdAt(entity.getCreatedAt())
                 .build();
     }

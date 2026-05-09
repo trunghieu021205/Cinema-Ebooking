@@ -25,4 +25,6 @@ public interface RoomLayoutRepository {
 
     Optional<RoomLayout> findByRoomIdAndLayoutVersion(Long roomId, Integer version);
 
+    List<RoomLayout> findCurrentByRoomIdsAndDate(List<Long> roomIds,LocalDate date);
+
 }
