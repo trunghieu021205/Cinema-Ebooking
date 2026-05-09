@@ -101,11 +101,11 @@ export function useRoom(cinemaId: number) {
     clearErrors()
     try {
       const created = await roomApi.create({ ...body, cinemaId })
-
-      // Tạo layout mặc định ngay sau khi room được tạo
       await roomApi.generateLayout(created.id)
 
-      rooms.value.unshift(created)
+      // Fetch the created room details
+      const updated = await roomApi.getById(created.id)
+      rooms.value.unshift(updated)
       totalItems.value++
       totalPages.value = Math.ceil(totalItems.value / pageSize)
 
@@ -133,8 +133,9 @@ export function useRoom(cinemaId: number) {
     }
     try {
       const updated = await roomApi.update(item.id, body)
+      const updatedDetails = await roomApi.getById(updated.id)
       const idx = rooms.value.findIndex((r) => r.id === updated.id)
-      if (idx !== -1) rooms.value[idx] = updated
+      if (idx !== -1) rooms.value[idx] = updatedDetails
       return true
     } catch (err) {
       handleError(err)

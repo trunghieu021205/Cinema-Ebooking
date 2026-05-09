@@ -1,5 +1,5 @@
 import apiClient from '@/api/axios'
-import type { RoomResponse, CreateRoomRequest, UpdateRoomRequest } from '@/types/room'
+import type { RoomResponse, RoomIdResponse, CreateRoomRequest, UpdateRoomRequest } from '@/types/room'
 import type { NestedPage } from '@/types/common.types'
 
 export const roomApi = {
@@ -15,7 +15,7 @@ export const roomApi = {
 
   // POST /api/v1/rooms
   create: (body: CreateRoomRequest) =>
-    apiClient.post<RoomResponse>('/rooms', body),
+    apiClient.post<RoomIdResponse>('/rooms', body),
 
   // POST /api/v1/rooms/:id/generate-layout
   // Gọi ngay sau create để tạo layout ghế mặc định.
@@ -24,7 +24,7 @@ export const roomApi = {
 
   // PUT /api/v1/rooms/:id
   update: (id: number, body: UpdateRoomRequest) =>
-    apiClient.put<RoomResponse>(`/rooms/${id}`, body),
+    apiClient.put<RoomIdResponse>(`/rooms/${id}`, body),
 
   // DELETE /api/v1/rooms/:id → 204
   delete: (id: number) =>

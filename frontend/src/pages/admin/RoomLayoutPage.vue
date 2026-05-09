@@ -232,11 +232,11 @@ const cinemaName = ref('...')
 const roomName = ref('...')
 
 cinemaApi.getById(cinemaId)
-    .then((res) => { cinemaName.value = res.data.name })
+    .then((res) => { cinemaName.value = res.name })
     .catch(() => { cinemaName.value = `Cinema #${cinemaId}` })
 
 roomApi.getById(roomId)
-    .then((res) => { roomName.value = res.data.name })
+    .then((res) => { roomName.value = res.name })
     .catch(() => { roomName.value = `Phòng #${roomId}` })
 
 

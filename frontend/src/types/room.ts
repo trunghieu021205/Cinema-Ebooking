@@ -12,6 +12,10 @@ export interface RoomResponse {
   cinemaId:     number
 }
 
+export interface RoomIdResponse{
+  id: number
+}
+
 export interface CreateRoomRequest {
   name:         string
   roomType:     RoomType
