@@ -1,7 +1,7 @@
 // ─── Column definition ───────────────────────────────────────────────────────
 // Mỗi column khai báo một lần, dùng lại ở cả table lẫn detail panel
 
-export type FieldType = 'text' | 'number' | 'email' | 'enum' | 'date' | 'textarea' | 'multiselect'
+export type FieldType = 'text' | 'number' | 'email' | 'enum' | 'date' | 'textarea' | 'multiselect' | 'boolean'
 
 export interface ColumnDef<T = Record<string, unknown>> {
   key: keyof T & string
