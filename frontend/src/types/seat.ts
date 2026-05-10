@@ -13,9 +13,10 @@ export interface SeatResponse {
 
 export interface RoomLayoutResponse {
   id:             number
-  layoutVersion: number
-  roomType:      RoomType
-  effectiveDate:  string      
+  layoutVersion:  number
+  roomType:       RoomType
+  effectiveDate:  string     
+  used:           boolean
   totalRows:      number
   totalCols:      number
   rows:           SeatResponse[][]

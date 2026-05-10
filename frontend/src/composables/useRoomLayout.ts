@@ -11,7 +11,7 @@ export function useRoomLayout() {
   const selectedVersionId = ref<number | null>(null)
   const selectedVersion = ref<RoomLayoutSummaryResponse | null>(null) 
 
-  const selectedRoomType = ref<string>('TYPE_2D')
+  const selectedRoomType = ref<string>(layout.value?.roomType ?? '')
 
   const today = computed(() => {
     const d = new Date();

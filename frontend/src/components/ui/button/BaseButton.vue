@@ -11,6 +11,7 @@ const props = defineProps<{
   rounded?: Rounded
   iconOnly?: boolean
   isAdmin?: boolean
+  disabled?: boolean
 }>()
 
 /* ================= CONFIG ================= */
@@ -102,12 +103,14 @@ const buttonClass = computed(() => [
   !props.iconOnly && sizes[props.size ?? 'md'],
   roundeds[props.rounded ?? 'md'],
 
-  ...getCompoundClasses()
+  ...getCompoundClasses(),
+
+  props.disabled && 'opacity-50 pointer-events-none'
 ])
 </script>
 
 <template>
-  <button :class="buttonClass">
+  <button :class="buttonClass" :disabled="disabled">
     <slot />
   </button>
 </template>

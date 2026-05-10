@@ -1,6 +1,5 @@
 <template>
     <div class="flex flex-col py-6 min-h-screen">
-
         <!-- Breadcrumb -->
         <div class="flex items-center gap-2 pr-6 text-sm">
             <button class="text-text-admin-tertiary transition-colors hover:text-text-admin-primary"
@@ -95,12 +94,11 @@
                 <div>
                     <label class="text-sm font-medium text-slate-700">Loại phòng:</label>
                     <select v-model="selectedRoomType" class="ml-2 border rounded px-2 py-1 text-sm">
-                        <option :value="layout?.roomType">Giữ nguyên ({{ formatRoomType(layout?.roomType) }})</option>
                         <option v-for="type in roomTypes" :key="type.value" :value="type.value">{{ type.label }}
                         </option>
                     </select>
                 </div>
-                <BaseButton variant="primary" @click="applyAllChanges(roomId)" :disabled="!hasChanges">
+                <BaseButton variant="primary" @click="handleApplyClick()" :disabled="!hasChanges">
                     Áp dụng tất cả
                 </BaseButton>
             </div>
@@ -202,8 +200,20 @@
         <!-- Admin panel (phiên bản mới) -->
         <AdminSeatPanel v-if="selectedIds.size > 0 && isLatestLayout" :selected-seat-ids="selectedIds"
             @apply-change="onApplyChange" @clear-selection="clearSelection" />
-
     </div>
+    <Teleport to="body">
+        <div v-if="showConfirmModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+            @click.self="showConfirmModal = false">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+                <h3 class="text-lg font-semibold text-slate-900 mb-2">Xác nhận thay đổi</h3>
+                <p class="text-sm text-slate-600 mb-6">{{ confirmMessage }}</p>
+                <div class="flex justify-end gap-3">
+                    <BaseButton variant="secondary" isAdmin @click="showConfirmModal = false">Hủy</BaseButton>
+                    <BaseButton variant="primary" @click="confirmApply">Đồng ý</BaseButton>
+                </div>
+            </div>
+        </div>
+    </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -230,6 +240,9 @@ const roomId = Number(route.params.roomId)
 
 const cinemaName = ref('...')
 const roomName = ref('...')
+
+const showConfirmModal = ref(false)
+const confirmMessage = ref('')
 
 cinemaApi.getById(cinemaId)
     .then((res) => { cinemaName.value = res.name })
@@ -298,6 +311,23 @@ const getTypeLabel = (typeId: number) => SEAT_TYPE_CONFIGS[typeId]?.label || `Lo
 function onApplyChange(payload: { seatIds: number[]; newStatus?: SeatStatus; newSeatTypeId?: number }) {
     payload.seatIds.forEach(id => addChange(id, payload.newStatus, payload.newSeatTypeId))
     clearSelection()
+}
+
+function handleApplyClick() {
+    if (!layout.value) return
+
+    const version = layout.value.layoutVersion ?? 0
+    if (layout.value.used) {
+        confirmMessage.value = `Layout này đã được sử dụng cho suất chiếu. Mọi thay đổi sẽ tạo một phiên bản layout mới (v${version + 1}) và không ảnh hưởng đến phiên bản hiện tại. Bạn có chắc chắn muốn tiếp tục?`
+    } else {
+        confirmMessage.value = `Layout chưa được sử dụng. Thay đổi sẽ được áp dụng trực tiếp lên phiên bản hiện tại (v${version}). Bạn có chắc chắn?`
+    }
+    showConfirmModal.value = true
+}
+
+function confirmApply() {
+    showConfirmModal.value = false
+    applyAllChanges(roomId)
 }
 
 // Drag-select setup 
