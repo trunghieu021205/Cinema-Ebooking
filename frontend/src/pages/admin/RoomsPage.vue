@@ -126,6 +126,7 @@ const columns: ColumnDef<RoomResponse>[] = [
         key: 'roomType',
         label: 'Loại phòng',
         type: 'enum',
+        readonlyInEdit: true,
         options: ['TYPE_2D', 'TYPE_3D', 'IMAX'],
         width: '200px'
     },

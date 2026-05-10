@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface RoomLayoutSeatRepository {
+    void save(RoomLayoutSeat roomLayoutSeat);
     Optional<RoomLayoutSeat> findById(RoomLayoutSeatId id);
     List<RoomLayoutSeat> findAllById(List<RoomLayoutSeatId> ids);
     List<RoomLayoutSeat> findByRoomLayoutId(Long roomLayoutId);

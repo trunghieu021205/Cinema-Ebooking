@@ -1,6 +1,7 @@
 package com.cinemaebooking.backend.loyalty.domain.model;
 
 import com.cinemaebooking.backend.common.domain.BaseEntity;
+import com.cinemaebooking.backend.loyalty.domain.enums.EarningType;
 import com.cinemaebooking.backend.loyalty.domain.valueobject.EarningRuleId;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
@@ -11,7 +12,7 @@ import java.math.BigDecimal;
 @SuperBuilder
 public class EarningRule extends BaseEntity<EarningRuleId> {
     private MembershipTier tier;
-    private String earningType;
+    private EarningType earningType;
     private BigDecimal multiplier;
     private BigDecimal fixedPoints;
     private String description;
@@ -19,7 +20,7 @@ public class EarningRule extends BaseEntity<EarningRuleId> {
     private Boolean active;
     private Integer priority;
 
-    public void update(MembershipTier tier, String earningType, BigDecimal multiplier,
+    public void update(MembershipTier tier, EarningType earningType, BigDecimal multiplier,
                        BigDecimal fixedPoints, String description, String conditions,
                        Boolean active, Integer priority) {
         this.tier = tier;

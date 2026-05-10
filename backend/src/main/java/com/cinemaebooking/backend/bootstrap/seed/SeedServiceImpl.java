@@ -20,10 +20,12 @@ public class SeedServiceImpl implements SeedService {
     private final RoomSeed roomSeed;
     private final SeatTypeSeed seatTypeSeed;
     private final ShowtimeFormatSeed showtimeFormatSeed;
+    private final MembershipTierSeed membershipTierSeed;
     @Override
     public void seed() {
         seatTypeSeed.seed();
         showtimeFormatSeed.seed();
+        membershipTierSeed.seed();
     }
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;

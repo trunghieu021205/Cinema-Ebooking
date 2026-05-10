@@ -12,6 +12,10 @@ export interface RoomResponse {
   cinemaId:     number
 }
 
+export interface RoomIdResponse{
+  id: number
+}
+
 export interface CreateRoomRequest {
   name:         string
   roomType:     RoomType
@@ -22,6 +26,5 @@ export interface CreateRoomRequest {
 
 export interface UpdateRoomRequest {
   name:     string
-  roomType: RoomType
   status:   RoomStatus
 }

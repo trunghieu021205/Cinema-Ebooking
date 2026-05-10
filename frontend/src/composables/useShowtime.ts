@@ -60,9 +60,9 @@ export function useShowtime(cinemaId: number) {
     try {
       const res = await showtimeApi.getListByCinema(cinemaId, page, pageSize)
       showtimes.value = res.content
-      currentPage.value = res.number
-      totalPages.value = res.totalPages
-      totalItems.value = res.totalElements
+      currentPage.value = res.page.number
+      totalPages.value = res.page.totalPages
+      totalItems.value = res.page.totalElements
       nextPageDirty.value = false
       prefetchNextPage(page + 1)
     } catch (err) {

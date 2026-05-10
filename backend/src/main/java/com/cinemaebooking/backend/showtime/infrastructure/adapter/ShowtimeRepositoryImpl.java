@@ -117,4 +117,9 @@ public class ShowtimeRepositoryImpl implements ShowtimeRepository {
                 exclude
         );
     }
+
+    @Override
+    public boolean existsByRoomLayoutId(Long roomLayoutId){
+        return jpaRepository.existsByRoomLayoutId(roomLayoutId);
+    }
 }

@@ -1,6 +1,7 @@
 package com.cinemaebooking.backend.loyalty.infrastructure.adapter;
 
 import com.cinemaebooking.backend.loyalty.application.port.EarningRuleRepository;
+import com.cinemaebooking.backend.loyalty.domain.enums.EarningType;
 import com.cinemaebooking.backend.loyalty.domain.model.EarningRule;
 import com.cinemaebooking.backend.loyalty.domain.valueobject.EarningRuleId;
 import com.cinemaebooking.backend.loyalty.domain.valueobject.MembershipTierId;
@@ -9,6 +10,7 @@ import com.cinemaebooking.backend.loyalty.infrastructure.persistence.entity.Loya
 import com.cinemaebooking.backend.loyalty.infrastructure.persistence.entity.MembershipTierJpaEntity;
 import com.cinemaebooking.backend.loyalty.infrastructure.persistence.repository.LoyaltyEarningRuleJpaRepository;
 import com.cinemaebooking.backend.loyalty.infrastructure.persistence.repository.MembershipTierJpaRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -30,13 +32,21 @@ public class EarningRuleRepositoryImpl implements EarningRuleRepository {
                 .map(mapper::toDomain);
     }
 
+    @Transactional
     @Override
     public EarningRule create(EarningRule rule) {
+
         LoyaltyEarningRuleJpaEntity entity = mapper.toEntity(rule);
-        MembershipTierJpaEntity tierRef = tierJpaRepository.getReferenceById(
-                rule.getTier().getId().getValue());
+
+        MembershipTierJpaEntity tierRef = tierJpaRepository.findById(
+                rule.getTier().getId().getValue()
+        ).orElseThrow(() -> new IllegalStateException("Membership tier not found"));
+
         entity.setMembershipTier(tierRef);
-        return mapper.toDomain(jpaRepository.save(entity));
+
+        LoyaltyEarningRuleJpaEntity saved = jpaRepository.save(entity);
+
+        return mapper.toDomain(saved);
     }
 
     @Override
@@ -65,7 +75,7 @@ public class EarningRuleRepositoryImpl implements EarningRuleRepository {
     }
 
     @Override
-    public List<EarningRule> findByTierAndType(MembershipTierId tierId, String earningType) {
+    public List<EarningRule> findByTierAndType(MembershipTierId tierId, EarningType earningType) {
         MembershipTierJpaEntity tierRef = tierJpaRepository.getReferenceById(tierId.getValue());
         // Sử dụng method có sẵn: findByMembershipTierAndEarningTypeAndActiveTrueOrderByPriorityDesc
         return jpaRepository.findByMembershipTierAndEarningTypeAndActiveTrueOrderByPriorityDesc(
@@ -81,7 +91,7 @@ public class EarningRuleRepositoryImpl implements EarningRuleRepository {
     }
 
     @Override
-    public boolean existsDuplicate(MembershipTierId tierId, String earningType, EarningRuleId excludeId) {
+    public boolean existsDuplicate(MembershipTierId tierId, EarningType earningType, EarningRuleId excludeId) {
         MembershipTierJpaEntity tierRef = tierJpaRepository.getReferenceById(tierId.getValue());
         // Sử dụng method có sẵn: findByMembershipTierAndEarningType (tìm tất cả, không lọc active/deleted)
         List<LoyaltyEarningRuleJpaEntity> list = jpaRepository
@@ -91,5 +101,11 @@ public class EarningRuleRepositoryImpl implements EarningRuleRepository {
             return !list.isEmpty();
         }
         return list.stream().anyMatch(e -> !e.getId().equals(excludeId.getValue()));
+    }
+
+    @Override
+    public boolean existsByMembershipTierIdAndEarningType(Long tierId, EarningType earningType) {
+        MembershipTierJpaEntity tierRef = tierJpaRepository.getReferenceById(tierId);
+        return jpaRepository.existsByMembershipTierAndEarningType(tierRef, earningType);
     }
 }

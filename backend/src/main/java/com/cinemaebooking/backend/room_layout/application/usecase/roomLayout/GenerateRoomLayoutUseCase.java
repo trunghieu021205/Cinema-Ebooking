@@ -76,6 +76,7 @@ public class GenerateRoomLayoutUseCase {
                 .layoutVersion(1)
                 .roomType(room.getRoomType())
                 .effectiveDate(LocalDate.now())
+                .used(false)
                 .totalRows(totalRows)
                 .totalCols(totalCols)
                 .seats(seats)

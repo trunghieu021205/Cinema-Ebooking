@@ -20,13 +20,6 @@ public class RoomLayoutSeat extends BaseEntity<RoomLayoutSeatId> {
     private Long seatTypeId;
     private Long roomLayoutId;
     private Long coupleGroupId;
-    // ================== BUSINESS METHODS ==================
-
-    public void update(Long seatTypeId, SeatStatus status) {
-        validateStatus(status);
-        this.seatTypeId = seatTypeId;
-        this.status = status;
-    }
 
     public boolean isActive() {
         return this.status == SeatStatus.ACTIVE;

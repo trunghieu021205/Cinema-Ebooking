@@ -5,6 +5,7 @@ import com.cinemaebooking.backend.common.exception.domain.exception_loyalty.Loya
 import com.cinemaebooking.backend.loyalty.application.port.EarningRuleRepository;
 import com.cinemaebooking.backend.loyalty.application.port.LoyaltyAccountRepository;
 import com.cinemaebooking.backend.loyalty.application.port.MembershipTierRepository;
+import com.cinemaebooking.backend.loyalty.domain.enums.EarningType;
 import com.cinemaebooking.backend.loyalty.domain.model.EarningRule;
 import com.cinemaebooking.backend.loyalty.domain.model.LoyaltyAccount;
 import com.cinemaebooking.backend.loyalty.domain.model.MembershipTier;
@@ -40,7 +41,7 @@ public class AddPointsAfterBookingUseCase {
 
         // Tính điểm từ vé (nếu có)
         if (totalTicketPrice != null && totalTicketPrice.compareTo(BigDecimal.ZERO) > 0) {
-            EarningRule ticketRule = findRuleForType(currentTier, "TICKET");
+            EarningRule ticketRule = findRuleForType(currentTier, EarningType.TICKET);
             BigDecimal rate = ticketRule != null ? ticketRule.getMultiplier() : BigDecimal.ZERO;
             BigDecimal base = totalTicketPrice.divide(new BigDecimal("100000"), 2, RoundingMode.HALF_UP);
             pointsEarned = pointsEarned.add(base.multiply(rate));
@@ -48,7 +49,7 @@ public class AddPointsAfterBookingUseCase {
 
         // Tính điểm từ combo
         if (totalComboPrice != null && totalComboPrice.compareTo(BigDecimal.ZERO) > 0) {
-            EarningRule comboRule = findRuleForType(currentTier, "COMBO");
+            EarningRule comboRule = findRuleForType(currentTier, EarningType.CONCESSION);
             BigDecimal rate = comboRule != null ? comboRule.getMultiplier() : BigDecimal.ZERO;
             BigDecimal base = totalComboPrice.divide(new BigDecimal("100000"), 2, RoundingMode.HALF_UP);
             pointsEarned = pointsEarned.add(base.multiply(rate));
@@ -72,7 +73,7 @@ public class AddPointsAfterBookingUseCase {
         loyaltyAccountRepository.save(account);
     }
 
-    private EarningRule findRuleForType(MembershipTier tier, String type) {
+    private EarningRule findRuleForType(MembershipTier tier, EarningType type) {
         List<EarningRule> rules = earningRuleRepository.findByTierAndType(
                 MembershipTierId.of(tier.getId().getValue()), type);
         return rules.stream().filter(EarningRule::getActive).findFirst().orElse(null);

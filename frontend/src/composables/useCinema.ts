@@ -69,9 +69,9 @@ export function useCinema() {
     try {
       const res = await cinemaApi.getList(page, pageSize)
       cinemas.value     = res.content
-      currentPage.value = res.number
-      totalPages.value  = res.totalPages
-      totalItems.value  = res.totalElements
+      currentPage.value = res.page.number
+      totalPages.value  = res.page.totalPages
+      totalItems.value  = res.page.totalElements
       nextPageDirty.value = false
 
       // Prefetch trang kế ngay sau khi fetch xong — chạy background

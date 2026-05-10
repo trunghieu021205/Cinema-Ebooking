@@ -1,8 +1,9 @@
 package com.cinemaebooking.backend.loyalty.infrastructure.persistence.repository;
 
+import com.cinemaebooking.backend.infrastructure.persistence.repository.SoftDeleteJpaRepository;
+import com.cinemaebooking.backend.loyalty.domain.enums.EarningType;
 import com.cinemaebooking.backend.loyalty.infrastructure.persistence.entity.LoyaltyEarningRuleJpaEntity;
 import com.cinemaebooking.backend.loyalty.infrastructure.persistence.entity.MembershipTierJpaEntity;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -30,7 +31,7 @@ import java.util.List;
  * @since 2026
  */
 @Repository
-public interface LoyaltyEarningRuleJpaRepository extends JpaRepository<LoyaltyEarningRuleJpaEntity, Long> {
+public interface LoyaltyEarningRuleJpaRepository extends SoftDeleteJpaRepository<LoyaltyEarningRuleJpaEntity> {
 
     /**
      * Lấy tất cả rule theo membership tier
@@ -42,7 +43,7 @@ public interface LoyaltyEarningRuleJpaRepository extends JpaRepository<LoyaltyEa
      */
     List<LoyaltyEarningRuleJpaEntity> findByMembershipTierAndEarningType(
             MembershipTierJpaEntity membershipTier,
-            String earningType
+            EarningType earningType
     );
 
     /**
@@ -50,7 +51,7 @@ public interface LoyaltyEarningRuleJpaRepository extends JpaRepository<LoyaltyEa
      */
     List<LoyaltyEarningRuleJpaEntity> findByMembershipTierAndEarningTypeAndActiveTrueOrderByPriorityDesc(
             MembershipTierJpaEntity membershipTier,
-            String earningType
+            EarningType earningType
     );
 
     /**
@@ -58,4 +59,8 @@ public interface LoyaltyEarningRuleJpaRepository extends JpaRepository<LoyaltyEa
      */
     List<LoyaltyEarningRuleJpaEntity> findByActiveTrue();
 
+    boolean existsByMembershipTierAndEarningType(
+            MembershipTierJpaEntity membershipTier,
+            EarningType earningType
+    );
 }
