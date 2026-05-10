@@ -81,4 +81,12 @@ public class RoomLayoutSeatRepositoryImpl implements RoomLayoutSeatRepository {
         }
         return seatJpaRepository.existsByRoomLayoutIdAndRowIndexAndColIndex(roomLayoutId, row, col);
     }
+
+    @Override
+    public List<RoomLayoutSeat> findAllByIds(List<Long> ids) {
+        // findAllById là hàm có sẵn của JpaRepository
+        return seatJpaRepository.findAllById(ids).stream()
+                .map(mapper::toDomain) // Chuyển từ Entity sang Model Domain
+                .collect(Collectors.toList());
+    }
 }

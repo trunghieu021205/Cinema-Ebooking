@@ -26,6 +26,6 @@ public interface ShowtimeSeatRepository {
      */
     void deleteByShowtimeId(Long showtimeId);
 
-    void updateStatus(Long showtimeId, Long seatId, ShowtimeSeatStatus newStatus);
-
+    void updateStatusToAvailable(Long showtimeId, List<Long> showtimeSeatIds);
+    List<ShowtimeSeat> findAllByIds(List<Long> seatIds);
 }

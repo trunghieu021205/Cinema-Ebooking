@@ -31,12 +31,12 @@ import java.time.LocalDateTime;
         name = "tickets",
         uniqueConstraints = {
                 @UniqueConstraint(
-                        name = "uk_tickets_showtime_seat_id_deleted",
-                        columnNames = {"showtime_seat_id", "deleted"}
+                        name = "uk_tickets_showtime_seat_deleted_at",
+                        columnNames = {"showtime_seat_id", "deleted_at"}
                 ),
                 @UniqueConstraint(
-                        name = "uk_tickets_ticket_code_deleted",
-                        columnNames = {"ticket_code", "deleted"}
+                        name = "uk_tickets_ticket_code_deleted_at",
+                        columnNames = {"ticket_code", "deleted_at"}
                 )
         }
 )
@@ -71,4 +71,9 @@ public class TicketJpaEntity extends BaseJpaEntity {
 
     @Column(name = "checked_in_at")
     private LocalDateTime checkedInAt;
+
+    @Override
+    protected void beforeSoftDelete() {
+        this.ticketCode = markDeleted(this.ticketCode);
+    }
 }

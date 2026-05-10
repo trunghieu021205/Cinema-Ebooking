@@ -16,7 +16,10 @@ public interface RoomLayoutSeatRepository {
     List<RoomLayoutSeat> findByRoomLayoutIdAndCoupleGroupId(Long roomLayoutId, Long coupleGroupId);
     List<RoomLayoutSeat> findByRoomLayoutIdAndCoupleGroupIdIn(Long roomLayoutId, Collection<Long> coupleGroupIds);
     boolean existsByRoomLayoutIdAndRowAndCol(Long roomLayoutId, Integer row, Integer col);
+
+    List<RoomLayoutSeat> findAllByIds(List<Long> ids);
 }
+
 
 
 

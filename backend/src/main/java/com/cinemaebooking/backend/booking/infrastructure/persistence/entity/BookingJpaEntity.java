@@ -1,7 +1,10 @@
 package com.cinemaebooking.backend.booking.infrastructure.persistence.entity;
 
 import com.cinemaebooking.backend.booking.domain.enums.BookingStatus;
+import com.cinemaebooking.backend.booking_combo.infrastructure.persistence.entity.BookingComboJpaEntity;
+import com.cinemaebooking.backend.booking_coupon.infrastructure.persistence.entity.BookingCouponJpaEntity;
 import com.cinemaebooking.backend.infrastructure.persistence.entity.BaseJpaEntity;
+import com.cinemaebooking.backend.ticket.infrastructure.persistence.entity.TicketJpaEntity;
 import com.cinemaebooking.backend.user.infrastructure.persistence.entity.UserJpaEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Positive;
@@ -11,6 +14,8 @@ import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * BookingJpaEntity - Persistence model for bookings table.
@@ -77,6 +82,33 @@ public class BookingJpaEntity extends BaseJpaEntity {
 
     @Column(name = "paid_at")
     private LocalDateTime paidAt;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TicketJpaEntity> tickets = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BookingComboJpaEntity> combos = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BookingCouponJpaEntity> coupons = new ArrayList<>();
+
+    public void addTicket(TicketJpaEntity ticket) {
+        tickets.add(ticket);
+        ticket.setBooking(this);
+    }
+
+    public void addCombo(BookingComboJpaEntity combo) {
+        combos.add(combo);
+        combo.setBooking(this);
+    }
+
+    public void addCoupon(BookingCouponJpaEntity coupon) {
+        coupons.add(coupon);
+        coupon.setBooking(this);
+    }
 
     @Override
     protected void beforeSoftDelete() {

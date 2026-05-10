@@ -1,16 +1,19 @@
 package com.cinemaebooking.backend.showtime.infrastructure.persistence.repository;
 
 import com.cinemaebooking.backend.infrastructure.persistence.repository.SoftDeleteJpaRepository;
+import com.cinemaebooking.backend.showtime.application.dto.showtime.ShowtimeSnapshot;
 import com.cinemaebooking.backend.showtime.domain.enums.ShowtimeStatus;
 import com.cinemaebooking.backend.showtime.infrastructure.persistence.entity.ShowtimeJpaEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ShowtimeJpaRepository extends SoftDeleteJpaRepository<ShowtimeJpaEntity> {
@@ -46,4 +49,19 @@ public interface ShowtimeJpaRepository extends SoftDeleteJpaRepository<ShowtimeJ
     );
 
     boolean existsByRoomIdAndStatusIn(Long roomId, List<ShowtimeStatus> status);
+
+    @Query("""
+        SELECT new com.cinemaebooking.backend.showtime.application.dto.showtime.ShowtimeSnapshot(
+            m.title, 
+            c.name, 
+            r.name, 
+            s.startTime
+        )
+        FROM ShowtimeJpaEntity s
+        JOIN s.movie m
+        JOIN s.room r
+        JOIN r.cinema c
+        WHERE s.id = :showtimeId
+    """)
+    Optional<ShowtimeSnapshot> findSnapshot(@Param("showtimeId") Long showtimeId);
 }

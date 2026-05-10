@@ -29,8 +29,8 @@ import java.time.LocalDateTime;
         name = "booking_coupons",
         uniqueConstraints = {
                 @UniqueConstraint(
-                        name = "uk_booking_coupons_booking_id_user_coupon_id_deleted",
-                        columnNames = {"booking_id", "user_coupon_id", "deleted"}
+                        name = "uk_booking_coupons_booking_id_user_coupon_id_deleted_at",
+                        columnNames = {"booking_id", "user_coupon_id", "deleted_at"}
                 )
         }
 )
@@ -58,4 +58,9 @@ public class BookingCouponJpaEntity extends BaseJpaEntity {
 
     @Column(name = "applied_at", nullable = false)
     private LocalDateTime appliedAt;
+
+    @Override
+    protected void beforeSoftDelete() {
+        this.couponCode = markDeleted(this.couponCode);
+    }
 }
