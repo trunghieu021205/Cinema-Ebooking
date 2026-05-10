@@ -32,6 +32,7 @@ public class RoomLayoutDtoMapper {
                 .layoutVersion(layout.getLayoutVersion())
                 .roomType(layout.getRoomType())
                 .effectiveDate(layout.getEffectiveDate())
+                .isUsed(layout.isUsed())
                 .totalRows(layout.getTotalRows())
                 .totalCols(layout.getTotalCols())
                 .rows(seatGrid)

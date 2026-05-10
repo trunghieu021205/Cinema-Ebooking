@@ -29,6 +29,7 @@ public class RoomLayoutMapperImpl implements RoomLayoutMapper{
                 .layoutVersion(entity.getLayoutVersion())
                 .roomType(entity.getRoomType())
                 .effectiveDate(entity.getEffectiveDate())
+                .used(entity.isUsed())
                 .totalRows(entity.getTotalRows())
                 .totalCols(entity.getTotalCols())
                 .createdAt(entity.getCreatedAt())
@@ -45,6 +46,7 @@ public class RoomLayoutMapperImpl implements RoomLayoutMapper{
                 .layoutVersion(entity.getLayoutVersion())
                 .roomType(entity.getRoomType())
                 .effectiveDate(entity.getEffectiveDate())
+                .used(entity.isUsed())
                 .totalRows(entity.getTotalRows())
                 .totalCols(entity.getTotalCols())
                 .createdAt(entity.getCreatedAt())
@@ -63,6 +65,7 @@ public class RoomLayoutMapperImpl implements RoomLayoutMapper{
                 .layoutVersion(domain.getLayoutVersion())
                 .roomType(domain.getRoomType())
                 .effectiveDate(domain.getEffectiveDate())
+                .used(domain.isUsed())
                 .totalRows(domain.getTotalRows())
                 .totalCols(domain.getTotalCols())
                 .build();

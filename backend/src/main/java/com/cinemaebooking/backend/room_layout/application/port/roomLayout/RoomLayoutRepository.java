@@ -27,4 +27,5 @@ public interface RoomLayoutRepository {
 
     List<RoomLayout> findCurrentByRoomIdsAndDate(List<Long> roomIds,LocalDate date);
 
+    void markAsUsed(RoomLayoutId id);
 }

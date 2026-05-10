@@ -1,5 +1,6 @@
 package com.cinemaebooking.backend.room_layout.infrastructure.adapter;
 
+import com.cinemaebooking.backend.common.exception.domain.RoomLayoutExceptions;
 import com.cinemaebooking.backend.room_layout.application.port.roomLayout.RoomLayoutRepository;
 import com.cinemaebooking.backend.room_layout.domain.model.roomLayout.RoomLayout;
 import com.cinemaebooking.backend.room_layout.domain.valueObject.roomLayout.RoomLayoutId;
@@ -114,5 +115,11 @@ public class RoomLayoutRepositoryImpl implements RoomLayoutRepository {
         return entities.stream()
                 .map(layoutMapper::toDomain)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void markAsUsed(RoomLayoutId id){
+        int updated = jpaRepository.markAsUsed(id.getValue());
+        if (updated == 0) throw RoomLayoutExceptions.notFound(id);
     }
 }

@@ -30,7 +30,6 @@ public class UpdateRoomLayoutUseCase {
     private final RoomLayoutRepository roomLayoutRepository;
     private final RoomLayoutSeatRepository seatRepository;
     private final SeatTypeRepository seatTypeRepository;
-    private final ShowtimeRepository showtimeRepository;
     private final RoomLayoutCopyService copyService;
 
     @Transactional
@@ -49,7 +48,7 @@ public class UpdateRoomLayoutUseCase {
         boolean roomTypeChanged = !roomType.equals(latestLayout.getRoomType());
         boolean hasSeatUpdates = updates != null && !updates.isEmpty();
 
-        boolean isUsed = showtimeRepository.existsByRoomLayoutId(latestLayoutId);
+        boolean isUsed = latestLayout.isUsed();
 
         if (isUsed) {
             if (effectiveDate.isBefore(latestLayout.getEffectiveDate()) || effectiveDate.equals(latestLayout.getEffectiveDate())) {
