@@ -51,6 +51,7 @@ public class CreateShowtimeUsecase {
         LocalDate startDate = request.getStartTime().toLocalDate();
         RoomLayout layout = roomLayoutRepository.findCurrentByRoomIdAndDate(request.getRoomId(), startDate)
                 .orElseThrow(() -> new IllegalStateException("No active layout for room " + request.getRoomId() + " at " + startDate));
+        int totalCols = layout.getTotalCols();
 
         Showtime showtime = Showtime.builder()
                 .movieId(request.getMovieId())
@@ -75,12 +76,9 @@ public class CreateShowtimeUsecase {
         List<ShowtimeSeat> showtimeSeats = layoutSeats.stream()
                 .map(seat -> {
                     Long seatTypeId = seat.getSeatTypeId();
-                    /*SeatType seatType = seatTypeRepository.findById(SeatTypeId.of(seatTypeId))
-                            .orElseThrow(() -> new IllegalStateException("Seat type not found"));
-                    BigDecimal basePrice = seatType.getBasePrice();*/
                     BigDecimal basePrice = seatTypeRepository.findBasePriceById(SeatTypeId.of(seatTypeId)).orElseThrow();
                     BigDecimal finalPrice = basePrice.add(formatSurcharge);
-                    return ShowtimeSeat.from(seat,saved.getId(),finalPrice);
+                    return ShowtimeSeat.from(seat, saved.getId().getValue(), finalPrice, totalCols);
                 })
                 .toList();
 

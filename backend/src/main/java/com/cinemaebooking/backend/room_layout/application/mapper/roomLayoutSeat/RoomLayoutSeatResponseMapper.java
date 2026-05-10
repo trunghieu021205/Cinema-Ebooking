@@ -14,7 +14,6 @@ public class RoomLayoutSeatResponseMapper {
                 id(roomLayoutSeat.getId() != null ? roomLayoutSeat.getId().getValue() : null)
                 .rowIndex(roomLayoutSeat.getRowIndex())
                 .colIndex(roomLayoutSeat.getColIndex())
-                .label(roomLayoutSeat.getLabel())
                 .status(roomLayoutSeat.getStatus())
                 .seatTypeId(roomLayoutSeat.getSeatTypeId())
                 .roomLayoutId(roomLayoutSeat.getRoomLayoutId())

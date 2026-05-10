@@ -62,9 +62,6 @@ public class TicketJpaEntity extends BaseJpaEntity {
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal price;
 
-    @Column(name = "seat_number", nullable = false, length = 10)
-    private String seatNumber;
-
     @Column(name = "seat_type", nullable = false, length = 30)
     private String seatType;
 

@@ -1,6 +1,7 @@
 package com.cinemaebooking.backend.room_layout.infrastructure.persistence.entity;
 
 import com.cinemaebooking.backend.infrastructure.persistence.entity.BaseJpaEntity;
+import com.cinemaebooking.backend.room.domain.enums.RoomType;
 import com.cinemaebooking.backend.room.infrastructure.persistence.entity.RoomJpaEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -22,6 +23,10 @@ public class RoomLayoutJpaEntity extends BaseJpaEntity {
 
     @Column(name = "layout_version", nullable = false)
     private Integer layoutVersion;         // Số thứ tự version (1, 2, 3...)
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "room_type", nullable = false)
+    private RoomType roomType;
 
     @Column(name = "effective_date", nullable = false)
     private LocalDate effectiveDate;       // Ngày bắt đầu có hiệu lực
