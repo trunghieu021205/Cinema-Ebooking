@@ -50,7 +50,6 @@ public class ShowtimeSeat extends BaseEntity<ShowtimeSeatId> {
                 .status(ShowtimeSeatStatus.AVAILABLE)
                 .build();
     }
-
     private static String buildSeatNumber(int rowIndex, int colIndex, int totalCols) {
         char rowLetter = (char) ('A' + rowIndex - 1);
         // Map cột: colIndex=1 (trái nhất) → displayCol = totalCols (phải)
