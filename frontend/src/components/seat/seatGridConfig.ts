@@ -62,39 +62,69 @@ export const SEAT_TYPE_FALLBACK: SeatTypeConfig = {
 // ─── Grid config ──────────────────────────────────────────────────────────────
 
 export interface SeatGridConfig {
-  mode:            'admin' | 'web'
-  seatSize:        string   // Tailwind h + w, vd: 'h-9 w-9'
-  seatRadius:      string   // vd: 'rounded-md'
-  screenPosition:  'top' | 'bottom'
-  rtl:             boolean  // true → số ghế từ phải qua trái
-  showRowLabel:    boolean
+  mode: 'admin' | 'web'
+  seatSize: string   
+  seatRadius: string   
+  screenPosition: 'top' | 'bottom'
+  rtl: boolean 
+  showRowLabel: boolean
   rowLabelBothSides: boolean
-  showColNumber:   boolean  // true → hiện số cột trong ô ghế
-  gap:             string   // gap giữa các ghế, vd: 'gap-1.5'
+  showColNumber: boolean  
+  gap: string  
+  cellWidth: string
+  cellHeight: string
+  legendSize: string       
+  legendSizeWide: string  
 }
 
 // ── Admin config ──────────────────────────────────────────────────────────────
 export const adminSeatGridConfig: SeatGridConfig = {
-  mode:              'admin',
-  seatSize:          'h-8 w-8',
-  seatRadius:        'rounded-md',
-  screenPosition:    'bottom',
-  rtl:               true,
-  showRowLabel:      true,
+  mode: 'admin',
+  seatSize: 'h-8 w-8',
+  seatRadius: 'rounded-md',
+  screenPosition: 'bottom',
+  rtl: true,
+  showRowLabel: true,
   rowLabelBothSides: true,
-  showColNumber:     true,
-  gap:               'gap-1.5',
+  showColNumber: true,
+  gap: 'gap-1.5',
+  cellWidth: '2rem',
+  cellHeight: '2rem',
+  legendSize: 'h-5 w-5',     
+  legendSizeWide: 'h-5 w-9',
 }
 
 // ── Web config ────────────────────────────────────────────────────────────────
 export const webSeatGridConfig: SeatGridConfig = {
-  mode:              'web',
-  seatSize:          'h-8 w-8',
-  seatRadius:        'rounded-md',
-  screenPosition:    'bottom',
-  rtl:               true,
-  showRowLabel:      true,
+  mode: 'web',
+  seatSize: 'h-8 w-8',
+  seatRadius: 'rounded-md',
+  screenPosition: 'bottom',
+  rtl: true,
+  showRowLabel: true,
   rowLabelBothSides: true,
-  showColNumber:     true,
-  gap:               'gap-2',
+  showColNumber: true,
+  gap: 'gap-2',
+  cellWidth: '2rem',
+  cellHeight: '2rem',
+    legendSize: 'h-5 w-5',
+  legendSizeWide: 'h-5 w-9',
+}
+
+// ── Preview config (dùng trong form tạo/sửa suất chiếu) ───────────────────────
+export const previewSeatGridConfig: SeatGridConfig = {
+    mode: 'admin',
+    seatSize: 'h-5 w-5',     
+    seatRadius: 'rounded-sm', 
+    screenPosition: 'bottom',
+    rtl: true,
+    showRowLabel: true,
+    rowLabelBothSides: false, 
+    showColNumber: true,
+    gap: 'gap-2',              
+    cellWidth: '1.25rem',
+    cellHeight: '1.25rem',
+    legendSize: 'h-4 w-4',       
+    legendSizeWide: 'h-4 w-7',
+
 }

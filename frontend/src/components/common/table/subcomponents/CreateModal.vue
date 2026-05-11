@@ -9,7 +9,8 @@
                 <Transition enter-from-class="opacity-0 scale-95"
                     enter-active-class="transition-all duration-200 ease-out" leave-to-class="opacity-0 scale-95"
                     leave-active-class="transition-all duration-150 ease-in">
-                    <div v-if="modelValue" class="flex w-full max-w-md flex-col rounded-xl bg-white shadow-xl">
+                    <div v-if="modelValue" class="flex w-full flex-col rounded-xl bg-white shadow-xl"
+                        :class="modalWidthClass">
                         <!-- Header -->
                         <div class="flex items-center justify-between border-b border-border-admin-default px-5 py-4">
                             <h2 class="text-sm font-semibold text-text-admin-primary">{{ title }}</h2>
@@ -19,13 +20,14 @@
                         </div>
 
                         <!-- Fields -->
-                        <div class="max-h-[60vh] overflow-y-auto px-5 py-4 hide-scrollbar">
-                            <div class="flex flex-col gap-4">
+                        <div class="max-h-[60vh] overflow-y-auto px-5 py-4 hide-scrollbar flex flex-col items-center">
+                            <div class="flex flex-col gap-4 w-full">
                                 <FieldRenderer v-for="col in creatableColumns" :key="col.key" :column="col"
                                     :modelValue="draft[col.key]" :error="localErrors[col.key]"
                                     :depValues="depValuesMap[col.key]"
                                     @update:modelValue="onFieldUpdate(col.key, $event)" />
                             </div>
+                            <slot name="extra" :draft="draft" :fieldErrors="localErrors" />
                         </div>
 
                         <!-- Footer -->
@@ -75,12 +77,14 @@ const props = withDefaults(
         submitLabel?: string
         isLoading?: boolean
         fieldErrors?: Record<string, string>  // lỗi từ backend sau khi submit
+        size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl'
     }>(),
     {
         title: 'Tạo mới',
         submitLabel: 'Tạo',
         isLoading: false,
         fieldErrors: () => ({}),
+        size: 'md',
     },
 )
 
@@ -89,6 +93,15 @@ const emit = defineEmits<{
     submit: [draft: Record<string, unknown>]
 }>()
 
+const modalWidthClass = computed(() => {
+    switch (props.size) {
+        case 'sm': return 'max-w-sm'
+        case 'lg': return 'max-w-lg'
+        case 'xl': return 'max-w-xl'
+        case '2xl': return 'max-w-2xl'
+        default: return 'max-w-md'
+    }
+})
 
 const localErrors = ref<Record<string, string>>({})
 

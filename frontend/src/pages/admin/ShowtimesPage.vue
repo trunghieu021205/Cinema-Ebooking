@@ -1,13 +1,44 @@
 <template>
     <div class="flex flex-col gap-6 py-6">
         <!-- Header -->
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between gap-4 pr-6">
             <div>
                 <h1 class="text-lg font-semibold text-text-admin-primary">Quản lý suất chiếu</h1>
                 <p class="text-sm text-text-admin-tertiary">{{ totalItems }} suất chiếu</p>
             </div>
+            <!-- Bộ lọc -->
+
+            <div class="flex items-center gap-3">
+                <select v-model="selectedCinemaId"
+                    class="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700">
+                    <option v-for="cinema in cinemaOptions" :key="cinema.value" :value="cinema.value">
+                        {{ cinema.label }}
+                    </option>
+                </select>
+                <select v-model="selectedRoomId"
+                    class="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700" @change="applyFilter">
+                    <option :value="undefined">Tất cả phòng</option>
+                    <option v-for="room in roomOptions" :key="room.value" :value="room.value">
+                        {{ room.label }}
+                    </option>
+                </select>
+
+                <select v-model="selectedStatus"
+                    class="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700" @change="applyFilter">
+                    <option :value="undefined">Tất cả trạng thái</option>
+                    <option value="SCHEDULED">Sắp chiếu</option>
+                    <option value="ONGOING">Đang chiếu</option>
+                    <option value="FINISHED">Đã kết thúc</option>
+                    <option value="CANCELLED">Đã hủy</option>
+                </select>
+            </div>
         </div>
 
+        <div v-if="!isLoadingCinemas && cinemaOptions.length === 0"
+            class="pr-6 rounded-lg bg-yellow-50 border border-yellow-100 p-4">
+            <p class="text-sm text-yellow-700">Chưa có rạp nào trong hệ thống. Vui lòng tạo rạp trước khi quản lý suất
+                chiếu.</p>
+        </div>
 
         <!-- Global errors -->
         <div v-if="globalErrors.length" class="pr-6 rounded-lg bg-red-50 border border-red-100 p-4">
@@ -21,10 +52,17 @@
 
         <!-- Data Table -->
         <DataTable :rows="showtimes" :columns="columns" createLabel="Thêm suất chiếu" :fieldErrors="fieldErrors"
-            @create="openCreateModal" @save="handleSave" @delete="handleCancel" @row-select="selectedShowtime = $event">
+            @create="openCreateModal" @save="handleSave" :showCreate="canCreate" :showDelete="false">
+
             <template #detail-actions="{ item }">
+                <button v-if="item.status !== 'CANCELLED' && item.status !== 'FINISHED'"
+                    class="flex w-full items-center justify-center gap-2 rounded-lg border border-red-200 py-2.5 text-sm text-red-600 hover:bg-red-50"
+                    @click="handleCancel(item)">
+                    <XCircle class="size-4" />
+                    Hủy suất chiếu
+                </button>
                 <button
-                    class="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 py-2.5 text-sm text-slate-600 transition-colors hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900"
+                    class="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 py-2.5 text-sm text-slate-600 hover:bg-slate-50"
                     @click="viewSeatMap(item)">
                     <Armchair class="size-4" />
                     Xem sơ đồ ghế
@@ -55,80 +93,151 @@
         </div>
 
         <!-- Create Modal -->
-        <CreateModal v-model="showCreateModal" title="Thêm suất chiếu" submitLabel="Tạo suất chiếu"
-            :columns="createColumns" :isLoading="isLoading" :fieldErrors="fieldErrors" @submit="handleCreate" />
+        <CreateModal v-model="showCreateModal" title="Thêm suất chiếu" submitLabel="Tạo suất chiếu" :columns="columns"
+            :isLoading="isLoading" :fieldErrors="fieldErrors" size="xl" @submit="handleCreate">
+            <template #extra="{ draft }">
+                <SeatMapPreview :roomId="draft?.roomId ? Number(draft.roomId) : null"
+                    :startDate="draft?.startTime ? String(draft.startTime) : undefined" />
+            </template>
+        </CreateModal>
+
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { ChevronRight, Armchair } from 'lucide-vue-next'
+import { ref, onMounted, computed, watch } from 'vue'
+import { useRoute } from 'vue-router'
+import { Armchair, XCircle } from 'lucide-vue-next'
 import DataTable from '@/components/common/table/DataTable.vue'
 import CreateModal from '@/components/common/table/subcomponents/CreateModal.vue'
 import { useShowtime } from '@/composables/useShowtime'
 import { cinemaApi } from '@/api/cinema.api'
-import { roomApi } from '@/api/room.api'
-import { movieApi } from '@/api/movie.api'
 import type { ShowtimeResponse, CreateShowtimeRequest } from '@/types/showtime'
 import type { ColumnDef } from '@/components/common/table/types/table'
+import SeatMapPreview from '@/components/showtime/SeatMapPreview.vue'
 
 const route = useRoute()
-const router = useRouter()
-const cinemaId = Number(route.params.cinemaId)
+const initialCinemaId = route.params.cinemaId ? Number(route.params.cinemaId) : null
+const selectedCinemaId = ref<number | null>(isNaN(initialCinemaId) ? null : initialCinemaId)
+
+const selectedRoomId = ref<number | undefined>(undefined)
+const selectedStatus = ref<string | undefined>(undefined)
+
+const roomOptions = ref<{ value: number; label: string }[]>([])
+const cinemaOptions = ref<{ value: number; label: string }[]>([])
+
+const showCreateModal = ref(false)
+const isLoadingCinemas = ref(true)
 
 const {
     showtimes, isLoading, fieldErrors, globalErrors,
     currentPage, totalPages, totalItems,
-    fetchList, goToPage, create, save, cancel,
-} = useShowtime(cinemaId)
+    fetchList, goToPage, setFilters, create, save, cancel,
+    loadMovies, loadRooms
+} = useShowtime(selectedCinemaId)
 
-const showCreateModal = ref(false)
-const selectedShowtime = ref<ShowtimeResponse | null>(null)
 
-// Hardcoded format options (id -> label)
-const formatOptions = [
+const canCreate = computed(() => cinemaOptions.value.length > 0 && selectedCinemaId.value != null)
+
+async function loadCinemaOptions() {
+    try {
+        const res = await cinemaApi.getList({ page: 0, size: 50 })
+        cinemaOptions.value = res.content.map(c => ({ value: c.id, label: c.name }))
+
+        if (cinemaOptions.value.length === 0) return
+
+        // Xác định rạp ban đầu: từ route params hoặc rạp đầu tiên
+        const routeCinemaId = route.params.cinemaId ? Number(route.params.cinemaId) : null
+        const defaultCinema = (routeCinemaId && cinemaOptions.value.some(c => c.value === routeCinemaId))
+            ? routeCinemaId
+            : cinemaOptions.value[0].value
+
+        selectedCinemaId.value = defaultCinema
+    } catch {
+        cinemaOptions.value = []
+    } finally {
+        isLoadingCinemas.value = false
+    }
+}
+
+watch(selectedCinemaId, async (newId) => {
+    if (newId && !isNaN(newId)) {
+        const rooms = await loadRooms(newId) // loadRooms nhận tham số cid
+        roomOptions.value = rooms.map(r => ({ value: r.id, label: r.label }))
+        selectedRoomId.value = undefined
+        setFilters(selectedRoomId.value, selectedStatus.value)
+    } else {
+        roomOptions.value = []
+        selectedRoomId.value = undefined
+        // Gọi fetch lại với cinemaId = null (tuỳ composable, thường sẽ không gửi tham số cinemaId)
+        setFilters(undefined, selectedStatus.value)
+    }
+})
+
+
+function applyFilter() {
+    setFilters(selectedRoomId.value, selectedStatus.value)
+}
+
+// Các options
+const formatStaticOptions = [
     { value: 1, label: '2D' },
     { value: 2, label: '3D' },
     { value: 3, label: 'IMAX' },
 ]
 
-// Column definitions for table (read‑only display)
+const languageOptions = [
+    { value: 'EN', label: 'English' },
+    { value: 'VI', label: 'Vietnamese' },
+    { value: 'JA', label: 'Japanese' },
+    { value: 'KO', label: 'Korean' },
+]
+
+// Định nghĩa columns (sửa key 'id')
 const columns: ColumnDef<ShowtimeResponse>[] = [
-    { key: 'id', label: 'ID', type: 'number', readonly: true, hideInCreate: true },
-    { key: 'movieId', label: 'Phim', type: 'relation', readonlyInEdit: true, hideInCreate: true },
-    { key: 'roomId', label: 'Phòng', type: 'relation', readonlyInEdit: true, hideInCreate: true },
-    { key: 'formatId', label: 'Định dạng', type: 'relation', readonlyInEdit: true, hideInCreate: true },
-    { key: 'startTime', label: 'Bắt đầu', type: 'datetime' },
-    { key: 'endTime', label: 'Kết thúc', type: 'datetime' },
-    { key: 'audioLanguage', label: 'Ngôn ngữ âm thanh', type: 'text' },
-    { key: 'subtitleLanguage', label: 'Ngôn ngữ phụ đề', type: 'text' },
-    { key: 'status', label: 'Trạng thái', type: 'text', readonly: true, hideInCreate: true },
+    { key: 'id', label: 'ID', type: 'number', readonly: true, hideInTable: true, hideInCreate: true, hideInEdit: true },
+    {
+        key: 'movieId',
+        label: 'Phim',
+        type: 'relation',
+        readonlyInEdit: true,
+        optionsLoader: loadMovies,  // dùng trực tiếp từ composable
+        width: '200px'
+    },
+    {
+        key: 'roomId',
+        label: 'Phòng',
+        type: 'relation',
+        readonlyInEdit: true,
+        optionsLoader: loadRooms,
+        width: '150px'
+    },
+    {
+        key: 'formatId',
+        label: 'Định dạng',
+        type: 'enum',
+        readonlyInEdit: true,
+        options: formatStaticOptions,
+        width: '100px'
+    },
+    { key: 'startTime', label: 'Bắt đầu', type: 'datetime', width: '150px' },
+    { key: 'endTime', label: 'Kết thúc', type: 'datetime', width: '150px' },
+    { key: 'audioLanguage', label: 'Âm thanh', type: 'enum', options: languageOptions, width: '120px' },
+    { key: 'subtitleLanguage', label: 'Phụ đề', type: 'enum', options: languageOptions, width: '120px' },
+    {
+        key: 'status',
+        label: 'Trạng thái',
+        type: 'enum',
+        readonly: true,
+        hideInCreate: true,
+        options: [
+            { value: 'SCHEDULED', label: 'Sắp chiếu' },
+            { value: 'ONGOING', label: 'Đang chiếu' },
+            { value: 'FINISHED', label: 'Đã kết thúc' },
+            { value: 'CANCELLED', label: 'Đã hủy' },
+        ],
+    },
 ]
-
-// Columns for CREATE modal (with dropdowns)
-const createColumns: ColumnDef<Partial<CreateShowtimeRequest>>[] = [
-    { key: 'movieId', label: 'Phim', type: 'select', options: () => fetchMovies() },
-    { key: 'roomId', label: 'Phòng', type: 'select', options: () => fetchRooms() },
-    // Hardcoded format options – no API call
-    { key: 'formatId', label: 'Định dạng', type: 'select', options: () => Promise.resolve(formatOptions) },
-    { key: 'startTime', label: 'Thời gian bắt đầu', type: 'datetime-local' },
-    { key: 'endTime', label: 'Thời gian kết thúc', type: 'datetime-local' },
-    { key: 'audioLanguage', label: 'Ngôn ngữ âm thanh', type: 'text' },
-    { key: 'subtitleLanguage', label: 'Ngôn ngữ phụ đề', type: 'text' },
-]
-
-// Helper to load movies for select
-async function fetchMovies() {
-    const res = await movieApi.getAll({ page: 0, size: 100 })
-    return res.content.map(m => ({ value: m.id, label: m.title }))
-}
-
-// Helper to load rooms for select
-async function fetchRooms() {
-    const res = await roomApi.getListByCinema(cinemaId, 0, 100)
-    return res.content.map(r => ({ value: r.id, label: r.name }))
-}
 
 function statusLabel(status: string) {
     const map: Record<string, string> = {
@@ -157,11 +266,13 @@ async function handleCreate(draft: Record<string, unknown>) {
     if (ok) showCreateModal.value = false
 }
 
-async function handleSave(item: ShowtimeResponse) {
-    await save(item)
+async function handleSave(item: ShowtimeResponse, done?: () => void) {
+    const ok = await save(item)
+    if (ok) {
+        done?.()
+    }
 }
 
-// Called when user clicks "Hủy" on a row
 async function handleCancel(item: ShowtimeResponse) {
     if (item.status === 'CANCELLED') {
         alert('Suất chiếu đã bị hủy trước đó')
@@ -177,5 +288,7 @@ function viewSeatMap(showtime: ShowtimeResponse) {
     alert(`Xem sơ đồ ghế cho suất chiếu #${showtime.id} (tính năng đang phát triển)`)
 }
 
-onMounted(() => fetchList(0))
+onMounted(async () => {
+    await loadCinemaOptions()
+})
 </script>

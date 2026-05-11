@@ -17,6 +17,7 @@ export interface ShowtimeResponse {
   roomId:           number
   formatId:         number
   cinemaId:         number
+  roomLayoutId:     number
   startTime:        string   // ISO 8601: "2026-05-10T14:00:00"
   endTime:          string
   audioLanguage:    string

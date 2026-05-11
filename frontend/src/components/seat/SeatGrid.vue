@@ -12,9 +12,8 @@
                     <RowLabel :label="rowLabel(rowIdx)" :mode="config.mode" />
 
                     <!-- Seat columns -->
-                    <div class="grid" :style="{
-                        gridTemplateColumns: `repeat(${layout.totalCols}, 2rem)`,
-                        gap: config.gap === 'gap-1.5' ? '0.375rem' : '0.5rem',
+                    <div class="grid" :class="config.gap" :style="{
+                        gridTemplateColumns: `repeat(${layout.totalCols}, ${config.cellWidth})`,
                     }">
                         <template v-for="item in getRowItems(row, rowIdx)" :key="item.key">
 
@@ -22,7 +21,7 @@
                             <div v-if="item.type === 'couple'"
                                 class="flex items-center justify-center border font-medium transition-all select-none cursor-pointer col-span-2"
                                 :class="[config.seatRadius, coupleClasses(item.leftSeat!, item.rightSeat!)]"
-                                :style="{ height: '2rem' }"
+                                :style="{ height: config.cellHeight }"
                                 :data-couple-ids="`${item.leftSeat.id},${item.rightSeat.id}`"
                                 @click="onCoupleClick(item.leftSeat!, item.rightSeat!, $event)">
                                 <div class="text-xs flex items-center justify-between w-full px-2">
@@ -49,7 +48,7 @@
                     </div>
 
                     <!-- Row label RIGHT -->
-                    <RowLabel :label="rowLabel(rowIdx)" :mode="config.mode" />
+                    <RowLabel v-if="config.rowLabelBothSides" :label="rowLabel(rowIdx)" :mode="config.mode" />
                 </div>
             </div>
         </div>
@@ -63,27 +62,27 @@
             <!-- Web: chọn + đã bán -->
             <template v-if="config.mode === 'web'">
                 <LegendItem>
-                    <span class="h-5 w-5 rounded-md bg-amber-500" />
+                    <span :class="[config.legendSize, 'rounded-md bg-amber-500']" />
                     <span>Ghế đã chọn</span>
                 </LegendItem>
                 <LegendItem>
-                    <span class="h-5 w-5 rounded-md bg-white/20" />
+                    <span :class="[config.legendSize, 'rounded-md bg-white/20']" />
                     <span>Ghế đã bán</span>
                 </LegendItem>
             </template>
 
             <!-- Seat types -->
             <LegendItem v-for="(cfg, typeId) in SEAT_TYPE_CONFIGS" :key="typeId">
-                <span v-if="config.mode === 'admin'" class="h-5 w-5 rounded-md border"
-                    :class="[cfg.adminBg, cfg.adminBorder]" />
-                <span v-else class="h-5 w-9 rounded-md border-2 bg-transparent" :class="cfg.webBorder" />
+                <span v-if="config.mode === 'admin'"
+                    :class="[config.legendSize, 'rounded-md border', cfg.adminBg, cfg.adminBorder]" />
+                <span v-else :class="[config.legendSizeWide, 'rounded-md border-2 bg-transparent', cfg.webBorder]" />
                 <span>{{ cfg.label }}</span>
             </LegendItem>
 
             <!-- Admin: inactive -->
             <template v-if="config.mode === 'admin'">
                 <LegendItem>
-                    <span class="h-5 w-5 rounded-md border border-gray-300 bg-gray-200 opacity-70" />
+                    <span :class="[config.legendSize, 'rounded-md border border-gray-300 bg-gray-200 opacity-70']" />
                     <span>Không hoạt động</span>
                 </LegendItem>
             </template>
@@ -124,7 +123,7 @@ const RowLabel = defineComponent({
 
 const ScreenBar = defineComponent({
     setup: () => () =>
-        h('div', { class: 'w-full max-w-2xl flex flex-col items-center gap-1 py-1' }, [
+        h('div', { class: 'w-full flex flex-col items-center gap-1 py-1' }, [
             h('span', { class: 'text-xs font-medium tracking-widest uppercase text-slate-400' }, 'Màn hình'),
             h('div', { class: 'h-1 w-full rounded-full bg-linear-to-r from-transparent via-amber-400/60 to-transparent' }),
         ]),

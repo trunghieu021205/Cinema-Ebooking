@@ -93,7 +93,7 @@ const baseColumns: ColumnDef<MovieResponse>[] = [
             { value: 'T18', label: 'T18' }
         ],
         required: true,
-        width: '100px'
+        width: '120px'
     },
     {
         key: 'releaseDate',
