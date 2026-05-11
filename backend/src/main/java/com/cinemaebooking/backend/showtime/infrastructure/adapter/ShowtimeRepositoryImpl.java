@@ -97,8 +97,9 @@ public class ShowtimeRepositoryImpl implements ShowtimeRepository {
     }
 
     @Override
-    public Page<Showtime> search(Long cinemaId, Long movieId, LocalDate date, Pageable pageable) {
-        return jpaRepository.search(cinemaId, movieId, date, pageable)
+    public Page<Showtime> search(Long cinemaId, Long movieId, Long roomId,
+                                 ShowtimeStatus status, LocalDate date, Pageable pageable) {
+        return jpaRepository.search(cinemaId, movieId, roomId, status, date, pageable)
                 .map(mapper::toDomain);
     }
 

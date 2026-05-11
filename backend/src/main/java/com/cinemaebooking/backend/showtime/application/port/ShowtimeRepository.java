@@ -30,6 +30,8 @@ public interface ShowtimeRepository {
     Page<Showtime> search(
             Long cinemaId,
             Long movieId,
+            Long roomId,
+            ShowtimeStatus status,
             LocalDate date,
             Pageable pageable
     );
