@@ -23,6 +23,7 @@
                             <div class="flex flex-col gap-4">
                                 <FieldRenderer v-for="col in creatableColumns" :key="col.key" :column="col"
                                     :modelValue="draft[col.key]" :error="localErrors[col.key]"
+                                    :depValues="depValuesMap[col.key]"
                                     @update:modelValue="onFieldUpdate(col.key, $event)" />
                             </div>
                         </div>
@@ -119,10 +120,22 @@ const draft = ref<Record<string, unknown>>({})
 
 function buildEmptyDraft(): Record<string, unknown> {
     return Object.fromEntries(
-        creatableColumns.value.map((c) => [
-            c.key,
-            c.type === 'enum' ? (c.options?.[0] ?? '') : '',
-        ]),
+        creatableColumns.value.map((c) => {
+            // enum: pre-select option đầu tiên
+            if (c.type === 'enum') {
+                const firstOpt = c.options?.[0]
+                const defaultVal = typeof firstOpt === 'object' && firstOpt !== null
+                    ? (firstOpt as any).value ?? ''
+                    : firstOpt ?? ''
+                return [c.key, defaultVal]
+            }
+            // relation: null để FieldRenderer biết "chưa chọn" (placeholder select)
+            if (c.type === 'relation') return [c.key, null]
+            // boolean: false
+            if (c.type === 'boolean') return [c.key, false]
+            if (c.type === 'multiselect') return [c.key, []]
+            return [c.key, '']
+        }),
     )
 }
 
@@ -138,14 +151,38 @@ watch(
     { immediate: true },
 )
 
+// ── depValuesMap — truyền deps xuống FieldRenderer cho dependent fields ────────
+//
+// Với mỗi column có dependsOn, tính object { [depKey]: draft[depKey] }.
+// Ví dụ: roomLayoutId.dependsOn = ['roomId', 'startTime']
+//   → depValuesMap['roomLayoutId'] = { roomId: draft.roomId, startTime: draft.startTime }
+//
+// FieldRenderer watch prop này, re-fetch dependentLoader khi deps thay đổi.
+// Với column không có dependsOn → depValuesMap[key] = undefined → ignored.
+const depValuesMap = computed<Record<string, Record<string, unknown>>>(() => {
+    const result: Record<string, Record<string, unknown>> = {}
+    for (const col of creatableColumns.value) {
+        if (col.dependsOn?.length) {
+            result[col.key] = Object.fromEntries(
+                col.dependsOn.map((dep) => [dep, draft.value[dep]])
+            )
+        }
+    }
+    return result
+})
+
 // ── Validate required fields ──────────────────────────────────────────────────
 const emptyFields = computed(() =>
     creatableColumns.value
-        .filter(
-            (c) =>
-                c.required !== false &&
-                (draft.value[c.key] === '' || draft.value[c.key] == null),
-        )
+        .filter((c) => {
+            if (c.required === false) return false
+            const val = draft.value[c.key]
+            // Multiselect bắt buộc phải có ít nhất 1 phần tử
+            if (c.type === 'multiselect') {
+                return !Array.isArray(val) || val.length === 0
+            }
+            return val === '' || val == null
+        })
         .map((c) => c.label),
 )
 

@@ -42,14 +42,17 @@
                         <td v-for="col in visibleColumns" :key="col.key"
                             class="px-4 py-3 text-slate-700 transition-colors group-hover:bg-gray-100"
                             :style="col.width ? { width: col.width } : {}" @click="selectedItem = row">
-                            <FieldRenderer :column="col" :modelValue="row[col.key]" mode="display" />
+                            <slot v-if="$slots[`cell-${String(col.key)}`]" :name="`cell-${String(col.key)}`"
+                                :value="row[col.key]" :item="row" />
+                            <FieldRenderer v-else :column="col" :modelValue="row[col.key]"
+                                :depValues="col.dependsOn ? getDepValues(row, col) : undefined" mode="display" />
                         </td>
 
                         <!-- Delete button -->
                         <td v-if="showDelete" class="px-2 py-3">
                             <button
                                 class="rounded-full p-1.5 text-text-admin-tertiary transition-colors hover:bg-overlay-light-30 hover:text-text-admin-primary"
-                                @click="onDeleteClick(row)">
+                                @click.stop="onDeleteClick(row)">
                                 <Trash2 class="size-4" />
                             </button>
                         </td>
@@ -109,13 +112,20 @@ const props = withDefaults(
 const emit = defineEmits<{
     create: []
     delete: [item: T]
-    save: [item: T]
+    save: [item: T, done: () => void]
 }>()
 
 // ── Table chỉ hiện column không bị hideInTable ────────────────────────────────
 const visibleColumns = computed(() =>
     props.columns.filter((c) => !c.hideInTable)
 )
+
+function getDepValues(row: T, col: ColumnDef<T>): Record<string, unknown> {
+    if (!col.dependsOn) return {}
+    return Object.fromEntries(
+        col.dependsOn.map(dep => [dep, row[dep]])
+    )
+}
 
 // ── Selected item → mở DetailPanel ───────────────────────────────────────────
 const selectedItem = ref<T | null>(null)

@@ -116,7 +116,10 @@ const columns: ColumnDef<CinemaResponse>[] = [
         key: 'status',
         label: 'Trạng thái',
         type: 'enum',
-        options: ['ACTIVE', 'INACTIVE'],
+        options: [
+            { value: 'ACTIVE', label: 'Hoạt động' },
+            { value: 'INACTIVE', label: 'Không hoạt động' }
+        ],
         hideInCreate: true,
         width: 'auto'
     },

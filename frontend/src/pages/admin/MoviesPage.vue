@@ -86,7 +86,12 @@ const baseColumns: ColumnDef<MovieResponse>[] = [
         key: 'ageRating',
         label: 'Độ tuổi',
         type: 'enum',
-        options: ['P', 'T13', 'T16', 'T18'],
+        options: [
+            { value: 'P', label: 'P - Tất cả' },
+            { value: 'T13', label: 'T13' },
+            { value: 'T16', label: 'T16' },
+            { value: 'T18', label: 'T18' }
+        ],
         required: true,
         width: '100px'
     },
@@ -101,8 +106,13 @@ const baseColumns: ColumnDef<MovieResponse>[] = [
         key: 'status',
         label: 'Trạng thái',
         type: 'enum',
-        options: ['COMING_SOON', 'NOW_SHOWING', 'ENDED'],
+        options: [
+            { value: 'COMING_SOON', label: 'Sắp chiếu' },
+            { value: 'NOW_SHOWING', label: 'Đang chiếu' },
+            { value: 'ENDED', label: 'Kết thúc' }
+        ],
         hideInCreate: true,
+        readonlyInEdit: true,
         width: '130px'
     },
     {
@@ -135,7 +145,7 @@ const genresColumn = computed<ColumnDef<MovieResponse>>(() => ({
     key: 'genres',
     label: 'Thể loại',
     type: 'multiselect',
-    options: genresList.value.map(g => ({ id: g.id, name: g.name })),
+    options: genresList.value.map(g => ({ value: g.id, label: g.name })),
     required: true,
 }))
 
@@ -171,23 +181,7 @@ async function handleCreate(draft: Record<string, unknown>) {
 }
 
 async function handleSave(item: MovieResponse, done: () => void) {
-    let resolvedGenres: { id: number; name: string }[]
-    if (Array.isArray(item.genres)) {
-        if (item.genres.length === 0) {
-            resolvedGenres = []
-        } else if (typeof item.genres[0] === 'number') {
-            // number[] -> lookup từ genresList
-            resolvedGenres = (item.genres as unknown as number[]).map(id =>
-                genresList.value.find(g => g.id === id) ?? { id, name: '' }
-            )
-        } else {
-            resolvedGenres = item.genres as { id: number; name: string }[]
-        }
-    } else {
-        resolvedGenres = []
-    }
-
-    const ok = await save({ ...item, genres: resolvedGenres })
+    const ok = await save(item as any)
     if (ok) done()
 }
 
