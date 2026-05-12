@@ -174,7 +174,7 @@ export function useShowtime(cinemaIdInput: Ref<number | null> | number | null) {
   // ── Option loaders ─────────────────────────────────────────
   async function loadMovies() {
     const res = await movieApi.getList({ page: 0, size: 50 })
-    return res.content.map(m => ({ id: m.id, label: m.title }))
+    return res.content.map(m => ({ id: m.id, label: `${m.title} (${m.duration} phút)` }))
   }
 
   async function loadRooms(cid?: number) {
@@ -184,6 +184,31 @@ export function useShowtime(cinemaIdInput: Ref<number | null> | number | null) {
     const options = res.content.map(r => ({ id: r.id, label: r.name }))
     roomOptionsCache.value = options
     return options
+  }
+
+   async function loadRoomsByFormat(deps: Record<string, unknown>): Promise<{ id: number; label: string }[]> {
+    const cid = currentCinemaId.value
+    if (!cid) return []
+
+    const formatId = Number(deps.formatId)
+    if (!formatId) return []
+
+    const typeMap: Record<number, RoomType> = {
+      1: 'TYPE_2D',
+      2: 'TYPE_3D',
+      3: 'IMAX',
+    }
+    const targetType = typeMap[formatId]
+    if (!targetType) return []
+
+    try {
+      const res = await roomApi.getListByCinema(cid, 0, 30)  // lấy toàn bộ phòng của rạp
+      return res.content
+        .filter(r => r.roomType === targetType)
+        .map(r => ({ id: r.id, label: r.name }))
+    } catch {
+      return []
+    }
   }
 
   // Khi cinemaId thay đổi, reset filter và load lại
@@ -211,6 +236,7 @@ export function useShowtime(cinemaIdInput: Ref<number | null> | number | null) {
     cancel,
     loadMovies,
     loadRooms,
+    loadRoomsByFormat,
     roomOptionsCache,
   }
 }

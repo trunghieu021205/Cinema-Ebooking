@@ -4,7 +4,7 @@
         <Transition enter-from-class="opacity-0" enter-active-class="transition-opacity duration-200"
             leave-to-class="opacity-0" leave-active-class="transition-opacity duration-200">
             <div v-if="modelValue" class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4"
-                @click.stop>
+                @click.stop @keydown.enter.prevent="onEnter">
                 <!-- Modal box -->
                 <Transition enter-from-class="opacity-0 scale-95"
                     enter-active-class="transition-all duration-200 ease-out" leave-to-class="opacity-0 scale-95"
@@ -25,7 +25,8 @@
                                 <FieldRenderer v-for="col in creatableColumns" :key="col.key" :column="col"
                                     :modelValue="draft[col.key]" :error="localErrors[col.key]"
                                     :depValues="depValuesMap[col.key]"
-                                    @update:modelValue="onFieldUpdate(col.key, $event)" />
+                                    @update:modelValue="onFieldUpdate(col.key, $event)"
+                                    @blur="onFieldBlur(col.key, $event)" />
                             </div>
                             <slot name="extra" :draft="draft" :fieldErrors="localErrors" />
                         </div>
@@ -78,6 +79,8 @@ const props = withDefaults(
         isLoading?: boolean
         fieldErrors?: Record<string, string>  // lỗi từ backend sau khi submit
         size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl'
+        onFieldChange?: (key: string, value: unknown, draft: Record<string, unknown>) => void
+        onFieldBlur?: (key: string, draft: Record<string, unknown>) => void
     }>(),
     {
         title: 'Tạo mới',
@@ -85,6 +88,8 @@ const props = withDefaults(
         isLoading: false,
         fieldErrors: () => ({}),
         size: 'md',
+        onFieldChange: undefined,
+        onFieldBlur: undefined,
     },
 )
 
@@ -121,6 +126,11 @@ watch(() => props.modelValue, (open) => {
 function onFieldUpdate(key: string, value: unknown) {
     draft.value[key] = value
     delete localErrors.value[key]
+    props.onFieldChange?.(key, value, draft.value)
+}
+
+function onFieldBlur(key: string) {
+    props.onFieldBlur?.(key, draft.value)
 }
 
 // ── Chỉ hiện field được tạo mới: không readonly, không hideInTable=false chủ động ──
@@ -205,6 +215,15 @@ const canSubmit = computed(() => emptyFields.value.length === 0 && !props.isLoad
 function onSubmit() {
     if (!canSubmit.value) return
     emit('submit', { ...draft.value })
+}
+
+function onEnter(event: KeyboardEvent) {
+    // Không submit nếu đang focus vào textarea (Enter để xuống dòng)
+    const activeEl = document.activeElement
+    if (activeEl?.tagName === 'TEXTAREA') return
+    if (canSubmit.value) {
+        onSubmit()
+    }
 }
 
 function onClose() {

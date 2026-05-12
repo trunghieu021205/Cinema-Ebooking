@@ -10,6 +10,7 @@ import com.cinemaebooking.backend.movie.application.port.MovieRepository;
 import com.cinemaebooking.backend.movie.domain.model.Movie;
 import com.cinemaebooking.backend.movie.domain.valueobject.MovieId;
 import com.cinemaebooking.backend.room.application.port.RoomRepository;
+import com.cinemaebooking.backend.room.domain.enums.RoomType;
 import com.cinemaebooking.backend.room.domain.model.Room;
 import com.cinemaebooking.backend.room.domain.valueObject.RoomId;
 import com.cinemaebooking.backend.showtime.application.dto.showtime.CreateShowtimeRequest;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Map;
 import java.util.Optional;
 
 @Component
@@ -34,6 +36,13 @@ public class ShowtimeCommandValidator {
 
     private static final int MAX_EXTRA_MINUTES = 60;
     private static final int PREPARATION_MINUTES = 15;
+    private static final int MAX_FUTURE_DAYS = 30;
+
+    private static final Map<Long, RoomType> FORMAT_TO_ROOM_TYPE = Map.of(
+            1L, RoomType.TYPE_2D,
+            2L, RoomType.TYPE_3D,
+            3L, RoomType.IMAX
+    );
 
     // ================== CREATE ==================
 
@@ -43,7 +52,11 @@ public class ShowtimeCommandValidator {
 
         validateCreateFields(request);
 
+        validateRoomTypeMatchesFormat(request.getRoomId(), request.getFormatId());
+
         validateTimeWithDuration(request.getMovieId(), request.getStartTime(), request.getEndTime());
+
+        validateStartTimeBounds(request.getStartTime());
 
         validateConflict(
                 null,
@@ -111,6 +124,38 @@ public class ShowtimeCommandValidator {
 
     // ================== INPUTVALIDATION - TIME ==================
 
+    private void validateStartTimeBounds(LocalDateTime startTime) {
+        if (startTime == null) {
+            return;
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+
+        // 1. Không được tạo suất chiếu trong quá khứ
+        if (startTime.isBefore(now)) {
+            throw CommonExceptions.invalidInput(
+                    "startTime",
+                    ErrorCategory.INVALID_VALUE,
+                    "Không thể tạo suất chiếu ở thời điểm trong quá khứ"
+            );
+        }
+
+        // 2. Không được tạo suất chiếu quá xa trong tương lai
+        LocalDateTime limit = now.plusDays(MAX_FUTURE_DAYS);
+        if (startTime.isAfter(limit)) {
+            throw CommonExceptions.invalidInput(
+                    "startTime",
+                    ErrorCategory.INVALID_VALUE,
+                    String.format(
+                            "Không thể tạo suất chiếu quá %d ngày trong tương lai. Thời gian tối đa cho phép: %s %s",
+                            MAX_FUTURE_DAYS,
+                            formatDate(limit),
+                            formatTime(limit)
+                    )
+            );
+        }
+    }
+
     private void validateTimeWithDuration(Long movieId, LocalDateTime startTime, LocalDateTime endTime) {
         Movie movie = movieRepository.findById(MovieId.of(movieId))
                 .orElseThrow(() -> CommonExceptions.invalidInput("movieId", ErrorCategory.NOT_FOUND, "Phim không tồn tại"));
@@ -142,6 +187,35 @@ public class ShowtimeCommandValidator {
     }
 
     // ================== BUSINESS - CONFLICT ==================
+    private void validateRoomTypeMatchesFormat(Long roomId, Long formatId) {
+        // Lấy thông tin phòng
+        Room room = roomRepository.findById(RoomId.of(roomId))
+                .orElseThrow(() -> RoomExceptions.notFound(RoomId.of(roomId)));
+
+        // Xác định loại phòng kỳ vọng từ formatId
+        RoomType expectedType = FORMAT_TO_ROOM_TYPE.get(formatId);
+        if (expectedType == null) {
+            throw CommonExceptions.invalidInput(
+                    "formatId",
+                    ErrorCategory.INVALID_VALUE,
+                    "Định dạng không hợp lệ"
+            );
+        }
+
+        // So sánh
+        if (room.getRoomType() != expectedType) {
+            throw CommonExceptions.invalidInput(
+                    "roomId",
+                    ErrorCategory.INVALID_VALUE,
+                    String.format(
+                            "Phòng '%s' có loại %s, không phù hợp với định dạng %s",
+                            room.getName(),
+                            room.getRoomType(),
+                            expectedType
+                    )
+            );
+        }
+    }
 
     private void validateConflict(
             ShowtimeId excludeId,
@@ -164,7 +238,7 @@ public class ShowtimeCommandValidator {
         if (conflict) {
             throw CommonExceptions.invalidInput("startTime", ErrorCategory.INVALID_VALUE,
                     String.format("Phòng chiếu %s đã có suất chiếu khác trong khung giờ %s – %s vào ngày %s",
-                            room.get().getName(),formatTime(startTime), formatTime(endTime), formatDate(startTime)));
+                            room.get().getName(), formatTime(startTime), formatTime(endTime), formatDate(startTime)));
         }
     }
 

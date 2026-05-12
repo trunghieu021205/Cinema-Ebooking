@@ -96,7 +96,8 @@
 
         <!-- Create Modal -->
         <CreateModal v-model="showCreateModal" title="Thêm suất chiếu" submitLabel="Tạo suất chiếu" :columns="columns"
-            :isLoading="isLoading" :fieldErrors="fieldErrors" size="xl" @submit="handleCreate">
+            :isLoading="isLoading" :fieldErrors="fieldErrors" size="xl" :onFieldBlur="onFieldBlur"
+            @submit="handleCreate">
             <template #extra="{ draft }">
                 <SeatMapPreview :roomId="draft?.roomId ? Number(draft.roomId) : null"
                     :startDate="draft?.startTime ? String(draft.startTime) : undefined" />
@@ -135,7 +136,7 @@ const {
     showtimes, isLoading, fieldErrors, globalErrors,
     currentPage, totalPages, totalItems,
     fetchList, goToPage, setFilters, create, save, cancel,
-    loadMovies, loadRooms
+    loadMovies, loadRooms, loadRoomsByFormat
 } = useShowtime(selectedCinemaId)
 
 
@@ -212,6 +213,8 @@ const columns: ColumnDef<ShowtimeResponse>[] = [
         type: 'relation',
         readonlyInEdit: true,
         optionsLoader: loadRooms,
+        dependentLoader: loadRoomsByFormat,          // dùng khi tạo mới, phụ thuộc formatId
+        dependsOn: ['formatId'],
         width: '150px'
     },
     {
@@ -253,6 +256,18 @@ function statusLabel(status: string) {
 
 function openCreateModal() {
     showCreateModal.value = true
+}
+
+function onFieldBlur(key: string, draft: Record<string, unknown>) {
+    if (key === 'startTime' && typeof draft.startTime === 'string') {
+        // Kiểm tra startTime đầy đủ ngày giờ
+        const isValidDateTime = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(draft.startTime)
+        const endTimeEmpty = !draft.endTime || (typeof draft.endTime === 'string' && draft.endTime.trim() === '')
+
+        if (isValidDateTime && endTimeEmpty) {
+            draft.endTime = draft.startTime
+        }
+    }
 }
 
 async function handleCreate(draft: Record<string, unknown>) {

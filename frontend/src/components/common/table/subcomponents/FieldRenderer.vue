@@ -137,7 +137,8 @@
             : 'border-border-admin-subtle bg-white focus:border-accent focus:ring-slate-100'"
             class="w-full rounded-lg border px-3 py-2 text-sm text-slate-900 outline-none transition focus:ring-2"
             :type="column.type === 'datetime' ? 'datetime-local' : column.type" :value="modelValue"
-            @input="emit('update:modelValue', ($event.target as HTMLInputElement).value)" />
+            @input="emit('update:modelValue', ($event.target as HTMLInputElement).value)"
+            @blur="emit('blur', column.key)" />
 
         <div v-if="mode === 'display'" class="text-sm text-slate-700">
             <!-- Relation display -->
@@ -206,6 +207,7 @@ const displayMode = computed(() => props.mode ?? 'edit')
 
 const emit = defineEmits<{
     'update:modelValue': [value: unknown]
+    'blur': [key: string]
 }>()
 
 // ─── Relation state ───────────────────────────────────────────────────────────
@@ -354,24 +356,26 @@ watch(
 
 // ─── Mount ────────────────────────────────────────────────────────────────────
 
+// FieldRenderer.vue – phần onMounted()
+
 onMounted(() => {
     if (props.column.type !== 'relation') return
+    if (props.column.staticOptions?.length) return
 
-    if (props.column.staticOptions?.length) {
-        // Static — không cần fetch gì
+    // Nếu là display mode hoặc không có depValues, ưu tiên optionsLoader
+    if ((props.mode === 'display' || !props.depValues) && props.column.optionsLoader) {
+        loadOptions()
         return
     }
 
-    if (props.column.dependentLoader) {
-        // Dependent — watch depValues xử lý, trigger thủ công lần đầu nếu đã có deps
-        if (props.depValues && isDepsReady.value) {
-            loadDependent(props.depValues)
-        }
+    // Nếu có dependentLoader và depValues đã sẵn sàng, load dependent
+    if (props.column.dependentLoader && props.depValues && isDepsReady.value) {
+        loadDependent(props.depValues)
         return
     }
 
+    // Fallback cuối cùng: optionsLoader
     if (props.column.optionsLoader) {
-        // Cả display mode (cần resolve label) lẫn edit mode đều cần load
         loadOptions()
     }
 })
