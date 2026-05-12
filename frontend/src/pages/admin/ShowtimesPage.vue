@@ -105,7 +105,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, computed, watch, readonly } from 'vue';
 import { useRoute } from 'vue-router'
 import { Armchair, XCircle } from 'lucide-vue-next'
 import DataTable from '@/components/common/table/DataTable.vue'
@@ -220,8 +220,8 @@ const columns: ColumnDef<ShowtimeResponse>[] = [
         options: formatStaticOptions,
         width: '100px'
     },
-    { key: 'startTime', label: 'Bắt đầu', type: 'datetime', width: '150px' },
-    { key: 'endTime', label: 'Kết thúc', type: 'datetime', width: '150px' },
+    { key: 'startTime', label: 'Bắt đầu', type: 'datetime', width: '150px', readonlyInEdit: true },
+    { key: 'endTime', label: 'Kết thúc', type: 'datetime', width: '150px', readonlyInEdit: true },
     { key: 'audioLanguage', label: 'Âm thanh', type: 'enum', options: languageOptions, width: '120px' },
     { key: 'subtitleLanguage', label: 'Phụ đề', type: 'enum', options: languageOptions, width: '120px' },
     {

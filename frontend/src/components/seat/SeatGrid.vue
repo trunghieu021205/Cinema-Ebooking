@@ -1,5 +1,5 @@
 <template>
-    <div class="w-fit flex flex-col items-start" :class="config.gap">
+    <div class="w-fit flex flex-col items-center" :class="config.gap">
 
         <!-- Screen TOP -->
         <ScreenBar v-if="config.screenPosition === 'top'" />

@@ -17,6 +17,7 @@ export interface RoomLayoutResponse {
   roomType:       RoomType
   effectiveDate:  string     
   used:           boolean
+  lastUsedDate:   string | null
   totalRows:      number
   totalCols:      number
   rows:           SeatResponse[][]
@@ -39,6 +40,8 @@ export interface RoomLayoutSummaryResponse {
   layoutVersion: number
   roomType:      RoomType
   effectiveDate: string
+  used:           boolean
+  lastUsedDate:   string | null
   totalRows:     number
   totalCols:     number
   createdAt:     Date

@@ -24,9 +24,12 @@
         <div class="flex items-center justify-between pr-6 mt-6">
             <div>
                 <h1 class="text-lg font-semibold text-text-admin-primary">Sơ đồ ghế</h1>
-                <p v-if="layout" class="text-sm text-text-admin-tertiary">
+                <p v-if="layout" class="text-sm text-text-admin-tertiary items-center flex gap-2">
                     {{ layout.totalRows }} hàng × {{ layout.totalCols }} cột
                     <span class="font-medium">{{ formatRoomType(layout.roomType) }}</span>
+                    <span v-if="layout.lastUsedDate" class="ml-1 inline-flex items-center gap-1 text-accent">
+                        <CircleCheck class="size-3.5" />
+                    </span>
                 </p>
             </div>
         </div>
@@ -72,13 +75,21 @@
                     <option v-for="v in layoutVersions" :key="v.id" :value="v.id">
                         v{{ v.layoutVersion }} · {{ formatRoomType(v.roomType) }} · {{ formatDateTime(v.effectiveDate,
                             false) }}
+                        <template v-if="v.lastUsedDate">
+                            · Dùng đến {{ formatDateTime(v.lastUsedDate, false) }}
+                        </template>
                         {{ v.id === layout?.id ? '(hiện tại)' : '' }}
                     </option>
                 </select>
                 <span
-                    class="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded whitespace-nowrap flex items-center gap-1">
+                    class="text-xs text-text-admin-primary bg-slate-200 px-2 py-1 rounded whitespace-nowrap flex items-center gap-1">
                     <Clock12 class="size-3.5" />
                     Tạo: {{ formatDateTime(selectedVersion?.createdAt, true) }}
+                </span>
+                <span v-if="selectedVersion?.lastUsedDate"
+                    class="text-xs text-text-admin-primary bg-slate-200 px-2 py-1 rounded whitespace-nowrap flex items-center gap-1">
+                    <CalendarDays class="size-3.5" />
+                    Dùng đến: {{ formatDateTime(selectedVersion.lastUsedDate, false) }}
                 </span>
             </div>
 
@@ -219,7 +230,9 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ChevronRight, CalendarDays, RotateCcw, Clock12, AlertTriangle, Eye } from 'lucide-vue-next'
+import {
+    ChevronRight, CalendarDays, RotateCcw, Clock12, AlertTriangle, Eye, CircleCheck
+} from 'lucide-vue-next'
 import SeatGrid from '@/components/seat/SeatGrid.vue'
 import AdminSeatPanel from '@/components/seat/AdminSeatPanel.vue'
 import BaseButton from '@/components/ui/button/BaseButton.vue'
@@ -273,7 +286,7 @@ const {
     hasChanges,
     changeList,
     applyAllChanges,
-} = useApplyLayoutChanges(layout, effectiveDate, fetchLayout, fetchLayoutHistory, syncSelectedVersion, selectedRoomType)
+} = useApplyLayoutChanges(layout, effectiveDate, fetchLayout, fetchLayoutHistory, syncSelectedVersion, selectedRoomType, layoutVersions)
 
 
 const formatDateTime = (dateStr?: string | null, includeTime: boolean = true): string => {

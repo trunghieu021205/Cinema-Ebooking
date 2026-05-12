@@ -4,7 +4,8 @@ import { cloneDeep } from 'lodash-es'
 import { layoutApi } from '@/api/layout.api'
 import type { SeatResponse, RoomLayoutResponse, SeatStatus } from '@/types/seat'
 import { usePendingChanges } from '@/composables/usePendingChanges'
-import type { MaybeRef } from '@vueuse/core' // hoặc tự định nghĩa
+import { validateEffectiveDate } from '@/utils/layoutValidation'
+import type { MaybeRef } from '@vueuse/core'
 
 interface MappedError {
   type?: string
@@ -21,7 +22,8 @@ export function useApplyLayoutChanges(
   fetchLayout: (roomId: number, date?: string) => Promise<void>,
   fetchLayoutHistory: (roomId: number) => Promise<void>,
   syncSelectedVersion: () => void,
-  selectedRoomType?: Ref<string>
+  selectedRoomType?: Ref<string>,
+  allVersions?: Ref<RoomLayoutSummaryResponse[]> 
 ) {
   const { changes, addChange, removeChange, clearAll, hasChanges: hasSeatChanges, changeList } = usePendingChanges()
 
@@ -185,6 +187,21 @@ export function useApplyLayoutChanges(
     if (!hasChanges.value) {
       applyError.value = { globalErrors: ['Không có thay đổi nào để áp dụng.'] }
       return
+    }
+    if (allVersions) {
+      const validationError = validateEffectiveDate(
+        layout.value,
+        effectiveDate.value,
+        allVersions.value
+      )
+      if (validationError) {
+        applyError.value = {
+          globalErrors: [validationError],
+          message: validationError,
+          fieldErrors: {}
+        }
+        return
+      }
     }
     const updates = changeList.value.map(change => ({
       seatId: change.seatId,

@@ -36,8 +36,6 @@ export interface CreateShowtimeRequest {
 }
 
 export interface UpdateShowtimeRequest {
-  startTime:        string
-  endTime:          string
   audioLanguage:    string
   subtitleLanguage: string
 }

@@ -144,8 +144,6 @@ export function useShowtime(cinemaIdInput: Ref<number | null> | number | null) {
   async function save(item: ShowtimeResponse): Promise<boolean> {
     clearErrors()
     const body: UpdateShowtimeRequest = {
-      startTime: item.startTime,
-      endTime: item.endTime,
       audioLanguage: item.audioLanguage,
       subtitleLanguage: item.subtitleLanguage,
     }

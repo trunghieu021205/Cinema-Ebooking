@@ -39,7 +39,7 @@
 
         <!-- Table -->
         <DataTable :rows="rooms" :columns="columns" createLabel="Thêm phòng" :fieldErrors="fieldErrors"
-            @create="showCreate = true" @delete="handleDelete" @save="handleSave" @row-select="selectedRoom = $event">
+            @create="showCreate = true" :show-delete="false" @save="handleSave" @row-select="selectedRoom = $event">
 
             <template #detail-actions="{ item }">
                 <button
