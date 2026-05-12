@@ -47,18 +47,8 @@ public class ShowtimeCommandValidator {
         Showtime existing = showtimeRepository.findById(id)
                 .orElseThrow(() -> ShowtimeExceptions.notFound(id));
 
-        Long roomId = existing.getRoomId();
-
         validateUpdateFields(request);
-
-        validateTimeLogic(request.getStartTime(), request.getEndTime());
-
-        validateConflict(
-                id,
-                roomId,
-                request.getStartTime(),
-                request.getEndTime()
-        );
+        
     }
 
     // ================== INPUT ==================
@@ -97,14 +87,6 @@ public class ShowtimeCommandValidator {
         var profile = ValidationFactory.showtime();
 
         var engine = ValidationEngine.of();
-
-        if (request.getStartTime() != null) {
-            engine.validate(request.getStartTime(), "startTime", profile.startTimeRules());
-        }
-
-        if (request.getEndTime() != null) {
-            engine.validate(request.getEndTime(), "endTime", profile.endTimeRules());
-        }
 
         engine.throwIfInvalid();
     }

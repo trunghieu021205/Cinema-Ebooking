@@ -31,6 +31,8 @@ public class RoomLayout extends BaseEntity<RoomLayoutId> {
 
     private boolean used;
 
+    private LocalDate lastUsedDate;
+
     private Integer totalRows;
 
     private Integer totalCols;
@@ -47,6 +49,7 @@ public class RoomLayout extends BaseEntity<RoomLayoutId> {
         this.roomType = builder.roomType;
         this.effectiveDate = builder.effectiveDate;
         this.used = builder.used;
+        this.lastUsedDate = builder.lastUsedDate;
         this.totalRows = builder.totalRows;
         this.totalCols = builder.totalCols;
         this.createdAt = builder.createdAt;

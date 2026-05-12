@@ -22,7 +22,7 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 public class ShowtimeAdminController {
 
-    private final CreateShowtimeUsecase createShowtimeUseCase;
+    private final CreateShowtimeUseCase createShowtimeUseCase;
     private final UpdateShowtimeUsecase updateShowtimeUseCase;
     private final DeleteShowtimeUsecase deleteShowtimeUseCase;
     private final GetShowtimeUseCase getShowtimeUsecase;

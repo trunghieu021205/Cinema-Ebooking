@@ -7,7 +7,6 @@ import com.cinemaebooking.backend.room_layout.application.port.roomLayoutSeat.Ro
 import com.cinemaebooking.backend.room_layout.application.port.seatType.SeatTypeRepository;
 import com.cinemaebooking.backend.room_layout.domain.model.roomLayout.RoomLayout;
 import com.cinemaebooking.backend.room_layout.domain.model.roomLayoutSeat.RoomLayoutSeat;
-import com.cinemaebooking.backend.room_layout.domain.model.seatType.SeatType;
 import com.cinemaebooking.backend.room_layout.domain.valueObject.seatType.SeatTypeId;
 import com.cinemaebooking.backend.showtime.application.dto.showtime.CreateShowtimeRequest;
 import com.cinemaebooking.backend.showtime.application.dto.showtime.ShowtimeResponse;
@@ -31,7 +30,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class CreateShowtimeUsecase {
+public class CreateShowtimeUseCase {
 
     private final ShowtimeRepository showtimeRepository;
     private final ShowtimeSeatRepository showtimeSeatRepository;
@@ -67,7 +66,7 @@ public class CreateShowtimeUsecase {
         showtime.validateForCreate();
 
         Showtime saved = showtimeRepository.create(showtime);
-        if (!layout.isUsed()) roomLayoutRepository.markAsUsed(layout.getId());
+        if (!layout.isUsed()) roomLayoutRepository.markAsUsedAndSetLastUsedDate(layout, showtime.getStartTime().toLocalDate());
         // Lấy tất cả ghế của layout
         List<RoomLayoutSeat> layoutSeats = roomLayoutSeatRepository.findByRoomLayoutId(layout.getId().getValue());
 

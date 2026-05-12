@@ -16,6 +16,7 @@ public class RoomLayoutDetailResponse {
     private RoomType roomType;
     private LocalDate effectiveDate;
     private boolean isUsed;
+    private LocalDate lastUsedDate;
     int totalRows;
     int totalCols;
     List<List<RoomLayoutSeatResponse>> rows;

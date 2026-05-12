@@ -14,6 +14,8 @@ public class RoomLayoutSummaryResponse {
     private Integer layoutVersion;
     private RoomType roomType;
     private LocalDate effectiveDate;
+    private boolean isUsed;
+    private LocalDate lastUsedDate;
     private Integer totalRows;
     private Integer totalCols;
     private LocalDateTime createdAt;
