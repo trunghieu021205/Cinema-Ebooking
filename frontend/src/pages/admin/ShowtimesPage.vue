@@ -10,13 +10,14 @@
 
             <div class="flex items-center gap-3">
                 <select v-model="selectedCinemaId"
-                    class="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700">
+                    class="rounded-lg border border-border-admin-default px-3 py-2 text-sm text-text-admin-primary">
                     <option v-for="cinema in cinemaOptions" :key="cinema.value" :value="cinema.value">
                         {{ cinema.label }}
                     </option>
                 </select>
                 <select v-model="selectedRoomId"
-                    class="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700" @change="applyFilter">
+                    class="rounded-lg border border-border-admin-default px-3 py-2 text-sm text-text-admin-primary"
+                    @change="applyFilter">
                     <option :value="undefined">Tất cả phòng</option>
                     <option v-for="room in roomOptions" :key="room.value" :value="room.value">
                         {{ room.label }}
@@ -24,7 +25,8 @@
                 </select>
 
                 <select v-model="selectedStatus"
-                    class="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700" @change="applyFilter">
+                    class="rounded-lg border border-border-admin-default px-3 py-2 text-sm text-text-admin-primary"
+                    @change="applyFilter">
                     <option :value="undefined">Tất cả trạng thái</option>
                     <option value="SCHEDULED">Sắp chiếu</option>
                     <option value="ONGOING">Đang chiếu</option>

@@ -28,7 +28,10 @@ const isPublicEndpoint = (url?: string): boolean => {
 
 // ================= REQUEST =================
 apiClient.interceptors.request.use((config) => {
-    if (isPublicEndpoint(config.url)) return config 
+    if (isPublicEndpoint(config.url)) {
+        delete config.headers.Authorization;
+        return config 
+    } 
     const token = localStorage.getItem('accessToken')
     if (token) config.headers.Authorization = `Bearer ${token}`
     return config
@@ -164,7 +167,6 @@ apiClient.interceptors.response.use(
             localStorage.setItem('accessToken', newAccessToken)
             localStorage.setItem('refreshToken', newRefreshToken)
 
-            apiClient.defaults.headers.common.Authorization = `Bearer ${newAccessToken}`
             originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
 
             try {

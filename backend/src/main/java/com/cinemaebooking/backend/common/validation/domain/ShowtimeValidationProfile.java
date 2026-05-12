@@ -4,6 +4,7 @@ import com.cinemaebooking.backend.common.exception.ErrorCategory;
 import com.cinemaebooking.backend.common.exception.ErrorDetail;
 import com.cinemaebooking.backend.common.validation.builder.ValidationBuilder;
 import com.cinemaebooking.backend.common.validation.engine.ValidationRule;
+import com.cinemaebooking.backend.showtime.domain.enums.Language;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -90,6 +91,18 @@ public class ShowtimeValidationProfile {
 
     public List<ValidationRule<LocalDateTime>> endTimeRules() {
         return ValidationBuilder.<LocalDateTime>create()
+                .notNull()
+                .build();
+    }
+
+    public List<ValidationRule<Language>> audioLanguageRules() {
+        return ValidationBuilder.<Language>create()
+                .notNull()
+                .build();
+    }
+
+    public List<ValidationRule<Language>> subtitleLanguageRules() {
+        return ValidationBuilder.<Language>create()
                 .notNull()
                 .build();
     }

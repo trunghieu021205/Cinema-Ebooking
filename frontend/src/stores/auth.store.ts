@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { UserProfile } from '@/types/auth.types'
+import { apiClient } from '@/api/axios'
 
 export const useAuthStore = defineStore('auth', () => {
 
@@ -23,6 +24,7 @@ export const useAuthStore = defineStore('auth', () => {
         refreshToken.value = null
         localStorage.removeItem('accessToken')
         localStorage.removeItem('refreshToken')
+        delete apiClient.defaults.headers.common.Authorization;
     }
 
     const isLoggedIn = computed(() => !!accessToken.value)

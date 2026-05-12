@@ -1,4 +1,3 @@
-// src/utils/errorMapper.ts
 import type { ApiError, ApiErrorDetail } from '@/types/api.types'
 
 // ─── Category map ──────────────────────────────────────────────
@@ -22,6 +21,19 @@ const ERROR_CODE_MESSAGES: Record<number, MessageFn> = {
 
     3006: (p) => `Không thể xóa rạp ${p?.cinemaName} vì vẫn còn phòng chưa bị xóa`,
     3009: (p) => `Không thể xoá phòng ${p?.roomName} vì vẫn còn suất chiếu đã lên lịch hoặc đang diễn ra`,
+
+    // ========== SHOWTIME (3021–3028) ==========
+    3021: (p) => `Không tìm thấy suất chiếu${p?.showtimeId ? ` #${p.showtimeId}` : ''}`,
+    3022: () => 'Trạng thái suất chiếu không hợp lệ',
+    3023: () => 'Suất chiếu đã kết thúc',
+    3024: () => 'Suất chiếu không thể đặt vé',
+    3025: () => 'Không tìm thấy định dạng suất chiếu',
+    3026: () => 'Định dạng suất chiếu không hợp lệ',
+
+    // ========== SHOWTIME SEAT (3029–3031) ==========
+    3029: () => 'Không tìm thấy ghế trong suất chiếu',
+    3030: () => 'Ghế trong suất chiếu đã bị khóa',
+    3031: () => 'Ghế trong suất chiếu không khả dụng',
 }
 
 // ─── Field + Category override ─────────────────────────────────
@@ -32,18 +44,35 @@ const FIELD_CATEGORY_MESSAGES: Record<string, MessageFn> = {
   'address.DUPLICATE': () => 'Địa chỉ trong thành phố này đã được sử dụng',
 }
 
+// ─── Config: Field nào sẽ ưu tiên dùng reason từ backend ─────────
+const USE_REASON_FOR_FIELD: Record<string, boolean | string[]> = {
+  'endTime': true,                // luôn dùng reason cho endTime
+  'startTime': true,           // luôn dùng reason cho startTime    
+};
+
+function shouldUseReason(field: string, category: string): boolean {
+  const config = USE_REASON_FOR_FIELD[field];
+  if (config === true) return true;
+  if (Array.isArray(config)) return config.includes(category);
+  return false;
+}
+
 // ─── Resolve message cho 1 detail ─────────────────────────────
 function resolveDetailMessage(detail: ApiErrorDetail): string {
-  // 1. Ưu tiên field-specific override
+  // 1. Ưu tiên đặc biệt: nếu field được cấu hình dùng reason
+  if (shouldUseReason(detail.field, detail.category)) {
+    return detail.reason;
+  }
+  // 2. Ưu tiên field-specific override
   const fieldKey = `${detail.field}.${detail.category}`
   const fieldOverride = FIELD_CATEGORY_MESSAGES[fieldKey]
   if (fieldOverride) return fieldOverride(detail.params ?? undefined)
 
-  // 2. Fallback về category map
+  // 3. Fallback về category map
   const messageFn = CATEGORY_MESSAGES[detail.category]
   if (messageFn) return messageFn(detail.params ?? undefined)
 
-  // 3. Fallback về reason từ backend
+  // 4. Fallback về reason từ backend
   return detail.reason
 }
 
