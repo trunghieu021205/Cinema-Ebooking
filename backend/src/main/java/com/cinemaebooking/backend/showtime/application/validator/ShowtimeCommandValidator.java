@@ -37,6 +37,7 @@ public class ShowtimeCommandValidator {
     private static final int MAX_EXTRA_MINUTES = 60;
     private static final int PREPARATION_MINUTES = 15;
     private static final int MAX_FUTURE_DAYS = 30;
+    private static final int MIN_HOURS_BEFORE = 24;
 
     private static final Map<Long, RoomType> FORMAT_TO_ROOM_TYPE = Map.of(
             1L, RoomType.TYPE_2D,
@@ -140,7 +141,21 @@ public class ShowtimeCommandValidator {
             );
         }
 
-        // 2. Không được tạo suất chiếu quá xa trong tương lai
+        // 2. Không được tạo suất chiếu trong vòng 24 giờ tới
+        LocalDateTime minStartTime = now.plusHours(MIN_HOURS_BEFORE);
+        if (startTime.isBefore(minStartTime)) {
+            throw CommonExceptions.invalidInput(
+                    "startTime",
+                    ErrorCategory.INVALID_VALUE,
+                    String.format(
+                            "Không thể tạo suất chiếu trong vòng 24 giờ tới. Thời gian bắt đầu tối thiểu là %s %s",
+                            formatDate(minStartTime),
+                            formatTime(minStartTime)
+                    )
+            );
+        }
+
+        // 3. Không được tạo suất chiếu quá xa trong tương lai
         LocalDateTime limit = now.plusDays(MAX_FUTURE_DAYS);
         if (startTime.isAfter(limit)) {
             throw CommonExceptions.invalidInput(
