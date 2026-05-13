@@ -1,5 +1,6 @@
 package com.cinemaebooking.backend.loyalty.application.port;
 
+import com.cinemaebooking.backend.loyalty.domain.enums.EarningType;
 import com.cinemaebooking.backend.loyalty.domain.model.EarningRule;
 import com.cinemaebooking.backend.loyalty.domain.valueobject.EarningRuleId;
 import com.cinemaebooking.backend.loyalty.domain.valueobject.MembershipTierId;
@@ -12,7 +13,11 @@ public interface EarningRuleRepository {
     EarningRule update(EarningRule rule);
     void deleteById(EarningRuleId id);
     List<EarningRule> findAll();
-    List<EarningRule> findByTierAndType(MembershipTierId tierId, String earningType);
+    List<EarningRule> findByTierAndType(MembershipTierId tierId, EarningType earningType);
     boolean existsById(EarningRuleId id);
-    boolean existsDuplicate(MembershipTierId tierId, String earningType, EarningRuleId excludeId);
+    boolean existsDuplicate(MembershipTierId tierId, EarningType earningType, EarningRuleId excludeId);
+    boolean existsByMembershipTierIdAndEarningType(
+            Long membershipTierId,
+            EarningType earningType
+    );
 }

@@ -15,34 +15,26 @@
                     <option :value="2">Ghế VIP</option>
                     <option :value="3">Ghế đôi</option>
                 </select>
-                <BaseButton variant="primary" size="md" :disabled="!selectedType || selectedCount === 0 || loadingType"
+                <BaseButton variant="primary" size="md" :disabled="!selectedType || selectedCount === 0"
                     @click="applyType">
-                    {{ loadingType ? '...' : 'Áp dụng' }}
+                    Áp dụng
                 </BaseButton>
             </div>
         </div>
 
         <!-- Kích hoạt -->
-        <div>
-            <BaseButton variant="primary" size="md"
-                class="w-full bg-green-600 hover:bg-green-700 border-none disabled:opacity-50"
-                :disabled="selectedCount === 0 || loadingActive" @click="activate">
-                {{ loadingActive ? 'Đang xử lý...' : 'Kích hoạt ghế (ACTIVE)' }}
-            </BaseButton>
-            <p class="text-xs text-gray-500 mt-1">Ghế sẽ hiển thị và có thể đặt</p>
-        </div>
+        <BaseButton variant="primary" size="md" class="w-full bg-green-600 hover:bg-green-700"
+            :disabled="selectedCount === 0" @click="activate">
+            Kích hoạt ghế (ACTIVE)
+        </BaseButton>
 
         <!-- Vô hiệu hóa -->
-        <div>
-            <BaseButton variant="primary" size="md"
-                class="w-full bg-gray-600 hover:bg-gray-700 border-none disabled:opacity-50"
-                :disabled="selectedCount === 0 || loadingInactive" @click="inactivate">
-                {{ loadingInactive ? 'Đang xử lý...' : 'Vô hiệu hóa ghế (INACTIVE)' }}
-            </BaseButton>
-            <p class="text-xs text-gray-500 mt-1">Ghế sẽ bị ẩn/không thể chọn</p>
-        </div>
+        <BaseButton variant="primary" size="md" class="w-full bg-gray-600 hover:bg-gray-700"
+            :disabled="selectedCount === 0" @click="inactivate">
+            Vô hiệu hóa ghế (INACTIVE)
+        </BaseButton>
 
-        <!-- Nút bỏ chọn -->
+        <!-- Bỏ chọn -->
         <div class="border-t pt-2">
             <button class="text-sm text-gray-500 hover:text-gray-700" @click="emit('clear-selection')">
                 Bỏ chọn tất cả
@@ -53,69 +45,29 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { layoutApi } from '@/api/layout.api'
 import BaseButton from '@/components/ui/button/BaseButton.vue'
 
-const props = defineProps<{
-    selectedSeatIds: Set<number>
-}>()
-
+const props = defineProps<{ selectedSeatIds: Set<number> }>()
 const emit = defineEmits<{
-    'update-success': []
+    'apply-change': [payload: { seatIds: number[]; newStatus?: string; newSeatTypeId?: number }]
     'clear-selection': []
 }>()
 
 const selectedType = ref<number | null>(null)
-const loadingType = ref(false)
-const loadingActive = ref(false)
-const loadingInactive = ref(false)
-
 const selectedCount = computed(() => props.selectedSeatIds.size)
 const seatIdArray = computed(() => Array.from(props.selectedSeatIds))
 
-async function applyType() {
+function applyType() {
     if (!selectedType.value || selectedCount.value === 0) return
-    loadingType.value = true
-    try {
-        await layoutApi.bulkUpdateSeatType({
-            seatIds: seatIdArray.value,
-            seatTypeId: selectedType.value
-        })
-        emit('update-success')
-        selectedType.value = null
-    } catch (err) {
-        console.error(err)
-        alert('Cập nhật loại ghế thất bại')
-    } finally {
-        loadingType.value = false
-    }
+    emit('apply-change', { seatIds: seatIdArray.value, newSeatTypeId: selectedType.value })
+    selectedType.value = null
 }
 
-async function activate() {
-    if (selectedCount.value === 0) return
-    loadingActive.value = true
-    try {
-        await layoutApi.bulkActivate({ seatIds: seatIdArray.value })
-        emit('update-success')
-    } catch (err) {
-        console.error(err)
-        alert('Kích hoạt ghế thất bại')
-    } finally {
-        loadingActive.value = false
-    }
+function activate() {
+    emit('apply-change', { seatIds: seatIdArray.value, newStatus: 'ACTIVE' })
 }
 
-async function inactivate() {
-    if (selectedCount.value === 0) return
-    loadingInactive.value = true
-    try {
-        await layoutApi.bulkInactivate({ seatIds: seatIdArray.value })
-        emit('update-success')
-    } catch (err) {
-        console.error(err)
-        alert('Vô hiệu hóa ghế thất bại')
-    } finally {
-        loadingInactive.value = false
-    }
+function inactivate() {
+    emit('apply-change', { seatIds: seatIdArray.value, newStatus: 'INACTIVE' })
 }
 </script>

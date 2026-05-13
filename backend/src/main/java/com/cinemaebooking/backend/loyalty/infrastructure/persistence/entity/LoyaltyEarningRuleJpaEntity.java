@@ -1,6 +1,7 @@
 package com.cinemaebooking.backend.loyalty.infrastructure.persistence.entity;
 
 import com.cinemaebooking.backend.infrastructure.persistence.entity.BaseJpaEntity;
+import com.cinemaebooking.backend.loyalty.domain.enums.EarningType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -71,8 +72,9 @@ public class LoyaltyEarningRuleJpaEntity extends BaseJpaEntity {
      * Loại giao dịch áp dụng quy tắc tích điểm
      * Ví dụ: TICKET (vé phim), CONCESSION (bắp nước), MERCHANDISE, OTHER
      */
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 100)
-    private String earningType;
+    private EarningType earningType;
 
     /**
      * Tỷ lệ tích điểm (ví dụ: 0.03 = 3%)
@@ -111,8 +113,5 @@ public class LoyaltyEarningRuleJpaEntity extends BaseJpaEntity {
      */
     @Column(nullable = false)
     private Integer priority = 0;
-    @Override
-    protected void beforeSoftDelete() {
-        this.earningType = markDeleted(this.earningType);
-    }
+
 }

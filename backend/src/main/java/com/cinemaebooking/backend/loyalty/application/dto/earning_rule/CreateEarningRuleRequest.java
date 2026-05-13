@@ -1,5 +1,6 @@
 package com.cinemaebooking.backend.loyalty.application.dto.earning_rule;
 
+import com.cinemaebooking.backend.loyalty.domain.enums.EarningType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,7 +11,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class CreateEarningRuleRequest {
     private Long tierId;
-    private String earningType;
+    private EarningType earningType;
     private BigDecimal multiplier;
     private BigDecimal fixedPoints;
     private String description;

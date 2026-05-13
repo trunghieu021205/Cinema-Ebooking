@@ -34,9 +34,9 @@ export function useGenre() {
     try {
       const response = await genreApi.getList(page, size)
       genres.value = response.content
-      totalItems.value = response.totalElements
-      totalPages.value = response.totalPages
-      currentPage.value = response.number
+      totalItems.value = response.page.totalElements
+      totalPages.value = response.page.totalPages
+      currentPage.value = response.page.number
     } catch (err) {
           handleError(err)
     } finally {

@@ -2,6 +2,7 @@ package com.cinemaebooking.backend.common.exception.domain.exception_loyalty;
 
 import com.cinemaebooking.backend.common.exception.BaseException;
 import com.cinemaebooking.backend.common.exception.ErrorCode;
+import com.cinemaebooking.backend.loyalty.domain.enums.EarningType;
 import com.cinemaebooking.backend.loyalty.domain.valueobject.EarningRuleId;
 
 public final class EarningRuleExceptions {
@@ -9,7 +10,7 @@ public final class EarningRuleExceptions {
     public static BaseException notFound(EarningRuleId id) {
         return new BaseException(ErrorCode.LOYALTY_RULE_INVALID, "Earning rule not found: " + id);
     }
-    public static BaseException invalidType(String type) {
+    public static BaseException invalidType(EarningType type) {
         return new BaseException(ErrorCode.LOYALTY_RULE_INVALID, "Invalid earning rule type: " + type);
     }
     public static BaseException invalidRate() {

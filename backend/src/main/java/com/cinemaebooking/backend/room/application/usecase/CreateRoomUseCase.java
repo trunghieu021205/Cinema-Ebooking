@@ -1,8 +1,7 @@
 package com.cinemaebooking.backend.room.application.usecase;
 
 import com.cinemaebooking.backend.room.application.dto.CreateRoomRequest;
-import com.cinemaebooking.backend.room.application.dto.RoomResponse;
-import com.cinemaebooking.backend.room.application.mapper.RoomResponseMapper;
+import com.cinemaebooking.backend.room.application.dto.RoomIdResponse;
 import com.cinemaebooking.backend.room.application.port.RoomRepository;
 import com.cinemaebooking.backend.room.application.validator.RoomCommandValidator;
 import com.cinemaebooking.backend.room.domain.enums.RoomStatus;
@@ -23,10 +22,9 @@ import org.springframework.stereotype.Service;
 public class CreateRoomUseCase {
 
     private final RoomRepository roomRepository;
-    private final RoomResponseMapper mapper;
     private final RoomCommandValidator validator;
 
-    public RoomResponse execute(CreateRoomRequest request) {
+    public RoomIdResponse execute(CreateRoomRequest request) {
 
         // ================== VALIDATION ==================
         validator.validateCreateRequest(request);
@@ -35,10 +33,9 @@ public class CreateRoomUseCase {
         Room room = buildRoom(request);
 
         // ================== PERSIST ==================
-        Room saved = roomRepository.create(room);
+        var saved = roomRepository.create(room);
 
-        // ================== RESPONSE ==================
-        return mapper.toRoomResponse(saved);
+        return new RoomIdResponse(saved.getId().getValue());
     }
 
     // ================== PRIVATE METHODS ==================

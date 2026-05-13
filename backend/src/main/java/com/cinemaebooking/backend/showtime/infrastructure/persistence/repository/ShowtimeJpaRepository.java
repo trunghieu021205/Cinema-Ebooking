@@ -46,4 +46,6 @@ public interface ShowtimeJpaRepository extends SoftDeleteJpaRepository<ShowtimeJ
     );
 
     boolean existsByRoomIdAndStatusIn(Long roomId, List<ShowtimeStatus> status);
+
+    boolean existsByRoomLayoutId(Long roomLayoutId);
 }

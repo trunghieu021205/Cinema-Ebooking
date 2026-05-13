@@ -23,12 +23,12 @@ public class MembershipTierController {
     private final GetMembershipTierDetailUseCase detail;
     private final GetMembershipTierListUseCase list;
 
-    @PreAuthorize("hasRole('ADMIN')")
+    /*@PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public MembershipTierResponse create(@RequestBody CreateMembershipTierRequest request) {
         return create.execute(request);
-    }
+    }*/
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
@@ -36,12 +36,12 @@ public class MembershipTierController {
         return update.execute(MembershipTierId.of(id), request);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    /*@PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
         delete.execute(MembershipTierId.of(id));
-    }
+    }*/
 
     @GetMapping("/{id}")
     public MembershipTierResponse detail(@PathVariable Long id) {

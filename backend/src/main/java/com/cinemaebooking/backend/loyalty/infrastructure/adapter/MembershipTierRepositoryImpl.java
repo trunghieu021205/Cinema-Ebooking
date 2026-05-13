@@ -85,6 +85,11 @@ public class MembershipTierRepositoryImpl implements MembershipTierRepository {
     }
 
     @Override
+    public boolean existsByName(String name) {
+        return jpaRepository.existsByName(name);
+    }
+
+    @Override
     public boolean existsByNameAndIdNot(String name, MembershipTierId id) {
         // Dùng findByName rồi tự kiểm tra, vì existsByNameAndIdNot không lọc deletedAt
         return jpaRepository.findByName(name)
