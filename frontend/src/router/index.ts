@@ -47,7 +47,6 @@ const routes: RouteRecordRaw[] = [
       // ── Cinemas ────────────────────────────────────────────────────────────
       {
       path: 'cinemas',
-      // ← KHÔNG có component ở đây — đây chỉ là nhóm sidebar
       meta: { sidebar: { label: 'Cinemas', icon: Building2 } },
       children: [
         {
@@ -134,10 +133,18 @@ const routes: RouteRecordRaw[] = [
             meta: { sidebar: { label: 'Coupons' } },
           },
           {
-            path: 'loyalty',
-            name: 'admin-promotions-loyalty',
-            component: () => import('@/pages/admin/LoyaltyPage.vue'),
-            meta: { sidebar: { label: 'Loyalty' } },
+            path: 'loyalty/tiers',
+            name: 'admin-loyalty-tiers',
+            component: () => import('@/pages/admin/MembershipTiersPage.vue'),
+            meta: { 
+              sidebar: { label: 'Loyalty' }   
+            }
+          },
+          {
+            path: 'loyalty/tiers/:tierId/rules',
+            name: 'admin-loyalty-tier-rules',
+            component: () => import('@/pages/admin/EarningRulesPage.vue'),
+            meta: { hidden: true }            
           },
           {
             path: 'combos',

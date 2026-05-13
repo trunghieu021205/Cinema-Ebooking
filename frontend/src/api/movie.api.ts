@@ -1,10 +1,10 @@
 // src/api/movie.api.ts
 import apiClient from './axios'
 import type { MovieResponse, CreateMovieRequest, UpdateMovieRequest } from '@/types/movie.types'
-import type { Page } from '@/types/common.types';
+import type { NestedPage } from '@/types/common.types';
 export const movieApi = {
   getList: (page = 0, size = 8) =>
-    apiClient.get<Page<MovieResponse>>('/movies', { params: { page, size, sort: 'id,desc' } }),
+    apiClient.get<NestedPage<MovieResponse>>('/movies', { params: { page, size, sort: 'id,desc' } }),
 
   getById: (id: number) =>
     apiClient.get<MovieResponse>(`/movies/${id}`),

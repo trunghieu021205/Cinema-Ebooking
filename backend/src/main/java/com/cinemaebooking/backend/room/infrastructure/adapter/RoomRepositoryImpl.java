@@ -78,6 +78,10 @@ public class RoomRepositoryImpl implements RoomRepository {
     }
 
     @Override
+    public boolean existsByCinemaId(Long cinemaId){
+        return roomJpaRepository.existsByCinemaId(cinemaId);
+    }
+    @Override
     public Page<Room> findByCinemaId(Long cinemaId, Pageable pageable) {
 
         if (cinemaId == null) {

@@ -3,15 +3,22 @@ package com.cinemaebooking.backend.room.application.usecase;
 import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import com.cinemaebooking.backend.common.exception.domain.RoomExceptions;
 import com.cinemaebooking.backend.room.application.port.RoomRepository;
+import com.cinemaebooking.backend.room.domain.model.Room;
 import com.cinemaebooking.backend.room.domain.valueObject.RoomId;
+import com.cinemaebooking.backend.showtime.application.port.ShowtimeRepository;
+import com.cinemaebooking.backend.showtime.domain.enums.ShowtimeStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class DeleteRoomUseCase {
 
     private final RoomRepository roomRepository;
+    private final ShowtimeRepository showtimeRepository;
 
     public void execute(RoomId id) {
 
@@ -21,10 +28,14 @@ public class DeleteRoomUseCase {
         }
 
         // ================== BUSINESS VALIDATION ==================
-        if (!roomRepository.existsById(id)) {
+        Optional<Room> room = roomRepository.findById(id);
+        if (room.isEmpty()) {
             throw RoomExceptions.notFound(id);
         }
-
+        if (showtimeRepository.existsByRoomIdAndStatusIn(id.getValue(), List.of(ShowtimeStatus.SCHEDULED, ShowtimeStatus.ONGOING)
+        )){
+            throw RoomExceptions.deleteBlockedByShowtime(room.get().getName());
+        }
         roomRepository.deleteById(id);
     }
 }

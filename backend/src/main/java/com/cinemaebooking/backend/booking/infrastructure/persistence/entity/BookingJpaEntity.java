@@ -1,7 +1,10 @@
 package com.cinemaebooking.backend.booking.infrastructure.persistence.entity;
 
 import com.cinemaebooking.backend.booking.domain.enums.BookingStatus;
+import com.cinemaebooking.backend.booking_combo.infrastructure.persistence.entity.BookingComboJpaEntity;
+import com.cinemaebooking.backend.booking_coupon.infrastructure.persistence.entity.BookingCouponJpaEntity;
 import com.cinemaebooking.backend.infrastructure.persistence.entity.BaseJpaEntity;
+import com.cinemaebooking.backend.ticket.infrastructure.persistence.entity.TicketJpaEntity;
 import com.cinemaebooking.backend.user.infrastructure.persistence.entity.UserJpaEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Positive;
@@ -11,6 +14,8 @@ import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * BookingJpaEntity - Persistence model for bookings table.
@@ -52,6 +57,18 @@ public class BookingJpaEntity extends BaseJpaEntity {
     @Column(name = "showtime_id", nullable = false)
     private Long showtimeId;
 
+    @Column(name = "movie_title", nullable = false)
+    private String movieTitle;
+
+    @Column(name = "cinema_name", nullable = false)
+    private String cinemaName;
+
+    @Column(name = "room_name", nullable = false)
+    private String roomName;
+
+    @Column(name = "showtime_start_time", nullable = false)
+    private LocalDateTime showtimeStartTime;
+
     @Positive
     @Column(name = "total_ticket_price", nullable = false, precision = 12, scale = 2)
     private BigDecimal totalTicketPrice;
@@ -77,6 +94,35 @@ public class BookingJpaEntity extends BaseJpaEntity {
 
     @Column(name = "paid_at")
     private LocalDateTime paidAt;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TicketJpaEntity> tickets = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BookingComboJpaEntity> combos = new ArrayList<>();
+
+    @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
+    private BookingCouponJpaEntity coupon;
+
+    public void addTicket(TicketJpaEntity ticket) {
+        tickets.add(ticket);
+        ticket.setBooking(this);
+    }
+
+    public void addCombo(BookingComboJpaEntity combo) {
+        combos.add(combo);
+        combo.setBooking(this);
+    }
+
+    public void setCoupon(BookingCouponJpaEntity coupon) {
+        this.coupon = coupon;
+
+        if (coupon != null) {
+            coupon.setBooking(this);
+        }
+    }
 
     @Override
     protected void beforeSoftDelete() {

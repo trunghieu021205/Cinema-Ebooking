@@ -28,8 +28,8 @@ import java.math.BigDecimal;
         name = "booking_combos",
         uniqueConstraints = {
                 @UniqueConstraint(
-                        name = "uk_booking_combos_booking_id_combo_id_deleted",
-                        columnNames = {"booking_id", "combo_id", "deleted"}
+                        name = "uk_booking_combos_booking_id_combo_id_deleted_at",
+                        columnNames = {"booking_id", "combo_id", "deleted_at"}
                 )
         }
 )
@@ -61,4 +61,9 @@ public class BookingComboJpaEntity extends BaseJpaEntity {
     @Positive
     @Column(name = "total_price", nullable = false, precision = 12, scale = 2)
     private BigDecimal totalPrice;
+
+    @Override
+    protected void beforeSoftDelete() {
+        this.comboName = markDeleted(this.comboName);
+    }
 }

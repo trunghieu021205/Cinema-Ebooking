@@ -4,12 +4,13 @@
         <Transition enter-from-class="opacity-0" enter-active-class="transition-opacity duration-200"
             leave-to-class="opacity-0" leave-active-class="transition-opacity duration-200">
             <div v-if="modelValue" class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4"
-                @click.stop>
+                @click.stop @keydown.enter.prevent="onEnter">
                 <!-- Modal box -->
                 <Transition enter-from-class="opacity-0 scale-95"
                     enter-active-class="transition-all duration-200 ease-out" leave-to-class="opacity-0 scale-95"
                     leave-active-class="transition-all duration-150 ease-in">
-                    <div v-if="modelValue" class="flex w-full max-w-md flex-col rounded-xl bg-white shadow-xl">
+                    <div v-if="modelValue" class="flex w-full flex-col rounded-xl bg-white shadow-xl"
+                        :class="modalWidthClass">
                         <!-- Header -->
                         <div class="flex items-center justify-between border-b border-border-admin-default px-5 py-4">
                             <h2 class="text-sm font-semibold text-text-admin-primary">{{ title }}</h2>
@@ -19,12 +20,15 @@
                         </div>
 
                         <!-- Fields -->
-                        <div class="max-h-[60vh] overflow-y-auto px-5 py-4 hide-scrollbar">
-                            <div class="flex flex-col gap-4">
+                        <div class="max-h-[60vh] overflow-y-auto px-5 py-4 hide-scrollbar flex flex-col items-center">
+                            <div class="flex flex-col gap-4 w-full">
                                 <FieldRenderer v-for="col in creatableColumns" :key="col.key" :column="col"
                                     :modelValue="draft[col.key]" :error="localErrors[col.key]"
-                                    @update:modelValue="onFieldUpdate(col.key, $event)" />
+                                    :depValues="depValuesMap[col.key]"
+                                    @update:modelValue="onFieldUpdate(col.key, $event)"
+                                    @blur="onFieldBlur(col.key, $event)" />
                             </div>
+                            <slot name="extra" :draft="draft" :fieldErrors="localErrors" />
                         </div>
 
                         <!-- Footer -->
@@ -74,12 +78,18 @@ const props = withDefaults(
         submitLabel?: string
         isLoading?: boolean
         fieldErrors?: Record<string, string>  // lỗi từ backend sau khi submit
+        size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl'
+        onFieldChange?: (key: string, value: unknown, draft: Record<string, unknown>) => void
+        onFieldBlur?: (key: string, draft: Record<string, unknown>) => void
     }>(),
     {
         title: 'Tạo mới',
         submitLabel: 'Tạo',
         isLoading: false,
         fieldErrors: () => ({}),
+        size: 'md',
+        onFieldChange: undefined,
+        onFieldBlur: undefined,
     },
 )
 
@@ -88,6 +98,15 @@ const emit = defineEmits<{
     submit: [draft: Record<string, unknown>]
 }>()
 
+const modalWidthClass = computed(() => {
+    switch (props.size) {
+        case 'sm': return 'max-w-sm'
+        case 'lg': return 'max-w-lg'
+        case 'xl': return 'max-w-xl'
+        case '2xl': return 'max-w-2xl'
+        default: return 'max-w-md'
+    }
+})
 
 const localErrors = ref<Record<string, string>>({})
 
@@ -107,6 +126,11 @@ watch(() => props.modelValue, (open) => {
 function onFieldUpdate(key: string, value: unknown) {
     draft.value[key] = value
     delete localErrors.value[key]
+    props.onFieldChange?.(key, value, draft.value)
+}
+
+function onFieldBlur(key: string) {
+    props.onFieldBlur?.(key, draft.value)
 }
 
 // ── Chỉ hiện field được tạo mới: không readonly, không hideInTable=false chủ động ──
@@ -119,10 +143,22 @@ const draft = ref<Record<string, unknown>>({})
 
 function buildEmptyDraft(): Record<string, unknown> {
     return Object.fromEntries(
-        creatableColumns.value.map((c) => [
-            c.key,
-            c.type === 'enum' ? (c.options?.[0] ?? '') : '',
-        ]),
+        creatableColumns.value.map((c) => {
+            // enum: pre-select option đầu tiên
+            if (c.type === 'enum') {
+                const firstOpt = c.options?.[0]
+                const defaultVal = typeof firstOpt === 'object' && firstOpt !== null
+                    ? (firstOpt as any).value ?? ''
+                    : firstOpt ?? ''
+                return [c.key, defaultVal]
+            }
+            // relation: null để FieldRenderer biết "chưa chọn" (placeholder select)
+            if (c.type === 'relation') return [c.key, null]
+            // boolean: false
+            if (c.type === 'boolean') return [c.key, false]
+            if (c.type === 'multiselect') return [c.key, []]
+            return [c.key, '']
+        }),
     )
 }
 
@@ -138,14 +174,38 @@ watch(
     { immediate: true },
 )
 
+// ── depValuesMap — truyền deps xuống FieldRenderer cho dependent fields ────────
+//
+// Với mỗi column có dependsOn, tính object { [depKey]: draft[depKey] }.
+// Ví dụ: roomLayoutId.dependsOn = ['roomId', 'startTime']
+//   → depValuesMap['roomLayoutId'] = { roomId: draft.roomId, startTime: draft.startTime }
+//
+// FieldRenderer watch prop này, re-fetch dependentLoader khi deps thay đổi.
+// Với column không có dependsOn → depValuesMap[key] = undefined → ignored.
+const depValuesMap = computed<Record<string, Record<string, unknown>>>(() => {
+    const result: Record<string, Record<string, unknown>> = {}
+    for (const col of creatableColumns.value) {
+        if (col.dependsOn?.length) {
+            result[col.key] = Object.fromEntries(
+                col.dependsOn.map((dep) => [dep, draft.value[dep]])
+            )
+        }
+    }
+    return result
+})
+
 // ── Validate required fields ──────────────────────────────────────────────────
 const emptyFields = computed(() =>
     creatableColumns.value
-        .filter(
-            (c) =>
-                c.required !== false &&
-                (draft.value[c.key] === '' || draft.value[c.key] == null),
-        )
+        .filter((c) => {
+            if (c.required === false) return false
+            const val = draft.value[c.key]
+            // Multiselect bắt buộc phải có ít nhất 1 phần tử
+            if (c.type === 'multiselect') {
+                return !Array.isArray(val) || val.length === 0
+            }
+            return val === '' || val == null
+        })
         .map((c) => c.label),
 )
 
@@ -155,6 +215,15 @@ const canSubmit = computed(() => emptyFields.value.length === 0 && !props.isLoad
 function onSubmit() {
     if (!canSubmit.value) return
     emit('submit', { ...draft.value })
+}
+
+function onEnter(event: KeyboardEvent) {
+    // Không submit nếu đang focus vào textarea (Enter để xuống dòng)
+    const activeEl = document.activeElement
+    if (activeEl?.tagName === 'TEXTAREA') return
+    if (canSubmit.value) {
+        onSubmit()
+    }
 }
 
 function onClose() {

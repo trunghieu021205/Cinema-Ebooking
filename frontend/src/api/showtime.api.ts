@@ -5,38 +5,34 @@ import type {
   UpdateShowtimeRequest,
   ShowtimeFormatResponse,
 } from '@/types/showtime'
-import type { Page } from '@/types/common.types'
+import type { NestedPage } from '@/types/common.types'
+import type { ShowtimeSeatLayoutResponse } from '@/types/showtime-seat'
 
-// ─── Showtime API ─────────────────────────────────────────────────────────────
 export const showtimeApi = {
+  // GET /api/v1/admin/showtimes?cinemaId=&roomId=&status=&page=&size=&sort=
+  getList: (params: {
+    page?: number
+    size?: number
+    sort?: string
+    cinemaId?: number
+    movieId?: number
+    roomId?: number
+    status?: string
+  }) =>
+    apiClient.get<NestedPage<ShowtimeResponse>>('/admin/showtimes', { params }),
 
-  // GET /api/v1/showtimes?roomId=X&page=0&size=8
-  getListByRoom: (roomId: number, page = 0, size = 8) =>
-    apiClient.get<Page<ShowtimeResponse>>('/showtimes', {
-      params: { roomId, page, size, sort: 'startTime,desc' },
-    }),
-
-  // GET /api/v1/showtimes/:id
   getById: (id: number) =>
-    apiClient.get<ShowtimeResponse>(`/showtimes/${id}`),
+    apiClient.get<ShowtimeResponse>(`/admin/showtimes/${id}`),
 
-  // POST /api/v1/showtimes
+  getSeatMap: (id: number) =>
+    apiClient.get<ShowtimeSeatLayoutResponse>(`/showtimes/${id}/seat-layout`),
+
   create: (body: CreateShowtimeRequest) =>
-    apiClient.post<ShowtimeResponse>('/showtimes', body),
+    apiClient.post<ShowtimeResponse>('/admin/showtimes', body),
 
-  // PUT /api/v1/showtimes/:id
   update: (id: number, body: UpdateShowtimeRequest) =>
-    apiClient.put<ShowtimeResponse>(`/showtimes/${id}`, body),
+    apiClient.put<ShowtimeResponse>(`/admin/showtimes/${id}`, body),
 
-  // DELETE /api/v1/showtimes/:id → 204
-  delete: (id: number) =>
-    apiClient.delete(`/showtimes/${id}`),
-}
-
-// ─── Showtime Format API ──────────────────────────────────────────────────────
-export const showtimeFormatApi = {
-
-  // GET /api/v1/showtime-formats
-  getAll: () =>
-    apiClient.get<ShowtimeFormatResponse[]>('/showtime-formats'),
+  cancel: (id: number) =>
+    apiClient.patch<ShowtimeResponse>(`/admin/showtimes/${id}/cancel`),
 }

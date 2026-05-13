@@ -3,6 +3,7 @@ package com.cinemaebooking.backend.common.exception;
 import lombok.Getter;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * BaseException - Root exception for the entire system.
@@ -18,6 +19,7 @@ import java.util.List;
 public class BaseException extends RuntimeException {
 
     private final ErrorCode errorCode;
+    private Map<String, Object> params;
     private final List<ErrorDetail> details;
 
     /**
@@ -31,6 +33,7 @@ public class BaseException extends RuntimeException {
     public BaseException(ErrorCode errorCode) {
         super(errorCode.getMessage());
         this.errorCode = errorCode;
+        this.params = null;
         this.details = List.of();
         this.debugMessage = null;
     }
@@ -39,6 +42,7 @@ public class BaseException extends RuntimeException {
     public BaseException(ErrorCode errorCode, String debugMessage) {
         super(errorCode.getMessage()); // ← override: FE luôn nhận message từ ErrorCode
         this.errorCode = errorCode;
+        this.params = null;
         this.details = List.of();
         this.debugMessage = debugMessage;
     }
@@ -47,6 +51,7 @@ public class BaseException extends RuntimeException {
     public BaseException(ErrorCode errorCode, Throwable cause) {
         super(errorCode.getMessage(), cause);
         this.errorCode = errorCode;
+        this.params = null;
         this.details = List.of();
         this.debugMessage = null;
     }
@@ -55,6 +60,7 @@ public class BaseException extends RuntimeException {
     public BaseException(ErrorCode errorCode, String debugMessage, Throwable cause) {
         super(errorCode.getMessage(), cause);
         this.errorCode = errorCode;
+        this.params = null;
         this.details = List.of();
         this.debugMessage = debugMessage;
     }
@@ -63,7 +69,16 @@ public class BaseException extends RuntimeException {
     public BaseException(ErrorCode errorCode, List<ErrorDetail> details) {
         super(errorCode.getMessage());
         this.errorCode = errorCode;
+        this.params = null;
         this.details = details != null ? details : List.of();
+        this.debugMessage = null;
+    }
+
+    public BaseException(ErrorCode errorCode, Map<String, Object> params) {
+        super(errorCode.getMessage()); // ← override: FE luôn nhận message từ ErrorCode
+        this.errorCode = errorCode;
+        this.params = params;
+        this.details = List.of();
         this.debugMessage = null;
     }
 }

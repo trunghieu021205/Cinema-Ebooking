@@ -1,28 +1,29 @@
 <template>
-    <div class="w-fit flex flex-col items-start" :class="config.gap">
+    <div class="w-fit flex flex-col items-center" :class="config.gap">
 
         <!-- Screen TOP -->
         <ScreenBar v-if="config.screenPosition === 'top'" />
 
         <!-- Seat grid -->
-        <div class="overflow-x-auto w-fit">
+        <div class="overflow-x-auto w-fit" :class="{ 'pointer-events-none opacity-60': disabled }">
             <div ref="gridEl" class="flex flex-col py-6" :class="config.gap">
                 <div v-for="(row, rowIdx) in layout.rows" :key="rowIdx" class="flex items-center" :class="config.gap">
                     <!-- Row label LEFT -->
                     <RowLabel :label="rowLabel(rowIdx)" :mode="config.mode" />
 
                     <!-- Seat columns -->
-                    <div class="grid" :style="{
-                        gridTemplateColumns: `repeat(${layout.totalCols}, 2rem)`,
-                        gap: config.gap === 'gap-1.5' ? '0.375rem' : '0.5rem',
+                    <div class="grid" :class="config.gap" :style="{
+                        gridTemplateColumns: `repeat(${layout.totalCols}, ${config.cellWidth})`,
                     }">
                         <template v-for="item in getRowItems(row, rowIdx)" :key="item.key">
+                            <div v-if="item.type === 'empty'"
+                                :style="{ width: config.cellWidth, height: config.cellHeight }" />
 
                             <!-- Ghế đôi -->
-                            <div v-if="item.type === 'couple'"
+                            <div v-else-if="item.type === 'couple'"
                                 class="flex items-center justify-center border font-medium transition-all select-none cursor-pointer col-span-2"
                                 :class="[config.seatRadius, coupleClasses(item.leftSeat!, item.rightSeat!)]"
-                                :style="{ height: '2rem' }"
+                                :style="{ height: config.cellHeight }"
                                 :data-couple-ids="`${item.leftSeat.id},${item.rightSeat.id}`"
                                 @click="onCoupleClick(item.leftSeat!, item.rightSeat!, $event)">
                                 <div class="text-xs flex items-center justify-between w-full px-2">
@@ -49,7 +50,7 @@
                     </div>
 
                     <!-- Row label RIGHT -->
-                    <RowLabel :label="rowLabel(rowIdx)" :mode="config.mode" />
+                    <RowLabel v-if="config.rowLabelBothSides" :label="rowLabel(rowIdx)" :mode="config.mode" />
                 </div>
             </div>
         </div>
@@ -63,28 +64,41 @@
             <!-- Web: chọn + đã bán -->
             <template v-if="config.mode === 'web'">
                 <LegendItem>
-                    <span class="h-5 w-5 rounded-md bg-amber-500" />
+                    <span :class="[config.legendSize, 'rounded-md bg-amber-500']" />
                     <span>Ghế đã chọn</span>
                 </LegendItem>
                 <LegendItem>
-                    <span class="h-5 w-5 rounded-md bg-white/20" />
+                    <span :class="[config.legendSize, 'rounded-md bg-white/20']" />
                     <span>Ghế đã bán</span>
                 </LegendItem>
             </template>
 
             <!-- Seat types -->
             <LegendItem v-for="(cfg, typeId) in SEAT_TYPE_CONFIGS" :key="typeId">
-                <span v-if="config.mode === 'admin'" class="h-5 w-5 rounded-md border"
-                    :class="[cfg.adminBg, cfg.adminBorder]" />
-                <span v-else class="h-5 w-9 rounded-md border-2 bg-transparent" :class="cfg.webBorder" />
+                <span v-if="config.mode === 'admin'"
+                    :class="[config.legendSize, 'rounded-md border', cfg.adminBg, cfg.adminBorder]" />
+                <span v-else :class="[config.legendSizeWide, 'rounded-md border-2 bg-transparent', cfg.webBorder]" />
                 <span>{{ cfg.label }}</span>
             </LegendItem>
 
             <!-- Admin: inactive -->
             <template v-if="config.mode === 'admin'">
                 <LegendItem>
-                    <span class="h-5 w-5 rounded-md border border-gray-300 bg-gray-200 opacity-70" />
+                    <span :class="[config.legendSize, 'rounded-md border border-gray-300 bg-gray-200 opacity-70']" />
                     <span>Không hoạt động</span>
+                </LegendItem>
+            </template>
+
+            <template v-if="config.mode === 'admin' && showBookingLegend">
+                <LegendItem>
+                    <span
+                        :class="[config.legendSize, config.legendBookedClass || 'bg-gray-300 border border-gray-400']" />
+                    <span>Đã đặt</span>
+                </LegendItem>
+                <LegendItem>
+                    <span
+                        :class="[config.legendSize, config.legendLockedClass || 'bg-red-100 border border-red-400']" />
+                    <span>Đã khóa</span>
                 </LegendItem>
             </template>
 
@@ -124,7 +138,7 @@ const RowLabel = defineComponent({
 
 const ScreenBar = defineComponent({
     setup: () => () =>
-        h('div', { class: 'w-full max-w-2xl flex flex-col items-center gap-1 py-1' }, [
+        h('div', { class: 'w-full flex flex-col items-center gap-1 py-1' }, [
             h('span', { class: 'text-xs font-medium tracking-widest uppercase text-slate-400' }, 'Màn hình'),
             h('div', { class: 'h-1 w-full rounded-full bg-linear-to-r from-transparent via-amber-400/60 to-transparent' }),
         ]),
@@ -140,6 +154,7 @@ const LegendItem = defineComponent({
 type RowItem =
     | { type: 'single'; key: string; seat: SeatResponse; leftSeat?: never; rightSeat?: never }
     | { type: 'couple'; key: string; seat?: never; leftSeat: SeatResponse; rightSeat: SeatResponse }
+    | { type: 'empty'; key: string; seat?: never; leftSeat?: never; rightSeat?: never }
 
 // ── Props & Emits ─────────────────────────────────────────────────────────────
 
@@ -149,10 +164,18 @@ const props = withDefaults(
         config: SeatGridConfig
         selectedIds?: number[]
         bookedIds?: number[]
+        lockedIds?: number[]
+        disabled?: boolean
+        pendingSeatIds?: number[]
+        showBookingLegend?: boolean
     }>(),
     {
         selectedIds: () => [],
         bookedIds: () => [],
+        lockedIds: () => [],
+        disabled: () => false,
+        pendingSeatIds: () => [],
+        showBookingLegend: false,
     },
 )
 
@@ -168,7 +191,7 @@ function rowLabel(rowIdx: number): string {
 }
 
 function colNumber(colIdx: number): number {
-    return props.config.rtl ? props.layout.totalCols - colIdx : colIdx + 1
+    return props.config.rtl ? props.layout.totalCols - colIdx + 1 : colIdx
 }
 
 function typeConfig(typeId: number) {
@@ -177,59 +200,85 @@ function typeConfig(typeId: number) {
 
 const selectedSet = computed(() => new Set(props.selectedIds))
 const bookedSet = computed(() => new Set(props.bookedIds))
-
+const lockedSet = computed(() => new Set(props.lockedIds))
 function isInteractive(seat: SeatResponse): boolean {
     if (props.config.mode === 'admin') return true
     if (seat.status === 'INACTIVE') return false
     if (bookedSet.value.has(seat.id)) return false
+    if (lockedSet.value.has(seat.id)) return false
     return true
 }
 
 function onSeatClick(seat: SeatResponse, event: MouseEvent): void {
     if (!isInteractive(seat)) return
+    if (props.disabled) return
     emit('seat-click', seat, event)
 }
 
 function onCoupleClick(left: SeatResponse, right: SeatResponse, event: MouseEvent): void {
+    if (props.disabled) return
     emit('couple-click', left, right, event)
 }
 
 // ── Class builders ────────────────────────────────────────────────────────────
+const pendingSet = computed(() => new Set(props.pendingSeatIds))
 
 function seatClasses(seat: SeatResponse): string {
     const cfg = typeConfig(seat.seatTypeId)
     const inactive = seat.status === 'INACTIVE'
     const selected = selectedSet.value.has(seat.id)
     const booked = bookedSet.value.has(seat.id)
+    const locked = lockedSet.value.has(seat.id)
+    const isPending = pendingSet.value.has(seat.id)
+
+    let baseClass = ''
 
     if (props.config.mode === 'admin') {
-        if (selected) return 'bg-blue-500 border-blue-600 text-white shadow-md ring-2 ring-blue-300'
-        if (inactive) return 'bg-slate-50 border-slate-200 text-slate-300 opacity-50'
-        return `${cfg.adminBg} ${cfg.adminBorder} ${cfg.adminText} hover:brightness-110`
+        if (selected) baseClass = props.config.adminSelectedClass!
+        else if (inactive) baseClass = props.config.adminInactiveClass!
+        else if (booked) baseClass = props.config.adminBookedClass!
+        else if (locked) baseClass = props.config.adminLockedClass!
+        else baseClass = `${cfg.adminBg} ${cfg.adminBorder} ${cfg.adminText} hover:brightness-110`
+    } else {
+        // web mode
+        if (inactive) baseClass = props.config.webInactiveClass!
+        else if (booked) baseClass = props.config.webBookedClass!
+        else if (locked) baseClass = props.config.webLockedClass! || props.config.webInactiveClass! // fallback
+        else if (selected) baseClass = `${cfg.webSelectedBg} border-transparent ${cfg.webSelectedText}`
+        else baseClass = `bg-white/10 border-2 ${cfg.webBorder} text-white/80 hover:bg-white/20`
     }
 
-    // Web
-    if (inactive) return 'bg-white/5 border-white/10 text-white/20 opacity-40'
-    if (booked) return 'bg-white/20 border-white/20 text-white/30'
-    if (selected) return `${cfg.webSelectedBg} border-transparent ${cfg.webSelectedText}`
-    return `bg-white/10 border-2 ${cfg.webBorder} text-white/80 hover:bg-white/20`
+    if (props.config.mode === 'admin' && isPending) {
+        baseClass += ' ring-2 ring-blue-400 border-dashed'
+    }
+    return baseClass
 }
 
 function coupleClasses(left: SeatResponse, right: SeatResponse): string {
     const cfg = typeConfig(left.seatTypeId)
     const inactive = left.status === 'INACTIVE' || right.status === 'INACTIVE'
     const selected = selectedSet.value.has(left.id) || selectedSet.value.has(right.id)
+    const isPending = pendingSet.value.has(left.id) || pendingSet.value.has(right.id)
+    const booked = bookedSet.value.has(left.id) || bookedSet.value.has(right.id)
+    const locked = lockedSet.value.has(left.id) || lockedSet.value.has(right.id)
+
+    let baseClass = ''
 
     if (props.config.mode === 'admin') {
-        if (selected) return 'bg-blue-500 border-blue-600 text-white shadow-md ring-2 ring-blue-300'
-        if (inactive) return 'bg-slate-50 border-slate-200 text-slate-300 opacity-50'
-        return `${cfg.adminBg} ${cfg.adminBorder} ${cfg.adminText} hover:brightness-110`
+        if (selected) baseClass = 'bg-blue-500 border-blue-600 text-white shadow-md ring-2 ring-blue-300'
+        else if (inactive) baseClass = 'bg-slate-50 border-slate-200 text-slate-300 opacity-50'
+        else if (booked) baseClass = 'bg-gray-300 border-gray-400 text-gray-600 line-through opacity-80'
+        else if (locked) baseClass = 'bg-red-100 border-red-400 text-red-700 opacity-80'
+        else baseClass = `${cfg.adminBg} ${cfg.adminBorder} ${cfg.adminText} hover:brightness-110`
+    } else {
+        if (inactive) baseClass = 'bg-white/5 border-white/10 text-white/20 opacity-40'
+        else if (booked) baseClass = 'bg-white/20 border-white/20 text-white/30'
+        else if (selected) baseClass = 'bg-amber-500 border-transparent text-white'
+        else baseClass = `bg-white/10 border-2 ${cfg.webBorder} text-white/80 hover:bg-white/20`
     }
 
-    // Web
-    if (inactive) return 'bg-white/5 border-white/10 text-white/20 opacity-40'
-    if (selected) return 'bg-amber-500 border-transparent text-white'
-    return `bg-white/10 border-2 ${cfg.webBorder} text-white/80 hover:bg-white/20`
+    return baseClass
+
 }
 
 // ── Row item builder ──────────────────────────────────────────────────────────
@@ -239,12 +288,16 @@ function getRowItems(row: SeatResponse[], rowIdx: number): RowItem[] {
 
     for (let c = 0; c < row.length; c++) {
         const seat = row[c]
+
+        if (seat === null) {                                         // ✅ guard null
+            items.push({ type: 'empty', key: `empty-${rowIdx}-${c}` })
+            continue
+        }
         const next = row[c + 1]
         const isCouplePair =
             seat.seatTypeId === 3 &&
-            seat.colIndex % 2 === 0 &&
-            next?.seatTypeId === 3
-
+            seat.colIndex % 2 === 1
+            && next?.seatTypeId === 3
         if (isCouplePair) {
             items.push({ type: 'couple', key: `couple-${rowIdx}-${seat.colIndex}`, leftSeat: seat, rightSeat: next })
             c++ // bỏ qua ghế phải

@@ -1,15 +1,10 @@
 package com.cinemaebooking.backend.showtime_seat.application.port;
 
-import com.cinemaebooking.backend.showtime_seat.domain.enums.ShowtimeSeatStatus;
 import com.cinemaebooking.backend.showtime_seat.domain.model.ShowtimeSeat;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface ShowtimeSeatRepository {
-
-    Optional<ShowtimeSeat> findByShowtimeIdAndSeatId(Long showtimeId, Long seatId);
-
     void save(ShowtimeSeat showtimeSeat);
 
     /**
@@ -29,11 +24,6 @@ public interface ShowtimeSeatRepository {
      */
     void deleteByShowtimeId(Long showtimeId);
 
-    /**
-     * Kiểm tra showtimeId có seat chưa (dùng cho double-generate prevention).
-     */
-    boolean existsByShowtimeId(Long showtimeId);
-
-    void updateStatus(Long showtimeId, Long seatId, ShowtimeSeatStatus newStatus);
-
+    void updateStatusToAvailable(Long showtimeId, List<Long> showtimeSeatIds);
+    List<ShowtimeSeat> findAllByIds(List<Long> seatIds);
 }

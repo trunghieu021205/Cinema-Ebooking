@@ -1,65 +1,72 @@
-package com.cinemaebooking.backend.showtime_seat.domain.model;
+    package com.cinemaebooking.backend.showtime_seat.domain.model;
 
-import com.cinemaebooking.backend.common.domain.BaseEntity;
-import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
-import com.cinemaebooking.backend.seat.domain.model.seat.Seat;
-import com.cinemaebooking.backend.showtime.domain.valueobject.ShowtimeId;
-import com.cinemaebooking.backend.showtime_seat.domain.enums.ShowtimeSeatStatus;
-import com.cinemaebooking.backend.showtime_seat.domain.valueobject.ShowtimeSeatId;
-import lombok.Getter;
-import lombok.experimental.SuperBuilder;
+    import com.cinemaebooking.backend.common.domain.BaseEntity;
+    import com.cinemaebooking.backend.common.exception.ErrorCategory;
+    import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
+    import com.cinemaebooking.backend.common.exception.domain.ShowtimeSeatExceptions;
+    import com.cinemaebooking.backend.room_layout.domain.model.roomLayoutSeat.RoomLayoutSeat;
+    import com.cinemaebooking.backend.showtime.domain.valueobject.ShowtimeId;
+    import com.cinemaebooking.backend.showtime_seat.domain.enums.ShowtimeSeatStatus;
+    import com.cinemaebooking.backend.showtime_seat.domain.valueobject.ShowtimeSeatId;
+    import lombok.Getter;
+    import lombok.experimental.SuperBuilder;
 
-/**
- * Domain Model: ShowtimeSeat
- * - Đại diện 1 mapping giữa Showtime và Seat
- * - Không có CRUD public
- * - Không lưu trạng thái ghế (status nằm ở SeatLock / Ticket)
- * - Được auto-generate khi tạo showtime
- * - Bị hard delete khi xoá showtime
- * Domain chỉ kiểm tra dữ liệu thô, không truy database.
- */
-@Getter
-@SuperBuilder(toBuilder = true)
-public class ShowtimeSeat extends BaseEntity<ShowtimeSeatId> {
-
-    private final Long showtimeId;
-    private final Long seatId;
-    private final ShowtimeSeatStatus status;
+    import java.math.BigDecimal;
 
     /**
-     * Validate dữ liệu domain:
-     * - Domain chỉ check dữ liệu nội tại, không check tồn tại trong DB
+     * Domain Model: ShowtimeSeat
+     * - Đại diện 1 mapping giữa Showtime và Seat
+     * - Không có CRUD public
+     * - Không lưu trạng thái ghế (status nằm ở SeatLock / Ticket)
+     * - Được auto-generate khi tạo showtime
+     * - Bị hard delete khi xoá showtime
+     * Domain chỉ kiểm tra dữ liệu thô, không truy database.
      */
-    public void validate() {
-        if (showtimeId == null) {
-            throw CommonExceptions.invalidInput("ShowtimeId must not be null");
+    @Getter
+    @SuperBuilder(toBuilder = true)
+    public class ShowtimeSeat extends BaseEntity<ShowtimeSeatId> {
+
+        private final Long showtimeId;
+        private final Long roomLayoutSeatId;
+        private String seatNumber;
+        private Integer rowIndex;
+        private Integer colIndex;
+        private Long seatTypeId;
+        private boolean active;
+        private ShowtimeSeatStatus status;
+        private final BigDecimal price;
+
+
+        public static ShowtimeSeat from(RoomLayoutSeat seat, Long showtimeId, BigDecimal price, int totalCols) {
+            String seatNumber = buildSeatNumber(seat.getRowIndex(), seat.getColIndex(), totalCols);
+            return ShowtimeSeat.builder()
+                    .roomLayoutSeatId(seat.getId().getValue())
+                    .showtimeId(showtimeId)
+                    .seatNumber(seatNumber)
+                    .rowIndex(seat.getRowIndex())
+                    .colIndex(seat.getColIndex())
+                    .seatTypeId(seat.getSeatTypeId())
+                    .active(seat.isActive())
+                    .price(price)
+                    .status(ShowtimeSeatStatus.AVAILABLE)
+                    .build();
         }
 
-        if (seatId == null) {
-            throw CommonExceptions.invalidInput("SeatId must not be null");
+        private static String buildSeatNumber(int rowIndex, int colIndex, int totalCols) {
+            char rowLetter = (char) ('A' + rowIndex - 1);
+            int displayedCol = totalCols - colIndex + 1;
+            return String.format("%s%d", rowLetter, displayedCol);
+        }
+
+        public void book() {
+            if (this.status != ShowtimeSeatStatus.AVAILABLE) {
+                throw ShowtimeSeatExceptions.unavailable(this.id);
+            }
+
+            this.status = ShowtimeSeatStatus.BOOKED;
+        }
+
+        public void release() {
+            this.status = ShowtimeSeatStatus.AVAILABLE;
         }
     }
-    public static ShowtimeSeat from(Seat seat, ShowtimeId showtimeId) {
-
-        if (seat == null) {
-            throw CommonExceptions.invalidInput("Seat must not be null");
-        }
-
-        if (showtimeId == null) {
-            throw CommonExceptions.invalidInput("ShowtimeId must not be null");
-        }
-
-        if (seat.getId() == null || seat.getId().getValue() == null) {
-            throw CommonExceptions.invalidInput("SeatId must not be null");
-        }
-
-        ShowtimeSeat showtimeSeat = ShowtimeSeat.builder()
-                .showtimeId(showtimeId.getValue())
-                .seatId(seat.getId().getValue())
-                .status(ShowtimeSeatStatus.AVAILABLE)
-                .build();
-
-        showtimeSeat.validate();
-
-        return showtimeSeat;
-    }}

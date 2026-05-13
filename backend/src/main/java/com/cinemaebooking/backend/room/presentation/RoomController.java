@@ -1,22 +1,35 @@
 package com.cinemaebooking.backend.room.presentation;
 
+import com.cinemaebooking.backend.common.exception.ErrorCategory;
 import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import com.cinemaebooking.backend.room.application.dto.CreateRoomRequest;
-import com.cinemaebooking.backend.room.application.dto.RoomLayoutResponse;
+import com.cinemaebooking.backend.room.application.dto.RoomIdResponse;
+import com.cinemaebooking.backend.room_layout.application.dto.roomLayout.RoomLayoutDetailResponse;
 import com.cinemaebooking.backend.room.application.dto.RoomResponse;
 import com.cinemaebooking.backend.room.application.dto.UpdateRoomRequest;
 import com.cinemaebooking.backend.room.application.usecase.*;
 import com.cinemaebooking.backend.room.domain.valueObject.RoomId;
-import com.cinemaebooking.backend.seat.application.dto.seat.SeatResponse;
+import com.cinemaebooking.backend.room_layout.application.dto.roomLayout.RoomLayoutSummaryResponse;
+import com.cinemaebooking.backend.room_layout.application.dto.roomLayoutSeat.BulkUpdateResponse;
+import com.cinemaebooking.backend.room_layout.application.dto.roomLayout.UpdateRoomLayoutRequest;
+import com.cinemaebooking.backend.room_layout.application.mapper.roomLayout.RoomLayoutDtoMapper;
+import com.cinemaebooking.backend.room_layout.application.port.roomLayout.RoomLayoutRepository;
+import com.cinemaebooking.backend.room_layout.application.usecase.roomLayout.GenerateRoomLayoutUseCase;
+import com.cinemaebooking.backend.room_layout.application.usecase.roomLayout.GetRoomLayoutByDateUseCase;
+import com.cinemaebooking.backend.room_layout.application.usecase.roomLayout.GetRoomLayoutUseCase;
+import com.cinemaebooking.backend.room_layout.application.usecase.roomLayout.UpdateRoomLayoutUseCase;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * RoomController - REST API for Room resource.
@@ -38,17 +51,24 @@ public class RoomController {
     private final GetRoomByIdUseCase getRoomByIdUseCase;
     private final GenerateRoomLayoutUseCase generateRoomLayoutUseCase;
     private final GetRoomLayoutUseCase getRoomLayoutUseCase;
+    private final GetRoomLayoutByDateUseCase getRoomLayoutByDateUseCase;
+    private final UpdateRoomLayoutUseCase updateRoomLayoutUseCase;
+
+    private final RoomLayoutRepository roomLayoutRepository;
+    private final RoomLayoutDtoMapper layoutMapper;
 
     // ================== CREATE ==================
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
-    public RoomResponse createRoom(@Valid @RequestBody CreateRoomRequest request) {
+    public RoomIdResponse createRoom(@Valid @RequestBody CreateRoomRequest request) {
         return createRoomUseCase.execute(request);
     }
 
     // ================== UPDATE ==================
     @PutMapping("/{id}")
-    public RoomResponse updateRoom(
+    @PreAuthorize("hasRole('ADMIN')")
+    public RoomIdResponse updateRoom(
             @PathVariable Long id,
             @Valid @RequestBody UpdateRoomRequest request) {
 
@@ -58,6 +78,7 @@ public class RoomController {
 
     // ================== DELETE ==================
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteRoom(@PathVariable Long id) {
 
@@ -90,22 +111,44 @@ public class RoomController {
         return getRoomsByCinemaIdUseCase.execute(cinemaId, pageable);
     }
 
-    // THÊM endpoint
     @PostMapping("/{id}/generate-layout")
+    @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
     public void generateLayout(@PathVariable Long id) {
         generateRoomLayoutUseCase.execute(toRoomId(id));
     }
 
     @GetMapping("/{id}/layout")
-    public RoomLayoutResponse getLayout(@PathVariable Long id) {
-        return getRoomLayoutUseCase.execute(id);
+    public RoomLayoutDetailResponse getLayout(
+            @PathVariable Long id,
+            @RequestParam(required = false) LocalDate date) {
+        if (date == null) {
+            return getRoomLayoutUseCase.execute(id);
+        }
+        return getRoomLayoutByDateUseCase.execute(id, date);
+    }
+
+    @GetMapping("/{id}/layouts")
+    public List<RoomLayoutSummaryResponse> getAllLayouts(@PathVariable Long id) {
+        return roomLayoutRepository.findAllByRoomIdOrderByLayoutVersionDesc(id)
+                .stream()
+                .map(layoutMapper::toSummaryResponse)
+                .collect(Collectors.toList());
+    }
+
+    @PostMapping("/{id}/layouts/update")
+    @PreAuthorize("hasRole('ADMIN')")
+    @ResponseStatus(HttpStatus.CREATED)
+    public BulkUpdateResponse updateSeatsInLayout(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateRoomLayoutRequest request) {
+        return updateRoomLayoutUseCase.execute(id, request.effectiveDate(), request.roomType(), request.updates());
     }
 
     // ================== HELPER ==================
     private RoomId toRoomId(Long id) {
         if (id == null) {
-            throw CommonExceptions.invalidInput("Room id must not be null");
+            throw CommonExceptions.invalidInput("roomId", ErrorCategory.REQUIRED,"Room id must not be null");
         }
         return RoomId.of(id);
     }

@@ -15,6 +15,7 @@ public class ShowtimeResponseMapper {
                 .movieId(showtime.getMovieId())
                 .roomId(showtime.getRoomId())
                 .cinemaId(cinemaId)
+                .roomLayoutId(showtime.getRoomLayoutId())
                 .formatId(showtime.getFormatId())
                 .startTime(showtime.getStartTime())
                 .endTime(showtime.getEndTime())

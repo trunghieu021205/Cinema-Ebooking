@@ -1,0 +1,48 @@
+package com.cinemaebooking.backend.room_layout.infrastructure.persistence.entity;
+
+import com.cinemaebooking.backend.infrastructure.persistence.entity.BaseJpaEntity;
+import com.cinemaebooking.backend.room.domain.enums.RoomType;
+import com.cinemaebooking.backend.room.infrastructure.persistence.entity.RoomJpaEntity;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+
+import java.time.LocalDate;
+
+@Getter
+@Entity
+@Setter
+@Table(name = "room_layout")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuperBuilder(toBuilder = true)
+public class RoomLayoutJpaEntity extends BaseJpaEntity {
+
+    @Column(name = "room_id", nullable = false)
+    private Long roomId;
+
+    @Column(name = "layout_version", nullable = false)
+    private Integer layoutVersion;         // Số thứ tự version (1, 2, 3...)
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "room_type", nullable = false)
+    private RoomType roomType;
+
+    @Column(name = "effective_date", nullable = false)
+    private LocalDate effectiveDate;       // Ngày bắt đầu có hiệu lực
+
+    @Column(name = "used", nullable = false)
+    private boolean used = false;
+
+    @Column(name = "last_used_date")
+    private LocalDate lastUsedDate;
+
+    @Column(name = "total_rows")
+    private Integer totalRows;
+
+    @Column(name = "total_cols")
+    private Integer totalCols;
+
+}

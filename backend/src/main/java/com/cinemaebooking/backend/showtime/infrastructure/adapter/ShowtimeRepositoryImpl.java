@@ -3,8 +3,10 @@ package com.cinemaebooking.backend.showtime.infrastructure.adapter;
 import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import com.cinemaebooking.backend.movie.infrastructure.persistence.repository.MovieJpaRepository;
 import com.cinemaebooking.backend.room.infrastructure.persistence.repository.RoomJpaRepository;
+import com.cinemaebooking.backend.showtime.application.dto.showtime.ShowtimeSnapshot;
 import com.cinemaebooking.backend.showtime.application.port.ShowtimeRepository;
 import com.cinemaebooking.backend.showtime.domain.enums.Language;
+import com.cinemaebooking.backend.showtime.domain.enums.ShowtimeStatus;
 import com.cinemaebooking.backend.showtime.domain.model.Showtime;
 import com.cinemaebooking.backend.showtime.domain.valueobject.ShowtimeId;
 import com.cinemaebooking.backend.showtime.infrastructure.mappers.ShowtimeMapper;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -63,8 +66,8 @@ public class ShowtimeRepositoryImpl implements ShowtimeRepository {
 
         entity.setStartTime(showtime.getStartTime());
         entity.setEndTime(showtime.getEndTime());
-        entity.setAudioLanguage(Language.valueOf(showtime.getAudioLanguage()));
-        entity.setSubtitleLanguage(Language.valueOf(showtime.getSubtitleLanguage()));
+        entity.setAudioLanguage(showtime.getAudioLanguage());
+        entity.setSubtitleLanguage(showtime.getSubtitleLanguage());
         entity.setStatus(showtime.getStatus());
 
         var saved = jpaRepository.save(entity);
@@ -90,8 +93,14 @@ public class ShowtimeRepositoryImpl implements ShowtimeRepository {
     }
 
     @Override
-    public Page<Showtime> search(Long cinemaId, Long movieId, LocalDate date, Pageable pageable) {
-        return jpaRepository.search(cinemaId, movieId, date, pageable)
+    public boolean existsByRoomIdAndStatusIn(Long roomId, List<ShowtimeStatus> status) {
+        return jpaRepository.existsByRoomIdAndStatusIn(roomId, status);
+    }
+
+    @Override
+    public Page<Showtime> search(Long cinemaId, Long movieId, Long roomId,
+                                 ShowtimeStatus status, LocalDate date, Pageable pageable) {
+        return jpaRepository.search(cinemaId, movieId, roomId, status, date, pageable)
                 .map(mapper::toDomain);
     }
 
@@ -109,5 +118,15 @@ public class ShowtimeRepositoryImpl implements ShowtimeRepository {
                 endTime,
                 exclude
         );
+    }
+
+    @Override
+    public Optional<ShowtimeSnapshot> findSnapshotById(Long showtimeId) {
+        return jpaRepository.findSnapshot(showtimeId);
+    }
+
+    @Override
+    public boolean existsByRoomLayoutId(Long roomLayoutId){
+        return jpaRepository.existsByRoomLayoutId(roomLayoutId);
     }
 }

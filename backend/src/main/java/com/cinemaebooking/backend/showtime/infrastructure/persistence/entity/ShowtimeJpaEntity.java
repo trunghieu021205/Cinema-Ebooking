@@ -36,8 +36,7 @@ import java.time.LocalDateTime;
 )
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SuperBuilder(toBuilder = true)
 public class ShowtimeJpaEntity extends BaseJpaEntity {
 
@@ -66,6 +65,9 @@ public class ShowtimeJpaEntity extends BaseJpaEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id", nullable = false)
     private RoomJpaEntity room;
+
+    @Column(name = "room_layout_id", nullable = false)
+    private Long roomLayoutId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "format_id", nullable = false)

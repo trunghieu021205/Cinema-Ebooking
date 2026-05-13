@@ -1,5 +1,6 @@
 package com.cinemaebooking.backend.loyalty.infrastructure.persistence.repository;
 
+import com.cinemaebooking.backend.infrastructure.persistence.repository.SoftDeleteJpaRepository;
 import com.cinemaebooking.backend.loyalty.infrastructure.persistence.entity.MembershipTierJpaEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -31,12 +32,17 @@ import java.util.Optional;
  * @since 2026
  */
 @Repository
-public interface MembershipTierJpaRepository extends JpaRepository<MembershipTierJpaEntity, Long> {
+public interface MembershipTierJpaRepository extends SoftDeleteJpaRepository<MembershipTierJpaEntity> {
 
     /**
      * Tìm tier theo tên (Basic, Silver, Gold)
      */
     Optional<MembershipTierJpaEntity> findByName(String name);
+
+    /**
+    * kiêm tra Có tồn tại bản ghi khác (khác id hiện tại) nhưng trùng name hay không?
+     */
+    boolean existsByNameAndIdNot(String name, Long id);
 
     /**
      * Kiểm tra tier có tồn tại theo tên không

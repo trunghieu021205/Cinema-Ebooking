@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -47,29 +48,28 @@ public class ShowtimeSeatRepositoryImpl implements ShowtimeSeatRepository {
         jpaRepository.deleteAll(entities);
     }
 
-    @Override
-    public boolean existsByShowtimeId(Long showtimeId) {
-        return !jpaRepository.findByShowtimeId(showtimeId).isEmpty();
-    }
-
-    @Override
-    public Optional<ShowtimeSeat> findByShowtimeIdAndSeatId(Long showtimeId, Long seatId) {
-        return jpaRepository.findByShowtimeIdAndSeatId(showtimeId, seatId)
-                .map(mapper::toDomain);
-    }
 
     @Override
     public void save(ShowtimeSeat showtimeSeat) {
-        ShowtimeSeatJpaEntity entity = mapper.toEntity(showtimeSeat);
+        ShowtimeSeatJpaEntity entity = jpaRepository.findById(showtimeSeat.getId().getValue())
+                .orElseThrow(() -> new RuntimeException("ShowtimeSeat not found: " + showtimeSeat.getId().getValue()));
+
+        entity.setStatus(showtimeSeat.getStatus());
+
         jpaRepository.save(entity);
     }
 
     @Override
-    public void updateStatus(Long showtimeId, Long seatId, ShowtimeSeatStatus newStatus) {
-        // find existing entity, update status, save
-        ShowtimeSeatJpaEntity entity = jpaRepository.findByShowtimeIdAndSeatId(showtimeId, seatId)
-                .orElseThrow(() -> new EntityNotFoundException("ShowtimeSeat not found"));
-        entity.setStatus(newStatus);
-        jpaRepository.save(entity);
+    public void updateStatusToAvailable(Long showtimeId, List<Long> showtimeSeatIds) {
+        jpaRepository.updateStatusByShowtimeIdAndSeatIds(showtimeId, showtimeSeatIds, ShowtimeSeatStatus.AVAILABLE);
+    }
+
+    @Override
+    public List<ShowtimeSeat> findAllByIds(List<Long> seatIds) {
+        List<ShowtimeSeatJpaEntity> entities = jpaRepository.findAllById(seatIds);
+
+        return entities.stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
     }
 }

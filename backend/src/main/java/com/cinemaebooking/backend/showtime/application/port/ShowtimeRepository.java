@@ -1,5 +1,7 @@
 package com.cinemaebooking.backend.showtime.application.port;
 
+import com.cinemaebooking.backend.showtime.application.dto.showtime.ShowtimeSnapshot;
+import com.cinemaebooking.backend.showtime.domain.enums.ShowtimeStatus;
 import com.cinemaebooking.backend.showtime.domain.model.Showtime;
 import com.cinemaebooking.backend.showtime.domain.valueobject.ShowtimeId;
 import org.springframework.data.domain.Page;
@@ -7,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface ShowtimeRepository {
@@ -21,9 +24,15 @@ public interface ShowtimeRepository {
 
     boolean existsById(ShowtimeId id);
 
+    boolean existsByRoomLayoutId(Long roomLayoutId);
+
+    boolean existsByRoomIdAndStatusIn(Long RoomId, List<ShowtimeStatus> status);
+
     Page<Showtime> search(
             Long cinemaId,
             Long movieId,
+            Long roomId,
+            ShowtimeStatus status,
             LocalDate date,
             Pageable pageable
     );
@@ -34,4 +43,6 @@ public interface ShowtimeRepository {
             LocalDateTime endTime,
             ShowtimeId excludeId
     );
+
+    Optional<ShowtimeSnapshot> findSnapshotById(Long showtimeId);
 }

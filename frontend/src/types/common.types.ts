@@ -19,27 +19,17 @@ export interface ApiError {
   code: number
   message: string
   type: string
+  params?: Record<string, any>
   details: ApiErrorDetail[] | null
 }
 
-// Spring Data Page wrapper (full version)
-export interface Page<T> {
+export interface NestedPage<T> {
   content: T[]
-  pageable: {
-    pageNumber: number
-    pageSize: number
-    sort: { sorted: boolean; unsorted: boolean; empty: boolean }
-    offset: number
-    paged: boolean
-    unpaged: boolean
+  page: {
+    size: number
+    number: number
+    totalElements: number
+    totalPages: number
   }
-  last: boolean
-  totalElements: number
-  totalPages: number
-  size: number
-  number: number
-  sort: { sorted: boolean; unsorted: boolean; empty: boolean }
-  first: boolean
-  numberOfElements: number
-  empty: boolean
+
 }

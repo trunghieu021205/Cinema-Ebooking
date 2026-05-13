@@ -10,6 +10,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 public class ShowtimeSeatLayoutResponse {
+    Long showtimeId;
     List<List<ShowtimeSeatResponse>> rows;
     int totalRows;
     int totalCols;
