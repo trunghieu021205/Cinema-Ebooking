@@ -42,7 +42,7 @@ public class ShowtimePublicController {
     }
 
 
-    @GetMapping("/{id}/seats")
+    @GetMapping("/{id}/seat-layout")
     public ShowtimeSeatLayoutResponse getSeatMap(@PathVariable Long id) {
         return getSeatMapByShowtimeUseCase.execute(toShowtimeId(id));
     }
