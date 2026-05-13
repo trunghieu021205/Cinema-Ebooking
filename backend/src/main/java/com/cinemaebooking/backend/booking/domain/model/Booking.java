@@ -5,9 +5,11 @@ import com.cinemaebooking.backend.booking.domain.valueObject.BookingId;
 import com.cinemaebooking.backend.booking_combo.domain.model.BookingCombo;
 import com.cinemaebooking.backend.booking_coupon.domain.model.BookingCoupon;
 import com.cinemaebooking.backend.common.domain.BaseEntity;
+import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import com.cinemaebooking.backend.ticket.domain.model.Ticket;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
@@ -16,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
+@Setter
 @SuperBuilder
 public class Booking extends BaseEntity<BookingId> {
     private final String bookingCode;
@@ -70,14 +73,19 @@ public class Booking extends BaseEntity<BookingId> {
                 .map(c -> c.getUnitPrice().multiply(BigDecimal.valueOf(c.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
+
+        this.totalTicketPrice = ticketSum;
+        this.totalComboPrice = comboSum;
+
         return ticketSum.add(comboSum);
     }
 
     public void calculateTotal() {
-        BigDecimal subTotal = calculateSubtotal();
+        BigDecimal subTotal = calculateSubtotal(); // subtotal đã tính cả combo + ticket
         this.discountAmount = (coupon != null) ? coupon.getDiscountValue() : BigDecimal.ZERO;
 
         this.finalAmount = subTotal.subtract(this.discountAmount);
+
         if (this.finalAmount.compareTo(BigDecimal.ZERO) < 0) {
             this.finalAmount = BigDecimal.ZERO;
         }
@@ -110,5 +118,15 @@ public class Booking extends BaseEntity<BookingId> {
         return status == BookingStatus.PENDING &&
                 expiredAt != null &&
                 LocalDateTime.now().isAfter(expiredAt);
+    }
+
+    public void confirm() {
+        if (this.status != BookingStatus.PENDING) {
+            throw CommonExceptions.invalidInput(
+                    "Chỉ booking PENDING mới có thể confirm."
+            );
+        }
+
+        this.status = BookingStatus.CONFIRMED;
     }
 }

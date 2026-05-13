@@ -51,7 +51,11 @@ public class ShowtimeSeatRepositoryImpl implements ShowtimeSeatRepository {
 
     @Override
     public void save(ShowtimeSeat showtimeSeat) {
-        ShowtimeSeatJpaEntity entity = mapper.toEntity(showtimeSeat);
+        ShowtimeSeatJpaEntity entity = jpaRepository.findById(showtimeSeat.getId().getValue())
+                .orElseThrow(() -> new RuntimeException("ShowtimeSeat not found: " + showtimeSeat.getId().getValue()));
+
+        entity.setStatus(showtimeSeat.getStatus());
+
         jpaRepository.save(entity);
     }
 

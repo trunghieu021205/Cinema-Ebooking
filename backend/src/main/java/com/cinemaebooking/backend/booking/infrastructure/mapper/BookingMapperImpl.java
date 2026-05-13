@@ -33,6 +33,10 @@ public class BookingMapperImpl implements BookingMapper {
                 .bookingCode(entity.getBookingCode())
                 .userId(entity.getUser() != null ? entity.getUser().getId() : null)
                 .showtimeId(entity.getShowtimeId())
+                .movieTitle(entity.getMovieTitle())
+                .cinemaName(entity.getCinemaName())
+                .roomName(entity.getRoomName())
+                .showtimeStartTime(entity.getShowtimeStartTime())
                 .createdAt(entity.getCreatedAt())
                 .expiredAt(entity.getExpiredAt())
                 .paidAt(entity.getPaidAt())
@@ -49,8 +53,9 @@ public class BookingMapperImpl implements BookingMapper {
                         entity.getCombos().stream()
                                 .map(comboMapper::toDomain)
                                 .collect(Collectors.toList()) : new ArrayList<>())
-                .coupon(entity.getCoupons() != null && !entity.getCoupons().isEmpty() ?
-                        couponMapper.toDomain(entity.getCoupons().get(0)) : null)
+                .coupon(entity.getCoupon() != null
+                        ? couponMapper.toDomain(entity.getCoupon())
+                        : null)
                 .build();
     }
 
@@ -62,6 +67,10 @@ public class BookingMapperImpl implements BookingMapper {
                 .id(domain.getId() != null ? domain.getId().getValue() : null)
                 .bookingCode(domain.getBookingCode())
                 .showtimeId(domain.getShowtimeId())
+                .movieTitle(domain.getMovieTitle())
+                .cinemaName(domain.getCinemaName())
+                .roomName(domain.getRoomName())
+                .showtimeStartTime(domain.getShowtimeStartTime())
                 .totalTicketPrice(domain.getTotalTicketPrice())
                 .totalComboPrice(domain.getTotalComboPrice())
                 .discountAmount(domain.getDiscountAmount())
@@ -71,21 +80,34 @@ public class BookingMapperImpl implements BookingMapper {
                 .paidAt(domain.getPaidAt())
                 .tickets(new ArrayList<>())
                 .combos(new ArrayList<>())
-                .coupons(new ArrayList<>())
                 .build();
 
         if (domain.getTickets() != null) {
-            domain.getTickets().forEach(t -> entity.addTicket(ticketMapper.toEntity(t)));
+            domain.getTickets()
+                    .forEach(t -> entity.addTicket(ticketMapper.toEntity(t)));
         }
 
         if (domain.getCombos() != null) {
-            domain.getCombos().forEach(c -> entity.addCombo(comboMapper.toEntity(c)));
+            domain.getCombos()
+                    .forEach(c -> entity.addCombo(comboMapper.toEntity(c)));
         }
 
         if (domain.getCoupon() != null) {
-            entity.addCoupon(couponMapper.toEntity(domain.getCoupon()));
+            entity.setCoupon(couponMapper.toEntity(domain.getCoupon()));
         }
 
         return entity;
+    }
+
+    @Override
+    public void updateEntity(Booking source, BookingJpaEntity target) {
+
+        target.setStatus(source.getStatus());
+        target.setPaidAt(source.getPaidAt());
+
+        target.setTotalTicketPrice(source.getTotalTicketPrice());
+        target.setTotalComboPrice(source.getTotalComboPrice());
+        target.setDiscountAmount(source.getDiscountAmount());
+        target.setFinalAmount(source.getFinalAmount());
     }
 }

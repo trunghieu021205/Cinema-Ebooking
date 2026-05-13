@@ -3,6 +3,7 @@ package com.cinemaebooking.backend.ticket.application.usecase;
 import com.cinemaebooking.backend.showtime_seat.application.port.ShowtimeSeatRepository;
 import com.cinemaebooking.backend.ticket.application.port.TicketRepository;
 import com.cinemaebooking.backend.ticket.domain.model.Ticket;
+import com.cinemaebooking.backend.ticket.domain.valueObject.TicketId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,16 +21,21 @@ public class ReleaseSeatsUseCase {
     public void execute(Long showtimeId, List<Ticket> tickets) {
         if (tickets == null || tickets.isEmpty()) return;
 
-        // 1. Lấy danh sách ID của các ghế trong suất chiếu từ danh sách vé
-        List<Long> showtimeSeatIds = tickets.stream()
-                .map(Ticket::getShowtimeSeatId) // Giả định Ticket có lưu ref tới ShowtimeSeat
-                .collect(Collectors.toList());
+        List<Long> ticketIds = tickets.stream()
+                .map(Ticket::getId)
+                .map(TicketId::getValue)
+                .toList();
 
-        // 2. Cập nhật trạng thái ghế trong module Showtime thành AVAILABLE (Trống)
+        // Load từ DB → JPA entity sẽ có đầy đủ version
+        List<Ticket> freshTickets = ticketRepository.findAllByIds(ticketIds);
+
+        List<Long> showtimeSeatIds = freshTickets.stream()
+                .map(Ticket::getShowtimeSeatId)
+                .toList();
+
         showtimeSeatRepository.updateStatusToAvailable(showtimeId, showtimeSeatIds);
 
-        // 3. Đánh dấu các vé này là đã hủy (Xóa mềm hoặc đổi status)
-        tickets.forEach(ticket -> {
+        freshTickets.forEach(ticket -> {
             ticket.cancel();
             ticketRepository.save(ticket);
         });

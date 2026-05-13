@@ -12,4 +12,5 @@ public interface TicketJpaRepository extends SoftDeleteJpaRepository<TicketJpaEn
     Optional<TicketJpaEntity> findByTicketCodeAndDeletedAtIsNull(String ticketCode);
     List<TicketJpaEntity> findAllByBookingIdAndDeletedAtIsNull(Long bookingId);
     boolean existsByShowtimeSeatIdInAndStatusIn(List<Long> seatIds, List<TicketStatus> statuses);
+    List<TicketJpaEntity> findAllByIdInAndDeletedAtIsNull(List<Long> ids);
 }

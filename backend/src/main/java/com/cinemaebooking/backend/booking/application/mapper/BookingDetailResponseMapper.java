@@ -42,8 +42,8 @@ public class BookingDetailResponseMapper {
         return booking.getTickets().stream()
                 .map(ticket -> BookingDetailResponse.SeatInfo.builder()
                         .showtimeSeatId(ticket.getShowtimeSeatId())
-                        .seatName(ticket.getLabel())
                         .seatType(ticket.getSeatType())
+                        .seatName(ticket.getSeatName())
                         .price(ticket.getPrice())
                         .build())
                 .collect(Collectors.toList());

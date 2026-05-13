@@ -1,5 +1,6 @@
 package com.cinemaebooking.backend.booking_combo.infrastructure.mapper;
 
+import com.cinemaebooking.backend.booking.infrastructure.persistence.entity.BookingJpaEntity;
 import com.cinemaebooking.backend.booking_combo.domain.model.BookingCombo;
 import com.cinemaebooking.backend.booking_combo.domain.valueObject.BookingComboId;
 import com.cinemaebooking.backend.booking_combo.infrastructure.persistence.entity.BookingComboJpaEntity;

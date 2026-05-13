@@ -1,5 +1,6 @@
 package com.cinemaebooking.backend.booking_coupon.infrastructure.mapper;
 
+import com.cinemaebooking.backend.booking.infrastructure.persistence.entity.BookingJpaEntity;
 import com.cinemaebooking.backend.booking_coupon.domain.model.BookingCoupon;
 import com.cinemaebooking.backend.booking_coupon.domain.valueObject.BookingCouponId;
 import com.cinemaebooking.backend.booking_coupon.infrastructure.persistence.entity.BookingCouponJpaEntity;

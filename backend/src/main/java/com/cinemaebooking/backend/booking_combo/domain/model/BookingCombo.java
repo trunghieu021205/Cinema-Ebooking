@@ -17,11 +17,11 @@ import java.math.BigDecimal;
 @SuperBuilder
 public class BookingCombo extends BaseEntity<BookingComboId> {
 
-    private final Long bookingId;
-    private final Long comboId;
+    private Long bookingId;
+    private Long comboId;
 
-    private final String comboName;
-    private final BigDecimal unitPrice;
+    private String comboName;
+    private BigDecimal unitPrice;
 
     private Integer quantity;
     private BigDecimal totalPrice;
@@ -48,12 +48,5 @@ public class BookingCombo extends BaseEntity<BookingComboId> {
         } else {
             this.totalPrice = BigDecimal.ZERO;
         }
-    }
-
-    /**
-     * Kiểm tra xem combo này có thuộc về một booking cụ thể không
-     */
-    public boolean belongsTo(BookingId otherBookingId) {
-        return this.bookingId != null && this.bookingId.equals(otherBookingId);
     }
 }

@@ -18,16 +18,15 @@ import java.time.LocalDateTime;
 @SuperBuilder
 public class Ticket extends BaseEntity<TicketId> {
 
-    private final String ticketCode;
-    private final Long bookingId;
-    private final Long showtimeSeatId;
-
-    private final String seatNumber;   // Lấy từ 'label' của Seat (A1, B5...)
-    private final String seatType;     // Lấy từ SeatType (VIP, NORMAL...)
-    private final BigDecimal price;
+    private  String ticketCode;
+    private  Long bookingId;
+    private  Long showtimeSeatId;
+    private String seatName;
+    private  String seatType;     // Lấy từ SeatType (VIP, NORMAL...)
+    private  BigDecimal price;
 
     private TicketStatus status;
-    private final LocalDateTime createdAt;
+    private LocalDateTime createdAt;
     private LocalDateTime checkedInAt;
 
     // ================== BUSINESS METHODS ==================
@@ -60,12 +59,19 @@ public class Ticket extends BaseEntity<TicketId> {
     /**
      * Tiện ích lấy label (tương thích với Mapper bạn đã viết)
      */
-    public String getLabel() {
-        return this.seatNumber;
-    }
 
     public boolean isUsed() {
         return this.status == TicketStatus.USED;
+    }
+
+    public void activate() {
+        if (this.status != TicketStatus.PENDING) {
+            throw CommonExceptions.invalidInput(
+                    "Chỉ có vé ở trạng thái PENDING mới có thể kích hoạt."
+            );
+        }
+
+        this.status = TicketStatus.ACTIVE;
     }
 
     public static String generateTicketCode() {

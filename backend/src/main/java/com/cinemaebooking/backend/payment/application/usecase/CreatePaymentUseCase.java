@@ -1,5 +1,9 @@
 package com.cinemaebooking.backend.payment.application.usecase;
 
+import com.cinemaebooking.backend.booking.application.port.BookingRepository;
+import com.cinemaebooking.backend.booking.domain.model.Booking;
+import com.cinemaebooking.backend.booking.domain.valueObject.BookingId;
+import com.cinemaebooking.backend.common.exception.domain.BookingExceptions;
 import com.cinemaebooking.backend.payment.application.dto.CreatePaymentRequest;
 import com.cinemaebooking.backend.payment.application.dto.CreatePaymentResponse;
 import com.cinemaebooking.backend.payment.application.port.PaymentRepository;
@@ -15,26 +19,29 @@ import java.time.LocalDateTime;
 public class CreatePaymentUseCase {
 
     private final PaymentRepository paymentRepository;
+    private final BookingRepository bookingRepository;
 
     public CreatePaymentResponse execute(CreatePaymentRequest request) {
 
-        String paymentCode = "PAY-" + System.currentTimeMillis();
-        LocalDateTime expiredAt = LocalDateTime.now().plusMinutes(15);
+        Booking booking = bookingRepository.findById(request.getBookingId())
+                .orElseThrow(() -> BookingExceptions.notFound(
+                        BookingId.of(request.getBookingId())
+                ));
 
         Payment payment = Payment.builder()
-                .paymentCode(paymentCode)
-                .bookingId(request.getBookingId())
-                .amount(request.getAmount())
+                .paymentCode("PAY-" + System.currentTimeMillis())
+                .bookingId(booking.getId().getValue())
+                .amount(booking.getFinalAmount())
                 .method(request.getMethod())
                 .status(PaymentStatus.PENDING)
-                .expiredAt(expiredAt)
+                .expiredAt(LocalDateTime.now().plusMinutes(15))
                 .build();
 
         paymentRepository.save(payment);
 
         return CreatePaymentResponse.builder()
-                .paymentCode(paymentCode)
-                .expiredAt(expiredAt)
+                .paymentCode(payment.getPaymentCode())
+                .expiredAt(payment.getExpiredAt())
                 .build();
     }
 }

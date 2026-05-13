@@ -16,22 +16,31 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ComboInternalServiceImpl implements ComboInternalService {
+
     private final ComboRepository comboRepository;
 
     @Override
     public List<BookingCombo> getBookingCombos(List<CreateBookingRequest.ComboSelectionItem> selections) {
-        if (selections == null || selections.isEmpty()) return new ArrayList<>();
 
-        return selections.stream().map(item -> {
-            var combo = comboRepository.findById(ComboId.of(item.getComboId()))
-                    .orElseThrow(() -> ComboExceptions.notFound(ComboId.of(item.getComboId())));
+        if (selections == null || selections.isEmpty()) {
+            return new ArrayList<>();
+        }
 
-            return BookingCombo.builder()
-                    .comboId(combo.getId().getValue())
-                    .comboName(combo.getName())
-                    .quantity(item.getQuantity())
-                    .unitPrice(combo.getPrice())
-                    .build();
-        }).collect(Collectors.toList());
+        return selections.stream()
+                .map(item -> {
+
+                    var combo = comboRepository.findById(ComboId.of(item.getComboId()))
+                            .orElseThrow(() -> ComboExceptions.notFound(ComboId.of(item.getComboId())));
+
+                    var bookingCombo = BookingCombo.builder()
+                            .comboId(combo.getId().getValue())
+                            .comboName(combo.getName())
+                            .unitPrice(combo.getPrice())
+                            .build();
+                    bookingCombo.updateQuantity(item.getQuantity());
+
+                    return bookingCombo;
+                })
+                .collect(Collectors.toList());
     }
 }

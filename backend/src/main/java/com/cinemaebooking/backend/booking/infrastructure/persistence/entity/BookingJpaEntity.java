@@ -57,6 +57,18 @@ public class BookingJpaEntity extends BaseJpaEntity {
     @Column(name = "showtime_id", nullable = false)
     private Long showtimeId;
 
+    @Column(name = "movie_title", nullable = false)
+    private String movieTitle;
+
+    @Column(name = "cinema_name", nullable = false)
+    private String cinemaName;
+
+    @Column(name = "room_name", nullable = false)
+    private String roomName;
+
+    @Column(name = "showtime_start_time", nullable = false)
+    private LocalDateTime showtimeStartTime;
+
     @Positive
     @Column(name = "total_ticket_price", nullable = false, precision = 12, scale = 2)
     private BigDecimal totalTicketPrice;
@@ -91,9 +103,8 @@ public class BookingJpaEntity extends BaseJpaEntity {
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BookingComboJpaEntity> combos = new ArrayList<>();
 
-    @Builder.Default
-    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BookingCouponJpaEntity> coupons = new ArrayList<>();
+    @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
+    private BookingCouponJpaEntity coupon;
 
     public void addTicket(TicketJpaEntity ticket) {
         tickets.add(ticket);
@@ -105,9 +116,12 @@ public class BookingJpaEntity extends BaseJpaEntity {
         combo.setBooking(this);
     }
 
-    public void addCoupon(BookingCouponJpaEntity coupon) {
-        coupons.add(coupon);
-        coupon.setBooking(this);
+    public void setCoupon(BookingCouponJpaEntity coupon) {
+        this.coupon = coupon;
+
+        if (coupon != null) {
+            coupon.setBooking(this);
+        }
     }
 
     @Override

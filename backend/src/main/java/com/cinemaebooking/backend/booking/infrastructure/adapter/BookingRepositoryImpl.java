@@ -6,6 +6,10 @@ import com.cinemaebooking.backend.booking.domain.model.Booking;
 import com.cinemaebooking.backend.booking.infrastructure.mapper.BookingMapper;
 import com.cinemaebooking.backend.booking.infrastructure.persistence.entity.BookingJpaEntity;
 import com.cinemaebooking.backend.booking.infrastructure.persistence.repository.BookingJpaRepository;
+import com.cinemaebooking.backend.showtime_seat.infrastructure.persistence.repository.ShowtimeSeatJpaRepository;
+import com.cinemaebooking.backend.ticket.domain.enums.TicketStatus;
+import com.cinemaebooking.backend.ticket.domain.model.Ticket;
+import com.cinemaebooking.backend.ticket.infrastructure.persistence.entity.TicketJpaEntity;
 import com.cinemaebooking.backend.user.infrastructure.persistence.repository.UserJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,14 +28,61 @@ public class BookingRepositoryImpl implements BookingRepository {
     private final BookingJpaRepository jpaRepository;
     private final BookingMapper mapper;
     private final UserJpaRepository userJpaRepository;
+    private final ShowtimeSeatJpaRepository showtimeSeatJpaRepository;
 
     @Override
-    @Transactional
     public Booking save(Booking booking) {
-        BookingJpaEntity entity = mapper.toEntity(booking);
-        entity.setUser(userJpaRepository.getReferenceById(booking.getUserId()));
-        BookingJpaEntity savedEntity = jpaRepository.save(entity);
-        return mapper.toDomain(savedEntity);
+
+        BookingJpaEntity entity;
+
+        if (booking.getId() == null) {
+            entity = mapper.toEntity(booking);
+            entity.setUser(
+                    userJpaRepository.getReferenceById(booking.getUserId())
+            );
+
+            List<Ticket> domainTickets = booking.getTickets();
+            List<TicketJpaEntity> ticketEntities = entity.getTickets();
+
+            for (int i = 0; i < ticketEntities.size(); i++) {
+                Long seatId = domainTickets.get(i).getShowtimeSeatId();
+                if (seatId != null) {
+                    ticketEntities.get(i).setShowtimeSeat(
+                            showtimeSeatJpaRepository.getReferenceById(seatId)
+                    );
+                }
+            }
+        } else {
+            // UPDATE: booking đã tồn tại
+            entity = jpaRepository.findWithDetailsById(booking.getId().getValue())
+                    .orElseThrow(() -> new RuntimeException("Booking not found: " + booking.getId().getValue()));
+
+            mapper.updateEntity(booking, entity);
+
+            entity.setUser(
+                    userJpaRepository.getReferenceById(booking.getUserId())
+            );
+
+            for (Ticket t : booking.getTickets()) {
+                TicketJpaEntity ticketEntity = entity.getTickets().stream()
+                        .filter(x -> x.getId().equals(t.getId().getValue()))
+                        .findFirst()
+                        .orElseThrow();
+                ticketEntity.setStatus(t.getStatus());
+
+                if (t.getStatus() == TicketStatus.CANCELLED && ticketEntity.getDeletedAt() == null) {
+                    ticketEntity.softDelete();
+                }
+            }
+        }
+
+        entity.getCombos().forEach(c -> c.setBooking(entity));
+
+        if (entity.getCoupon() != null) {
+            entity.getCoupon().setBooking(entity);
+        }
+
+        return mapper.toDomain(jpaRepository.save(entity));
     }
 
     @Override

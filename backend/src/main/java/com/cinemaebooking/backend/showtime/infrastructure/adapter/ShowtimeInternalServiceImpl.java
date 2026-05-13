@@ -11,7 +11,6 @@ import com.cinemaebooking.backend.showtime.domain.valueobject.ShowtimeId;
 import com.cinemaebooking.backend.showtime_seat.application.port.ShowtimeSeatRepository;
 import com.cinemaebooking.backend.showtime_seat.domain.enums.ShowtimeSeatStatus;
 import com.cinemaebooking.backend.showtime_seat.domain.model.ShowtimeSeat;
-import com.cinemaebooking.backend.showtime_seat.domain.valueobject.ShowtimeSeatId;
 import com.cinemaebooking.backend.ticket.domain.enums.TicketStatus;
 import com.cinemaebooking.backend.ticket.domain.model.Ticket;
 import lombok.RequiredArgsConstructor;
@@ -68,12 +67,13 @@ public class ShowtimeInternalServiceImpl implements ShowtimeInternalService {
         // 6. Mapping sang Ticket Entity (Snapshot thông tin tại thời điểm mua)
         return seats.stream().map(seat -> {
             RoomLayoutSeat layout = layoutMap.get(seat.getRoomLayoutSeatId());
-            String typeName = seatTypeNameMap.getOrDefault(layout.getSeatTypeId(), "NORMAL");
+
+            String typeName = seatTypeNameMap.getOrDefault(layout.getSeatTypeId(), "STANDARD");
 
             return Ticket.builder()
                     .showtimeSeatId(seat.getId().getValue())
-                    .seatNumber(layout.getLabel())
                     .seatType(typeName)
+                    .seatName(seat.getSeatNumber())
                     .price(seat.getPrice()) // Lưu giá tại thời điểm này
                     .status(TicketStatus.PENDING)
                     .createdAt(LocalDateTime.now())

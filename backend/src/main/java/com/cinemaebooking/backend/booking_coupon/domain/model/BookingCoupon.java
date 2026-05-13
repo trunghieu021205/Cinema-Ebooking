@@ -17,13 +17,13 @@ import java.time.LocalDateTime;
 @SuperBuilder
 public class BookingCoupon extends BaseEntity<BookingCouponId> {
 
-    private final Long bookingId;    // Dùng Long để đồng bộ với Ticket và Combo
-    private final Long userCouponId; // Tham chiếu tới Coupon cụ thể của User
+    private  Long bookingId;    // Dùng Long để đồng bộ với Ticket và Combo
+    private  Long userCouponId; // Tham chiếu tới Coupon cụ thể của User
 
-    private final String code;       // Mã coupon tại thời điểm áp dụng
-    private final BigDecimal discountValue; // Số tiền được giảm thực tế
+    private  String code;       // Mã coupon tại thời điểm áp dụng
+    private  BigDecimal discountValue; // Số tiền được giảm thực tế
 
-    private final LocalDateTime appliedAt;
+    private  LocalDateTime appliedAt;
 
     // ================== BUSINESS METHODS ==================
 
@@ -45,4 +45,9 @@ public class BookingCoupon extends BaseEntity<BookingCouponId> {
     public Long getCouponId() {
         return this.userCouponId;
     }
+
+    public void markApplied() {
+        this.appliedAt = LocalDateTime.now();
+    }
+
 }

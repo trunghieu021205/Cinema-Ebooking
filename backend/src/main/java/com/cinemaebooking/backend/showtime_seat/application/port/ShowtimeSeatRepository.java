@@ -1,10 +1,8 @@
 package com.cinemaebooking.backend.showtime_seat.application.port;
 
-import com.cinemaebooking.backend.showtime_seat.domain.enums.ShowtimeSeatStatus;
 import com.cinemaebooking.backend.showtime_seat.domain.model.ShowtimeSeat;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface ShowtimeSeatRepository {
     void save(ShowtimeSeat showtimeSeat);

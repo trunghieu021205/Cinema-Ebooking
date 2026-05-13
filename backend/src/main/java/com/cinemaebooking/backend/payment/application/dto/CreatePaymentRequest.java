@@ -12,6 +12,5 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class CreatePaymentRequest {
     private Long bookingId;
-    private BigDecimal amount;
     private PaymentMethod method;
 }

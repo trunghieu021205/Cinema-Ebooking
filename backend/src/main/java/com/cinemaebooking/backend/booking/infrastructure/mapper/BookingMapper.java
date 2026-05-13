@@ -5,4 +5,5 @@ import com.cinemaebooking.backend.booking.infrastructure.persistence.entity.Book
 import com.cinemaebooking.backend.infrastructure.mapper.BaseMapper;
 
 public interface BookingMapper extends BaseMapper<Booking, BookingJpaEntity> {
+    void updateEntity(Booking source, BookingJpaEntity target);
 }

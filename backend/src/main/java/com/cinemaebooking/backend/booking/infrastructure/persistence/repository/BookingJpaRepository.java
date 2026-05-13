@@ -18,7 +18,7 @@ public interface BookingJpaRepository extends SoftDeleteJpaRepository<BookingJpa
 
     // 1. Dùng EntityGraph để fetch "tất tần tật" data trong 1 câu query (Tránh N+1)
     // Khi xem chi tiết, bạn cần cả Tickets, Combos và Coupon.
-    @EntityGraph(attributePaths = {"tickets", "combos", "coupon", "showtime"})
+    @EntityGraph(attributePaths = {"tickets", "coupon"})
     Optional<BookingJpaEntity> findWithDetailsById(Long id);
 
     // 2. Tìm theo mã code (giữ nguyên logic của Hiếu)

@@ -11,6 +11,7 @@ import com.cinemaebooking.backend.booking_combo.application.port.ComboInternalSe
 import com.cinemaebooking.backend.booking_combo.domain.model.BookingCombo;
 import com.cinemaebooking.backend.booking_coupon.application.port.CouponInternalService;
 import com.cinemaebooking.backend.booking_coupon.domain.model.BookingCoupon;
+import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import com.cinemaebooking.backend.showtime.application.port.ShowtimeInternalService;
 import com.cinemaebooking.backend.ticket.domain.model.Ticket;
 import lombok.RequiredArgsConstructor;
@@ -33,11 +34,17 @@ public class CreateBookingUseCase {
     private final ComboInternalService comboService;
     private final CouponInternalService couponService;
 
+    private static final int MAX_SEATS_PER_BOOKING = 8;
     // TODO: private final SeatLockInternalService seatLockService;
 
     @Transactional
     public BookingDetailResponse execute(CreateBookingRequest request) {
 
+        if (request.getShowTimeSeatIds().size() > MAX_SEATS_PER_BOOKING) {
+            throw CommonExceptions.invalidInput(
+                    "Chỉ được đặt tối đa 8 ghế cho mỗi booking."
+            );
+        }
         // --- TODO [SEATLOCK INTEGRATION] ---
         // seatLockService.lockSeats(request.getShowtimeId(), request.getShowTimeSeatIds());
         // Bước này sẽ chặn đứng việc tranh chấp ghế ngay từ đầu luồng.

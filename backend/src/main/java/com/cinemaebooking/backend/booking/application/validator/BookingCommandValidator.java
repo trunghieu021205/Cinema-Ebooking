@@ -51,7 +51,7 @@ public class BookingCommandValidator {
         // Kiểm tra xem các ghế này đã bị ai đặt (Active) chưa
         // Đây là bước kiểm tra tính duy nhất (Uniqueness) trong ngữ cảnh nghiệp vụ
         engine.validateUnique(request.getShowTimeSeatIds(), "showTimeSeatIds",
-                ids -> !ticketRepository.existsActiveTicketsForSeats(request.getShowtimeId(), ids));
+                ids -> !ticketRepository.existsActiveTicketsForSeats(ids));
 
         engine.throwIfInvalid();
     }

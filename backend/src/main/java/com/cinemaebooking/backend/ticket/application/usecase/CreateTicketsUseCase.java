@@ -28,7 +28,6 @@ public class CreateTicketsUseCase {
             Ticket ticket = Ticket.builder()
                     .bookingId(bookingId)
                     .showtimeSeatId(req.getShowtimeSeatId())
-                    .seatNumber(req.getSeatNumber())
                     .seatType(req.getSeatType())
                     .price(req.getPrice())
                     .status(TicketStatus.ACTIVE)

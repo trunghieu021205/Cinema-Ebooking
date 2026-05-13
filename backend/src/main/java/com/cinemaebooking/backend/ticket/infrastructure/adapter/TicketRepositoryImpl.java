@@ -6,6 +6,7 @@ import com.cinemaebooking.backend.ticket.domain.enums.TicketStatus;
 import com.cinemaebooking.backend.ticket.domain.model.Ticket;
 import com.cinemaebooking.backend.ticket.domain.valueObject.TicketId;
 import com.cinemaebooking.backend.ticket.infrastructure.mapper.TicketMapper;
+import com.cinemaebooking.backend.ticket.infrastructure.persistence.entity.TicketJpaEntity;
 import com.cinemaebooking.backend.ticket.infrastructure.persistence.repository.TicketJpaRepository;
 import com.cinemaebooking.backend.ticket.application.port.TicketRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,9 +27,23 @@ public class TicketRepositoryImpl implements TicketRepository {
 
     @Override
     public Ticket save(Ticket ticket) {
-        var entity = ticketMapper.toEntity(ticket);
-        entity.setShowtimeSeat(showtimeSeatJpaRepository.getReferenceById(ticket.getShowtimeSeatId()));
-        entity.setBooking(bookingJpaRepository.getReferenceById(ticket.getBookingId()));
+        TicketJpaEntity entity;
+
+        if (ticket.getId() != null) {
+            entity = ticketJpaRepository.findById(ticket.getId().getValue())
+                    .orElseThrow();
+            entity.setStatus(ticket.getStatus());
+            entity.setCheckedInAt(ticket.getCheckedInAt());
+
+            if (ticket.getStatus() == TicketStatus.CANCELLED) {
+                entity.softDelete();
+            }
+        } else {
+            entity = ticketMapper.toEntity(ticket);
+            entity.setShowtimeSeat(showtimeSeatJpaRepository.getReferenceById(ticket.getShowtimeSeatId()));
+            entity.setBooking(bookingJpaRepository.getReferenceById(ticket.getBookingId()));
+        }
+
         return ticketMapper.toDomain(ticketJpaRepository.save(entity));
     }
 
@@ -53,12 +68,16 @@ public class TicketRepositoryImpl implements TicketRepository {
     }
 
     @Override
-    public boolean existsActiveTicketsForSeats(Long showtimeId, List<Long> seatIds) {
-        List<TicketStatus> activeStatuses = List.of(
-                TicketStatus.PENDING,
-                TicketStatus.CONFIRMED
-        );
-
+    public boolean existsActiveTicketsForSeats(List<Long> seatIds) {
+        List<TicketStatus> activeStatuses = List.of(TicketStatus.PENDING, TicketStatus.ACTIVE);
         return ticketJpaRepository.existsByShowtimeSeatIdInAndStatusIn(seatIds, activeStatuses);
+    }
+
+    @Override
+    public List<Ticket> findAllByIds(List<Long> ids) {
+        return ticketJpaRepository.findAllByIdInAndDeletedAtIsNull(ids)
+                .stream()
+                .map(ticketMapper::toDomain)
+                .collect(Collectors.toList());
     }
 }

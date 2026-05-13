@@ -65,6 +65,9 @@ public class TicketJpaEntity extends BaseJpaEntity {
     @Column(name = "seat_type", nullable = false, length = 30)
     private String seatType;
 
+    @Column(name = "seat_name", nullable = false)
+    private String seatName;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private TicketStatus status;

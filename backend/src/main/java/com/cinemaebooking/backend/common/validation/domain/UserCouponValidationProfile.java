@@ -18,26 +18,23 @@ public final class UserCouponValidationProfile {
      */
     public List<ValidationRule<Long>> userIdRules() {
         return List.of(
-                new ValidationRule<Long>() {
-                    @Override
-                    public Optional<ErrorDetail> validate(com.cinemaebooking.backend.common.validation.engine.ValidationContext<Long> context) {
-                        Long value = context.value();
-                        if (value == null) {
-                            return Optional.of(new ErrorDetail(
-                                    context.fieldName(),
-                                    ErrorCategory.REQUIRED,
-                                    "không được để trống"
-                            ));
-                        }
-                        if (value <= 0) {
-                            return Optional.of(new ErrorDetail(
-                                    context.fieldName(),
-                                    ErrorCategory.INVALID_VALUE,
-                                    "phải là số dương"
-                            ));
-                        }
-                        return Optional.empty();
+                context -> {
+                    Long value = context.value();
+                    if (value == null) {
+                        return Optional.of(new ErrorDetail(
+                                context.fieldName(),
+                                ErrorCategory.REQUIRED,
+                                "không được để trống"
+                        ));
                     }
+                    if (value <= 0) {
+                        return Optional.of(new ErrorDetail(
+                                context.fieldName(),
+                                ErrorCategory.INVALID_VALUE,
+                                "phải là số dương"
+                        ));
+                    }
+                    return Optional.empty();
                 }
         );
     }

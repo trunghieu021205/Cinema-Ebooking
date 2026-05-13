@@ -21,7 +21,6 @@ public class TicketResponseMapper {
                 .ticketCode(ticket.getTicketCode())
                 .bookingId(ticket.getBookingId())
                 .showtimeSeatId(ticket.getShowtimeSeatId())
-                .seatNumber(ticket.getSeatNumber())
                 .seatType(ticket.getSeatType())
                 .price(ticket.getPrice())
                 .status(ticket.getStatus())
