@@ -129,13 +129,11 @@ public enum ErrorCode {
 
     // showtime: 3021–3028
     SHOWTIME_NOT_FOUND          (3021, "Không tìm thấy suất chiếu",                        HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
-    SHOWTIME_ALREADY_EXISTS     (3022, "Suất chiếu đã tồn tại trong khung giờ này",        HttpStatus.CONFLICT,              ErrorType.BUSINESS),
-    SHOWTIME_INVALID_STATUS     (3023, "Trạng thái suất chiếu không hợp lệ",               HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
-    SHOWTIME_EXPIRED            (3024, "Suất chiếu đã kết thúc",                           HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
-    SHOWTIME_ROOM_CONFLICT      (3025, "Phòng chiếu đã được đặt trong khung giờ này",      HttpStatus.CONFLICT,              ErrorType.BUSINESS),
-    SHOWTIME_NOT_BOOKABLE       (3026, "Suất chiếu không thể đặt vé",                      HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
-    SHOWTIME_FORMAT_NOT_FOUND   (3027, "Không tìm thấy định dạng suất chiếu",              HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
-    SHOWTIME_FORMAT_INVALID     (3028, "Định dạng suất chiếu không hợp lệ",                HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
+    SHOWTIME_INVALID_STATUS     (3022, "Trạng thái suất chiếu không hợp lệ",               HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
+    SHOWTIME_EXPIRED            (3023, "Suất chiếu đã kết thúc",                           HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
+    SHOWTIME_NOT_BOOKABLE       (3024, "Suất chiếu không thể đặt vé",                      HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
+    SHOWTIME_FORMAT_NOT_FOUND   (3025, "Không tìm thấy định dạng suất chiếu",              HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),
+    SHOWTIME_FORMAT_INVALID     (3026, "Định dạng suất chiếu không hợp lệ",                HttpStatus.BAD_REQUEST,           ErrorType.BUSINESS),
 
     // showtime_seat: 3029–3031
     SHOWTIME_SEAT_NOT_FOUND      (3029, "Không tìm thấy ghế trong suất chiếu",             HttpStatus.NOT_FOUND,             ErrorType.BUSINESS),

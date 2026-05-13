@@ -31,6 +31,7 @@ public class ShowtimeSeatMapperImpl implements ShowtimeSeatMapper {
                 .rowIndex(domain.getRowIndex())
                 .colIndex(domain.getColIndex())
                 .seatTypeId(domain.getSeatTypeId())
+                .active(domain.isActive())
                 .price(domain.getPrice())
                 .status(domain.getStatus())
                 .build();
@@ -47,6 +48,7 @@ public class ShowtimeSeatMapperImpl implements ShowtimeSeatMapper {
                 .rowIndex(entity.getRowIndex())
                 .colIndex(entity.getColIndex())
                 .seatTypeId(entity.getSeatTypeId())
+                .active(entity.isActive())
                 .price(entity.getPrice())
                 .status(entity.getStatus())
                 .build();

@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class UpdateShowtimeRequest {
 
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
+    //private LocalDateTime startTime;
+    //private LocalDateTime endTime;
 
     private Language audioLanguage;
     private Language subtitleLanguage;

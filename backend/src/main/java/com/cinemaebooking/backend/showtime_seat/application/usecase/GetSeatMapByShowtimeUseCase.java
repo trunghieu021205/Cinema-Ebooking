@@ -33,6 +33,6 @@ public class GetSeatMapByShowtimeUseCase {
         List<ShowtimeSeat> showtimeSeats = showtimeSeatRepository.findByShowtimeId(showtimeId.getValue());
 
         // Mapper sẽ dùng rowIndex, colIndex, seatNumber, seatTypeId, active, status có sẵn
-        return layoutMapper.toLayoutResponse(showtimeSeats);
+        return layoutMapper.toLayoutResponse(showtimeSeats, showtimeId);
     }
 }

@@ -36,6 +36,9 @@ public class RoomLayoutJpaEntity extends BaseJpaEntity {
     @Column(name = "used", nullable = false)
     private boolean used = false;
 
+    @Column(name = "last_used_date")
+    private LocalDate lastUsedDate;
+
     @Column(name = "total_rows")
     private Integer totalRows;
 

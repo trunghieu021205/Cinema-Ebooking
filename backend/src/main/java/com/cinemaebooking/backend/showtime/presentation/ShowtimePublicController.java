@@ -3,7 +3,7 @@ package com.cinemaebooking.backend.showtime.presentation;
 import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import com.cinemaebooking.backend.showtime.application.dto.showtime.ShowtimeResponse;
 import com.cinemaebooking.backend.showtime.application.usecase.showtime.GetShowtimeDetailUsecase;
-import com.cinemaebooking.backend.showtime.application.usecase.showtime.GetShowtimeUsecase;
+import com.cinemaebooking.backend.showtime.application.usecase.showtime.GetShowtimeUseCase;
 import com.cinemaebooking.backend.showtime.domain.valueobject.ShowtimeId;
 import com.cinemaebooking.backend.showtime_seat.application.dto.ShowtimeSeatLayoutResponse;
 import com.cinemaebooking.backend.showtime_seat.application.usecase.GetSeatMapByShowtimeUseCase;
@@ -20,7 +20,7 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 public class ShowtimePublicController {
 
-    private final GetShowtimeUsecase getShowtimesUseCase;
+    private final GetShowtimeUseCase getShowtimesUseCase;
     private final GetShowtimeDetailUsecase getShowtimeDetailUseCase;
     private final GetSeatMapByShowtimeUseCase getSeatMapByShowtimeUseCase;
 
@@ -32,7 +32,7 @@ public class ShowtimePublicController {
             @RequestParam(required = false) LocalDate date,
             @PageableDefault(size = 8) Pageable pageable
     ) {
-        return getShowtimesUseCase.execute(cinemaId, movieId, date, pageable);
+        return getShowtimesUseCase.execute(cinemaId, movieId,null, null, date, pageable);
     }
 
     // ================== DETAIL (PUBLIC) ==================
@@ -42,7 +42,7 @@ public class ShowtimePublicController {
     }
 
 
-    @GetMapping("/{id}/seats")
+    @GetMapping("/{id}/seat-layout")
     public ShowtimeSeatLayoutResponse getSeatMap(@PathVariable Long id) {
         return getSeatMapByShowtimeUseCase.execute(toShowtimeId(id));
     }

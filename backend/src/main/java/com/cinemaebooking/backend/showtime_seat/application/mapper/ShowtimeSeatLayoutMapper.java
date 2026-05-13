@@ -1,5 +1,6 @@
 package com.cinemaebooking.backend.showtime_seat.application.mapper;
 
+import com.cinemaebooking.backend.showtime.domain.valueobject.ShowtimeId;
 import com.cinemaebooking.backend.showtime_seat.application.dto.ShowtimeSeatLayoutResponse;
 import com.cinemaebooking.backend.showtime_seat.application.dto.ShowtimeSeatResponse;
 
@@ -11,7 +12,7 @@ import java.util.*;
 @Component
 public class ShowtimeSeatLayoutMapper {
 
-    public ShowtimeSeatLayoutResponse toLayoutResponse(List<ShowtimeSeat> showtimeSeats) {
+    public ShowtimeSeatLayoutResponse toLayoutResponse(List<ShowtimeSeat> showtimeSeats, ShowtimeId showtimeId) {
         if (showtimeSeats == null || showtimeSeats.isEmpty()) {
             return ShowtimeSeatLayoutResponse.builder()
                     .rows(Collections.emptyList())
@@ -29,10 +30,10 @@ public class ShowtimeSeatLayoutMapper {
                 .max().orElse(0);
 
         // Khởi tạo ma trận rows
-        List<List<ShowtimeSeatResponse>> rows = new ArrayList<>(maxRow + 1);
-        for (int i = 0; i <= maxRow; i++) {
-            List<ShowtimeSeatResponse> row = new ArrayList<>(maxCol + 1);
-            for (int j = 0; j <= maxCol; j++) {
+        List<List<ShowtimeSeatResponse>> rows = new ArrayList<>(maxRow );
+        for (int i = 0; i < maxRow; i++) {
+            List<ShowtimeSeatResponse> row = new ArrayList<>(maxCol );
+            for (int j = 0; j < maxCol; j++) {
                 row.add(null);
             }
             rows.add(row);
@@ -42,27 +43,26 @@ public class ShowtimeSeatLayoutMapper {
             int rowIdx = showtimeSeat.getRowIndex();
             int colIdx = showtimeSeat.getColIndex();
 
-            String status = showtimeSeat.getStatus().name().toLowerCase();
-            if (!showtimeSeat.isActive()) {
-                status = "disabled";
-            }
-
             ShowtimeSeatResponse response = ShowtimeSeatResponse.builder()
+                    .id(showtimeSeat.getId().getValue())
                     .roomLayoutSeatId(showtimeSeat.getRoomLayoutSeatId())
                     .seatNumber(showtimeSeat.getSeatNumber())
                     .rowIndex(rowIdx)
                     .colIndex(colIdx)
+                    .isActive(showtimeSeat.isActive())
                     .seatTypeId(showtimeSeat.getSeatTypeId())
-                    .status(status)
+                    .status(showtimeSeat.getStatus())
+                    .price(showtimeSeat.getPrice())
                     .build();
 
-            rows.get(rowIdx).set(colIdx, response);
+            rows.get(rowIdx - 1).set(colIdx - 1, response);
         }
 
         return ShowtimeSeatLayoutResponse.builder()
+                .showtimeId(showtimeId.getValue())
                 .rows(rows)
-                .totalRows(maxRow + 1)
-                .totalCols(maxCol + 1)
+                .totalRows(maxRow)
+                .totalCols(maxCol)
                 .build();
     }
 }

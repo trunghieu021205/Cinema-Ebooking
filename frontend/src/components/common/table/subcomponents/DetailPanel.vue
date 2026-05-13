@@ -29,7 +29,8 @@
                         -->
                         <FieldRenderer v-for="col in editableColumns" :key="col.key"
                             :column="col.readonlyInEdit ? { ...col, readonly: true } : col" :modelValue="draft[col.key]"
-                            :error="localErrors[col.key]" @update:modelValue="onFieldUpdate(col.key, $event)" />
+                            :error="localErrors[col.key]" :depValues="depValuesMap[col.key]"
+                            @update:modelValue="onFieldUpdate(col.key, $event)" />
                     </div>
                 </div>
 
@@ -43,7 +44,7 @@
                     <!-- Slot cho actions bổ sung từ parent (vd: nút "Quản lý phòng") -->
                     <slot name="actions" :item="draft" />
 
-                    <BaseButton variant="primary" size="md" rounded="lg" class="w-full"
+                    <BaseButton v-if="showSave" variant="primary" size="md" rounded="lg" class="w-full"
                         :class="!canSave && 'opacity-50 cursor-not-allowed pointer-events-none'" :disabled="!canSave"
                         @click="onSaveClick">
                         Lưu thay đổi
@@ -70,24 +71,13 @@ const props = defineProps<{
     item: RowItem | null
     columns: ColumnDef[]
     errors?: Record<string, string>
+    showSave?: boolean
 }>()
 
 const emit = defineEmits<{
     close: []
     save: [item: RowItem]
 }>()
-
-// ── Local errors ──────────────────────────────────────────────────────────────
-const localErrors = ref<Record<string, string>>({})
-
-watch(() => props.errors, (val) => {
-    localErrors.value = { ...val }
-}, { deep: true })
-
-function onFieldUpdate(key: string, value: unknown) {
-    draft.value[key] = value
-    delete localErrors.value[key]
-}
 
 // ── Draft state ───────────────────────────────────────────────────────────────
 const draft = ref<Record<string, unknown>>({})
@@ -103,10 +93,51 @@ watch(
     { immediate: true },
 )
 
-// ── Editable columns (kể cả hideInTable, readonly fields vẫn hiển thị) ───────
+// ── Columns hiển thị trong Detail Panel ──────────────────────────────────────
+//
+// Logic: hiển thị TẤT CẢ các column trừ những field vừa readonly vừa hideInTable.
+// - readonly=true + hideInTable=true  → thuần system field (id nội bộ, computed) → ẩn
+// - readonly=true + hideInTable=false → field đọc được (status, cinemaId) → hiện (dạng readonly)
+// - readonly=false + hideInTable=true → field chỉ dùng khi create (roomLayoutId) → hiện (dạng readonly vì readonlyInEdit)
+// - readonly=false + hideInTable=false → field bình thường → hiện và editable
+//
+// NOTE: Khác với filter cũ (!c.readonly || c.hideInTable !== true) — logic cũ vô tình
+// ẩn mất các relation field có readonly=false + hideInTable=true (như roomLayoutId).
 const editableColumns = computed(() =>
-    props.columns.filter((c) => !c.readonly || c.hideInTable !== true)
+    props.columns.filter((c) => !(c.readonly && c.hideInTable))
 )
+
+// ── depValuesMap — giống CreateModal, truyền deps cho dependent fields ─────────
+//
+// Trong Detail Panel, các dependent field thường là readonlyInEdit=true
+// (roomLayoutId không cho sửa sau khi tạo), nên depValues chủ yếu dùng để
+// FieldRenderer resolve label hiển thị readonly — không trigger re-fetch.
+//
+// Tuy nhiên nếu sau này có field editable với dependentLoader trong panel,
+// cơ chế này hoạt động đúng ngay mà không cần thay đổi.
+const depValuesMap = computed<Record<string, Record<string, unknown>>>(() => {
+    const result: Record<string, Record<string, unknown>> = {}
+    for (const col of props.columns) {
+        if (col.dependsOn?.length) {
+            result[col.key] = Object.fromEntries(
+                col.dependsOn.map((dep) => [dep, draft.value[dep]])
+            )
+        }
+    }
+    return result
+})
+
+// ── Local errors ──────────────────────────────────────────────────────────────
+const localErrors = ref<Record<string, string>>({})
+
+watch(() => props.errors, (val) => {
+    localErrors.value = { ...val }
+}, { deep: true })
+
+function onFieldUpdate(key: string, value: unknown) {
+    draft.value[key] = value
+    delete localErrors.value[key]
+}
 
 // ── Dirty check ───────────────────────────────────────────────────────────────
 const isDirty = computed(() => {
@@ -117,13 +148,14 @@ const isDirty = computed(() => {
 // ── Required validation (bỏ qua readonlyInEdit — user không thể sửa) ─────────
 const emptyFields = computed(() =>
     props.columns
-        .filter(
-            (c) =>
-                !c.readonly &&
-                !c.readonlyInEdit &&
-                c.required !== false &&
-                (draft.value[c.key] === '' || draft.value[c.key] == null),
-        )
+        .filter((c) => {
+            if (c.readonly || c.readonlyInEdit || c.required === false) return false
+            const val = draft.value[c.key]
+            if (c.type === 'multiselect') {
+                return !Array.isArray(val) || val.length === 0
+            }
+            return val === '' || val == null
+        })
         .map((c) => c.label),
 )
 

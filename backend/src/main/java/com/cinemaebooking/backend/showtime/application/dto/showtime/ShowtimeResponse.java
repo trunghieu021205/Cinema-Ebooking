@@ -9,18 +9,15 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 public class ShowtimeResponse {
-
     private Long id;
-
     private Long movieId;
     private Long roomId;
     private Long formatId;
     private Long cinemaId;
+    private Long roomLayoutId;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
-
     private Language audioLanguage;
     private Language subtitleLanguage;
-
     private String status;
 }

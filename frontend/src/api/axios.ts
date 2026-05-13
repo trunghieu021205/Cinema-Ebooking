@@ -7,7 +7,7 @@ import { mapFieldErrors } from '@/utils/errorMapper'
 
 const BASE_URL = 'http://localhost:8080/api/v1'
 
-const apiClient = axios.create({
+export const apiClient = axios.create({
     baseURL: BASE_URL,
     timeout: 10000,
     headers: { 'Content-Type': 'application/json' },
@@ -28,7 +28,10 @@ const isPublicEndpoint = (url?: string): boolean => {
 
 // ================= REQUEST =================
 apiClient.interceptors.request.use((config) => {
-    if (isPublicEndpoint(config.url)) return config 
+    if (isPublicEndpoint(config.url)) {
+        delete config.headers.Authorization;
+        return config 
+    } 
     const token = localStorage.getItem('accessToken')
     if (token) config.headers.Authorization = `Bearer ${token}`
     return config
@@ -41,18 +44,13 @@ let isRefreshing = false
 let failedQueue: Array<{
     resolve: (value?: any) => void
     reject: (reason?: any) => void
+    config: InternalAxiosRequestConfig
 }> = []
 
-const processQueue = (error: any = null, token: string | null = null) => {
-    failedQueue.forEach(({ resolve, reject, config }) => {
-        if (error) {
-            reject(error)
-        } else {
-            if (token) config.headers.Authorization = `Bearer ${token}`
-            resolve(apiClient(config))   // retry ngay trong queue thay vì dùng .then()
-        }
+const processQueue = (error, token) => {
+    failedQueue.forEach(({ resolve, reject }) => {
+        error ? reject(error) : resolve(token)  // resolve với token
     })
-    failedQueue = []
 }
 
 const logout = () => {
@@ -164,7 +162,6 @@ apiClient.interceptors.response.use(
             localStorage.setItem('accessToken', newAccessToken)
             localStorage.setItem('refreshToken', newRefreshToken)
 
-            apiClient.defaults.headers.common.Authorization = `Bearer ${newAccessToken}`
             originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
 
             try {

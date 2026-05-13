@@ -7,6 +7,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 /**
  * ShowtimeExceptions - Domain-specific exceptions for Showtime.
@@ -20,33 +21,6 @@ public final class ShowtimeExceptions {
         return new BaseException(
                 ErrorCode.SHOWTIME_NOT_FOUND,
                 "Showtime not found: " + id
-        );
-    }
-
-    // ================== BUSINESS RULE ==================
-
-    public static BaseException invalidTimeRange(
-            LocalDateTime startTime,
-            LocalDateTime endTime
-    ) {
-        return new BaseException(
-                ErrorCode.INVALID_INPUT,
-                "Invalid showtime time range: startTime=" + startTime +
-                        ", endTime=" + endTime +
-                        " (startTime must be before endTime)"
-        );
-    }
-
-    public static BaseException roomTimeConflict(
-            Long roomId,
-            LocalDateTime startTime,
-            LocalDateTime endTime
-    ) {
-        return new BaseException(
-                ErrorCode.SHOWTIME_ROOM_CONFLICT,
-                "Showtime conflict in room=" + roomId +
-                        ", startTime=" + startTime +
-                        ", endTime=" + endTime
         );
     }
 }

@@ -39,7 +39,7 @@
 
         <!-- Table -->
         <DataTable :rows="rooms" :columns="columns" createLabel="Thêm phòng" :fieldErrors="fieldErrors"
-            @create="showCreate = true" @delete="handleDelete" @save="handleSave" @row-select="selectedRoom = $event">
+            @create="showCreate = true" :show-delete="false" @save="handleSave" @row-select="selectedRoom = $event">
 
             <template #detail-actions="{ item }">
                 <button
@@ -127,7 +127,11 @@ const columns: ColumnDef<RoomResponse>[] = [
         label: 'Loại phòng',
         type: 'enum',
         readonlyInEdit: true,
-        options: ['TYPE_2D', 'TYPE_3D', 'IMAX'],
+        options: [
+            { value: 'TYPE_2D', label: '2D' },
+            { value: 'TYPE_3D', label: '3D' },
+            { value: 'IMAX', label: 'IMAX' }
+        ],
         width: '200px'
     },
 
@@ -157,7 +161,11 @@ const columns: ColumnDef<RoomResponse>[] = [
         key: 'status',
         label: 'Trạng thái',
         type: 'enum',
-        options: ['ACTIVE', 'INACTIVE', 'MAINTENANCE'],
+        options: [
+            { value: 'ACTIVE', label: 'Hoạt động' },
+            { value: 'INACTIVE', label: 'Không hoạt động' },
+            { value: 'MAINTENANCE', label: 'Bảo trì' }
+        ],
         hideInCreate: true,
         width: 'auto'
     },

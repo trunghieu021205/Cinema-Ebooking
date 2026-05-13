@@ -15,6 +15,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -118,8 +119,11 @@ public class RoomLayoutRepositoryImpl implements RoomLayoutRepository {
     }
 
     @Override
-    public void markAsUsed(RoomLayoutId id){
-        int updated = jpaRepository.markAsUsed(id.getValue());
-        if (updated == 0) throw RoomLayoutExceptions.notFound(id);
+    public void markAsUsedAndSetLastUsedDate(RoomLayout layout, LocalDate date){
+        int updated;
+        if (!layout.isUsed() || layout.getLastUsedDate().isBefore(date)){
+            updated = jpaRepository.markAsUsedAndSetLastUsedDate(layout.getId().getValue(), date);
+            if (updated == 0) throw RoomLayoutExceptions.notFound(layout.getId());
+        }
     }
 }

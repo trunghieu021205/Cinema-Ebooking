@@ -39,20 +39,6 @@ public class UpdateShowtimeUsecase {
     }
 
     private void applyUpdate(Showtime showtime, UpdateShowtimeRequest request) {
-
-        if (request.getStartTime() != null || request.getEndTime() != null) {
-
-            var newStart = request.getStartTime() != null
-                    ? request.getStartTime()
-                    : showtime.getStartTime();
-
-            var newEnd = request.getEndTime() != null
-                    ? request.getEndTime()
-                    : showtime.getEndTime();
-
-            showtime.update(newStart, newEnd);
-        }
-
         if (request.getAudioLanguage() != null || request.getSubtitleLanguage() != null) {
             showtime.updateLanguage(
                     request.getAudioLanguage(),

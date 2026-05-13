@@ -54,6 +54,13 @@ public class UpdateRoomLayoutUseCase {
             if (effectiveDate.isBefore(latestLayout.getEffectiveDate()) || effectiveDate.equals(latestLayout.getEffectiveDate())) {
                 throw RoomLayoutExceptions.effectiveDateTooEarly(effectiveDate, latestLayout.getEffectiveDate());
             }
+            if (latestLayout.getLastUsedDate() != null) {
+                if (!effectiveDate.isAfter(latestLayout.getLastUsedDate())) {
+                    throw CommonExceptions.invalidInput("effectiveDate", ErrorCategory.INVALID_VALUE,
+                            String.format("Effective date must be after the last used date (%s) of the current layout", latestLayout.getLastUsedDate()));
+                }
+            }
+
         }else{
             Integer currentVersion = latestLayout.getLayoutVersion();
             if (currentVersion > 1) {
@@ -63,6 +70,13 @@ public class UpdateRoomLayoutUseCase {
                 if (effectiveDate.isBefore(previousLayout.getEffectiveDate())) {
                     throw CommonExceptions.invalidInput("effectiveDate", ErrorCategory.INVALID_VALUE,
                             String.format("Effective date cannot be earlier than previous version's effective date (%s)", previousLayout.getEffectiveDate()));
+                }
+                if (previousLayout.getLastUsedDate() != null) {
+                    if (!effectiveDate.isAfter(previousLayout.getLastUsedDate())) {
+                        throw CommonExceptions.invalidInput("effectiveDate", ErrorCategory.INVALID_VALUE,
+                                String.format("Effective date must be after the last used date (%s) of previous layout version (%d)",
+                                        previousLayout.getLastUsedDate(), currentVersion - 1));
+                    }
                 }
             } else {
                 // Là version đầu tiên (version 1)

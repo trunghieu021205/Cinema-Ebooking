@@ -1,5 +1,6 @@
 package com.cinemaebooking.backend.showtime.domain.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.Getter;
 
 /**
@@ -53,5 +54,11 @@ public enum Language {
 
     Language(String displayName) {
         this.displayName = displayName;
+    }
+
+    @JsonCreator
+    public static Language fromString(String value) {
+        if (value == null) return null;
+        return Language.valueOf(value.toUpperCase());
     }
 }

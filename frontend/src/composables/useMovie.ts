@@ -98,7 +98,7 @@ export function useMovie() {
   // ── Genres (unchanged) ─────────────────────────────────────────────────
     const fetchGenres = async () => {
         try {
-        const response = await genreApi.getList(0, 1000)  // lấy tất cả thể loại
+        const response = await genreApi.getList(0, 100)  // lấy tất cả thể loại
         genresList.value = response.content               // content là mảng GenreResponse[]
         } catch (err) {
         console.error('Failed to fetch genres', err)
@@ -142,6 +142,9 @@ export function useMovie() {
   const save = async (item: MovieResponse): Promise<boolean> => {
     clearErrors()
     isLoading.value = true
+    const genreIds: number[] = (item.genres as any[] ?? []).map((g: any) =>
+      typeof g === 'number' ? g : g.id
+    )
     const updatePayload: UpdateMovieRequest = {
       title: item.title,
       description: item.description,
@@ -153,7 +156,7 @@ export function useMovie() {
       bannerUrl: item.bannerUrl,
       director: item.director,
       actors: item.actors,
-      genreIds: item.genres.map(g => g.id)
+      genreIds: genreIds
     }
     try {
       const updated = await movieApi.update(item.id, updatePayload)

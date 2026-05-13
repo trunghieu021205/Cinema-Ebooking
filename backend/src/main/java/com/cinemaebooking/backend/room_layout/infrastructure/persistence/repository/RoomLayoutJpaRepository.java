@@ -25,6 +25,7 @@ public interface RoomLayoutJpaRepository extends SoftDeleteJpaRepository<RoomLay
     List<RoomLayoutJpaEntity> findCurrentByRoomIdsAndDate(@Param("roomIds") List<Long> roomIds, @Param("date") LocalDate date);
 
     @Modifying
-    @Query("UPDATE RoomLayoutJpaEntity l SET l.used = true WHERE l.id = :layoutId")
-    int markAsUsed(@Param("layoutId") Long layoutId);
+    @Query("UPDATE RoomLayoutJpaEntity l SET l.used = true, l.lastUsedDate = :date WHERE l.id = :layoutId")
+    int markAsUsedAndSetLastUsedDate(@Param("layoutId") Long layoutId, @Param("date") LocalDate date);
+
 }
