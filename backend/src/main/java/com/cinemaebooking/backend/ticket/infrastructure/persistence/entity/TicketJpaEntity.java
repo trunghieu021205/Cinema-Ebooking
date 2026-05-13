@@ -31,12 +31,12 @@ import java.time.LocalDateTime;
         name = "tickets",
         uniqueConstraints = {
                 @UniqueConstraint(
-                        name = "uk_tickets_showtime_seat_id_deleted",
-                        columnNames = {"showtime_seat_id", "deleted"}
+                        name = "uk_tickets_showtime_seat_deleted_at",
+                        columnNames = {"showtime_seat_id", "deleted_at"}
                 ),
                 @UniqueConstraint(
-                        name = "uk_tickets_ticket_code_deleted",
-                        columnNames = {"ticket_code", "deleted"}
+                        name = "uk_tickets_ticket_code_deleted_at",
+                        columnNames = {"ticket_code", "deleted_at"}
                 )
         }
 )
@@ -65,10 +65,18 @@ public class TicketJpaEntity extends BaseJpaEntity {
     @Column(name = "seat_type", nullable = false, length = 30)
     private String seatType;
 
+    @Column(name = "seat_name", nullable = false)
+    private String seatName;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private TicketStatus status;
 
     @Column(name = "checked_in_at")
     private LocalDateTime checkedInAt;
+
+    @Override
+    protected void beforeSoftDelete() {
+        this.ticketCode = markDeleted(this.ticketCode);
+    }
 }

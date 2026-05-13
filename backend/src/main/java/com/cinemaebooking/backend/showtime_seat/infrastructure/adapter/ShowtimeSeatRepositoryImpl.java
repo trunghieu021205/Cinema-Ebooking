@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -50,16 +51,25 @@ public class ShowtimeSeatRepositoryImpl implements ShowtimeSeatRepository {
 
     @Override
     public void save(ShowtimeSeat showtimeSeat) {
-        ShowtimeSeatJpaEntity entity = mapper.toEntity(showtimeSeat);
+        ShowtimeSeatJpaEntity entity = jpaRepository.findById(showtimeSeat.getId().getValue())
+                .orElseThrow(() -> new RuntimeException("ShowtimeSeat not found: " + showtimeSeat.getId().getValue()));
+
+        entity.setStatus(showtimeSeat.getStatus());
+
         jpaRepository.save(entity);
     }
 
     @Override
-    public void updateStatus(Long showtimeId, Long roomLayoutSeatId, ShowtimeSeatStatus newStatus) {
-        // find existing entity, update status, save
-        ShowtimeSeatJpaEntity entity = jpaRepository.findByShowtimeIdAndRoomLayoutSeatId(showtimeId, roomLayoutSeatId)
-                .orElseThrow(() -> new EntityNotFoundException("ShowtimeSeat not found"));
-        entity.setStatus(newStatus);
-        jpaRepository.save(entity);
+    public void updateStatusToAvailable(Long showtimeId, List<Long> showtimeSeatIds) {
+        jpaRepository.updateStatusByShowtimeIdAndSeatIds(showtimeId, showtimeSeatIds, ShowtimeSeatStatus.AVAILABLE);
+    }
+
+    @Override
+    public List<ShowtimeSeat> findAllByIds(List<Long> seatIds) {
+        List<ShowtimeSeatJpaEntity> entities = jpaRepository.findAllById(seatIds);
+
+        return entities.stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
     }
 }

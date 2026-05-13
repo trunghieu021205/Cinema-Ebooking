@@ -83,4 +83,15 @@ public class UserCouponRepositoryImpl implements UserCouponRepository {
         jpaRepository.findByIdOrThrow(id.getValue());
         jpaRepository.deleteById(id.getValue()); // soft delete thừa kế
     }
+
+    @Override
+    public Optional<UserCoupon> findByUserIdAndCode(Long userId, String code) {
+        return jpaRepository.findByUserIdAndCodeWithCoupon(userId, code)
+                .map(mapper::toDomain);
+    }
+
+    @Override
+    public void updateStatus(Long userCouponId, UserCouponStatus status) {
+        jpaRepository.updateStatus(userCouponId, status);
+    }
 }

@@ -1,5 +1,6 @@
 package com.cinemaebooking.backend.user_coupon.application.port;
 
+import com.cinemaebooking.backend.user_coupon.domain.enums.UserCouponStatus;
 import com.cinemaebooking.backend.user_coupon.domain.model.UserCoupon;
 import com.cinemaebooking.backend.user_coupon.domain.valueobject.UserCouponId;
 import org.springframework.data.domain.Page;
@@ -20,4 +21,6 @@ public interface UserCouponRepository {
     boolean existsByUserIdAndCouponId(Long userId, Long couponId);
     boolean existsById(UserCouponId id);
     void deleteById(UserCouponId id);
+    Optional<UserCoupon> findByUserIdAndCode(Long userId, String code);
+    void updateStatus(Long userCouponId, UserCouponStatus status);
 }

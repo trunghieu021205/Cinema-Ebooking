@@ -1,5 +1,6 @@
 package com.cinemaebooking.backend.showtime.application.port;
 
+import com.cinemaebooking.backend.showtime.application.dto.showtime.ShowtimeSnapshot;
 import com.cinemaebooking.backend.showtime.domain.enums.ShowtimeStatus;
 import com.cinemaebooking.backend.showtime.domain.model.Showtime;
 import com.cinemaebooking.backend.showtime.domain.valueobject.ShowtimeId;
@@ -42,4 +43,6 @@ public interface ShowtimeRepository {
             LocalDateTime endTime,
             ShowtimeId excludeId
     );
+
+    Optional<ShowtimeSnapshot> findSnapshotById(Long showtimeId);
 }
