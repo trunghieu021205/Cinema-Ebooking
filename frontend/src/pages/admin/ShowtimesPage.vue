@@ -54,7 +54,7 @@
 
         <!-- Data Table -->
         <DataTable :rows="showtimes" :columns="columns" createLabel="Thêm suất chiếu" :fieldErrors="fieldErrors"
-            @create="openCreateModal" @save="handleSave" :showCreate="canCreate" :showDelete="false">
+            @create="openCreateModal" :showCreate="canCreate" :showDelete="false" :showSave="false">
 
             <template #detail-actions="{ item }">
                 <button v-if="item.status !== 'CANCELLED' && item.status !== 'FINISHED'"
@@ -104,6 +104,8 @@
             </template>
         </CreateModal>
 
+        <SeatMapDialog v-model:isOpen="isSeatMapOpen" :showtimeId="seatMapShowtimeId" />
+
     </div>
 </template>
 
@@ -118,6 +120,7 @@ import { cinemaApi } from '@/api/cinema.api'
 import type { ShowtimeResponse, CreateShowtimeRequest } from '@/types/showtime'
 import type { ColumnDef } from '@/components/common/table/types/table'
 import SeatMapPreview from '@/components/showtime/SeatMapPreview.vue'
+import SeatMapDialog from '@/components/showtime/SeatMapDialog.vue';
 
 const route = useRoute()
 const initialCinemaId = route.params.cinemaId ? Number(route.params.cinemaId) : null
@@ -131,6 +134,9 @@ const cinemaOptions = ref<{ value: number; label: string }[]>([])
 
 const showCreateModal = ref(false)
 const isLoadingCinemas = ref(true)
+
+const seatMapShowtimeId = ref<number | null>(null)
+const isSeatMapOpen = ref(false)
 
 const {
     showtimes, isLoading, fieldErrors, globalErrors,
@@ -227,8 +233,8 @@ const columns: ColumnDef<ShowtimeResponse>[] = [
     },
     { key: 'startTime', label: 'Bắt đầu', type: 'datetime', width: '150px', readonlyInEdit: true },
     { key: 'endTime', label: 'Kết thúc', type: 'datetime', width: '150px', readonlyInEdit: true },
-    { key: 'audioLanguage', label: 'Âm thanh', type: 'enum', options: languageOptions, width: '120px' },
-    { key: 'subtitleLanguage', label: 'Phụ đề', type: 'enum', options: languageOptions, width: '120px' },
+    { key: 'audioLanguage', label: 'Âm thanh', type: 'enum', options: languageOptions, width: '120px', readonlyInEdit: true, },
+    { key: 'subtitleLanguage', label: 'Phụ đề', type: 'enum', options: languageOptions, width: '120px', readonlyInEdit: true },
     {
         key: 'status',
         label: 'Trạng thái',
@@ -283,13 +289,6 @@ async function handleCreate(draft: Record<string, unknown>) {
     if (ok) showCreateModal.value = false
 }
 
-async function handleSave(item: ShowtimeResponse, done?: () => void) {
-    const ok = await save(item)
-    if (ok) {
-        done?.()
-    }
-}
-
 async function handleCancel(item: ShowtimeResponse) {
     if (item.status === 'CANCELLED') {
         alert('Suất chiếu đã bị hủy trước đó')
@@ -300,9 +299,9 @@ async function handleCancel(item: ShowtimeResponse) {
     }
 }
 
-// Placeholder for seat map view
 function viewSeatMap(showtime: ShowtimeResponse) {
-    alert(`Xem sơ đồ ghế cho suất chiếu #${showtime.id} (tính năng đang phát triển)`)
+    seatMapShowtimeId.value = showtime.id
+    isSeatMapOpen.value = true
 }
 
 onMounted(async () => {

@@ -141,23 +141,6 @@ export function useShowtime(cinemaIdInput: Ref<number | null> | number | null) {
     }
   }
 
-  async function save(item: ShowtimeResponse): Promise<boolean> {
-    clearErrors()
-    const body: UpdateShowtimeRequest = {
-      audioLanguage: item.audioLanguage,
-      subtitleLanguage: item.subtitleLanguage,
-    }
-    try {
-      const updated = await showtimeApi.update(item.id, body)
-      const idx = showtimes.value.findIndex((s) => s.id === updated.id)
-      if (idx !== -1) showtimes.value[idx] = updated
-      return true
-    } catch (err) {
-      handleError(err)
-      return false
-    }
-  }
-
   async function cancel(item: ShowtimeResponse): Promise<boolean> {
     clearErrors()
     try {
@@ -232,7 +215,6 @@ export function useShowtime(cinemaIdInput: Ref<number | null> | number | null) {
     goToPage,
     setFilters,
     create,
-    save,
     cancel,
     loadMovies,
     loadRooms,

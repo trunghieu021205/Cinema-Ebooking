@@ -44,18 +44,13 @@ let isRefreshing = false
 let failedQueue: Array<{
     resolve: (value?: any) => void
     reject: (reason?: any) => void
+    config: InternalAxiosRequestConfig
 }> = []
 
-const processQueue = (error: any = null, token: string | null = null) => {
-    failedQueue.forEach(({ resolve, reject, config }) => {
-        if (error) {
-            reject(error)
-        } else {
-            if (token) config.headers.Authorization = `Bearer ${token}`
-            resolve(apiClient(config))   // retry ngay trong queue thay vì dùng .then()
-        }
+const processQueue = (error, token) => {
+    failedQueue.forEach(({ resolve, reject }) => {
+        error ? reject(error) : resolve(token)  // resolve với token
     })
-    failedQueue = []
 }
 
 const logout = () => {

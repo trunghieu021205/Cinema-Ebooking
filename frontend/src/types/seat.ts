@@ -1,4 +1,4 @@
-export type SeatStatus = 'ACTIVE' | 'INACTIVE'
+export type SeatStatus = 'ACTIVE' | 'INACTIVE' | 'BOOKED' | 'LOCKED' | 'AVAILABLE';
 import type { RoomType } from "@types/room"
 export interface SeatResponse {
   id:            number

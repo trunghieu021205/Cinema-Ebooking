@@ -75,6 +75,22 @@ export interface SeatGridConfig {
   cellHeight: string
   legendSize: string       
   legendSizeWide: string  
+
+    // --- Style cho các trạng thái ghế (không phụ thuộc loại ghế) ---
+  // Admin mode
+  adminSelectedClass?: string   // ghế được chọn (thường dùng khi click chọn ghế trong admin)
+  adminBookedClass?: string     // ghế đã đặt (booked)
+  adminLockedClass?: string     // ghế bị khóa (locked)
+  adminInactiveClass?: string   // ghế không hoạt động (INACTIVE)
+  
+  // Web mode
+  webBookedClass?: string       // ghế đã đặt
+  webLockedClass?: string       // ghế bị khóa
+  webInactiveClass?: string     // ghế không hoạt động
+  
+  // Legend classes (cho mục "Đã đặt" và "Đã khóa" trong admin legend)
+  legendBookedClass?: string
+  legendLockedClass?: string
 }
 
 // ── Admin config ──────────────────────────────────────────────────────────────
@@ -92,6 +108,13 @@ export const adminSeatGridConfig: SeatGridConfig = {
   cellHeight: '2rem',
   legendSize: 'h-5 w-5',     
   legendSizeWide: 'h-5 w-9',
+
+  adminSelectedClass: 'bg-blue-500 border-blue-600 text-white shadow-md ring-2 ring-blue-300',
+  adminBookedClass: 'bg-gray-300 border-gray-400 text-gray-600 line-through opacity-80',
+  adminLockedClass: 'bg-red-100 border-red-400 text-red-700 opacity-80',
+  adminInactiveClass: 'bg-slate-50 border-slate-200 text-slate-300 opacity-50',
+  legendBookedClass: 'bg-gray-300 border border-gray-400 rounded-md',
+  legendLockedClass: 'bg-red-100 border border-red-400 rounded-md',
 }
 
 // ── Web config ────────────────────────────────────────────────────────────────
@@ -107,24 +130,35 @@ export const webSeatGridConfig: SeatGridConfig = {
   gap: 'gap-2',
   cellWidth: '2rem',
   cellHeight: '2rem',
-    legendSize: 'h-5 w-5',
+  legendSize: 'h-5 w-5',
   legendSizeWide: 'h-5 w-9',
+
+  webBookedClass: 'bg-white/20 border-white/20 text-white/30',
+  webLockedClass: 'bg-white/5 border-white/10 text-white/20 opacity-40',
+  webInactiveClass: 'bg-white/5 border-white/10 text-white/20 opacity-40',
 }
 
 // ── Preview config (dùng trong form tạo/sửa suất chiếu) ───────────────────────
 export const previewSeatGridConfig: SeatGridConfig = {
-    mode: 'admin',
-    seatSize: 'h-5 w-5',     
-    seatRadius: 'rounded-sm', 
-    screenPosition: 'bottom',
-    rtl: true,
-    showRowLabel: true,
-    rowLabelBothSides: false, 
-    showColNumber: true,
-    gap: 'gap-2',              
-    cellWidth: '1.25rem',
-    cellHeight: '1.25rem',
-    legendSize: 'h-4 w-4',       
-    legendSizeWide: 'h-4 w-7',
+  mode: 'admin',
+  seatSize: 'h-5 w-5',     
+  seatRadius: 'rounded-sm', 
+  screenPosition: 'bottom',
+  rtl: true,
+  showRowLabel: true,
+  rowLabelBothSides: false, 
+  showColNumber: true,
+  gap: 'gap-2',              
+  cellWidth: '1.25rem',
+  cellHeight: '1.25rem',
+  legendSize: 'h-4 w-4',       
+  legendSizeWide: 'h-4 w-7',
+    
+  adminSelectedClass: 'bg-blue-400 border-blue-500 text-white ring-1 ring-blue-200',
+  adminBookedClass: 'bg-gray-200 border-gray-300 text-gray-500 line-through opacity-70',
+  adminLockedClass: 'bg-red-50 border-red-300 text-red-500 opacity-70',
+  adminInactiveClass: 'bg-slate-50 border-slate-200 text-slate-300 opacity-40',
+  legendBookedClass: 'bg-gray-200 border border-gray-300 rounded-md',
+  legendLockedClass: 'bg-red-50 border border-red-300 rounded-md',
 
 }

@@ -44,7 +44,7 @@
                     <!-- Slot cho actions bổ sung từ parent (vd: nút "Quản lý phòng") -->
                     <slot name="actions" :item="draft" />
 
-                    <BaseButton variant="primary" size="md" rounded="lg" class="w-full"
+                    <BaseButton v-if="showSave" variant="primary" size="md" rounded="lg" class="w-full"
                         :class="!canSave && 'opacity-50 cursor-not-allowed pointer-events-none'" :disabled="!canSave"
                         @click="onSaveClick">
                         Lưu thay đổi
@@ -71,6 +71,7 @@ const props = defineProps<{
     item: RowItem | null
     columns: ColumnDef[]
     errors?: Record<string, string>
+    showSave?: boolean
 }>()
 
 const emit = defineEmits<{

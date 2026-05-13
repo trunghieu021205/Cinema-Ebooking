@@ -25,6 +25,13 @@
                 <template v-else-if="column.type === 'enum'">
                     {{ getEnumLabel(modelValue) ?? modelValue ?? '—' }}
                 </template>
+                <template v-else-if="column.type === 'date'">
+                    {{ modelValue ? formatDateOnly(String(modelValue)) : '—' }}
+                </template>
+                <template v-else-if="column.type === 'datetime'"> <!-- thêm mới -->
+                    {{ modelValue ? formatDateTime(String(modelValue)) : '—' }}
+                </template>
+
                 <template v-else>
                     {{ modelValue ?? '—' }}
                 </template>
@@ -347,7 +354,7 @@ async function loadDependent(deps: Record<string, unknown>) {
 watch(
     () => props.depValues,
     (newDeps) => {
-        if (props.column.dependentLoader && newDeps) {
+        if (props.column.dependentLoader && !props.column.readonly && newDeps) {
             loadDependent(newDeps)
         }
     },
@@ -361,6 +368,11 @@ watch(
 onMounted(() => {
     if (props.column.type !== 'relation') return
     if (props.column.staticOptions?.length) return
+
+    if (props.column.readonly && props.column.optionsLoader) {
+        loadOptions()
+        return
+    }
 
     // Nếu là display mode hoặc không có depValues, ưu tiên optionsLoader
     if ((props.mode === 'display' || !props.depValues) && props.column.optionsLoader) {

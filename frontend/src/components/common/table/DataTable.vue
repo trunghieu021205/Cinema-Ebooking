@@ -64,7 +64,7 @@
 
         <!-- Detail panel — pass-through slot 'detail-actions' → panel's 'actions' slot -->
         <DetailPanel :item="selectedItem" :columns="columns" :errors="fieldErrors" @close="selectedItem = null"
-            @save="onSave">
+            @save="onSave" :showSave="props.showSave">
             <!--
                 Pass-through: nếu parent truyền #detail-actions thì forward xuống DetailPanel.
                 Slot scope { item } là draft hiện tại trong panel (RowItem).
@@ -100,12 +100,14 @@ const props = withDefaults(
         fieldErrors?: Record<string, string>
         showDelete?: boolean
         showCreate?: boolean
+        showSave?: boolean
     }>(),
     {
         createLabel: 'Tạo mới',
         fieldErrors: () => ({}),
         showDelete: true,
         showCreate: true,
+        showSave: true,
     },
 )
 

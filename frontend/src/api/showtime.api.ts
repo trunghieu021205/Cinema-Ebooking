@@ -6,6 +6,7 @@ import type {
   ShowtimeFormatResponse,
 } from '@/types/showtime'
 import type { NestedPage } from '@/types/common.types'
+import type { ShowtimeSeatLayoutResponse } from '@/types/showtime-seat'
 
 export const showtimeApi = {
   // GET /api/v1/admin/showtimes?cinemaId=&roomId=&status=&page=&size=&sort=
@@ -22,6 +23,9 @@ export const showtimeApi = {
 
   getById: (id: number) =>
     apiClient.get<ShowtimeResponse>(`/admin/showtimes/${id}`),
+
+  getSeatMap: (id: number) =>
+    apiClient.get<ShowtimeSeatLayoutResponse>(`/showtimes/${id}/seat-layout`),
 
   create: (body: CreateShowtimeRequest) =>
     apiClient.post<ShowtimeResponse>('/admin/showtimes', body),
