@@ -22,6 +22,14 @@ public class RoomLayoutSeatRepositoryImpl implements RoomLayoutSeatRepository {
     private final RoomLayoutSeatMapper mapper;
 
     @Override
+    public void save(RoomLayoutSeat roomLayoutSeat) {
+        var oldEntity = seatJpaRepository.findByIdOrThrow(roomLayoutSeat.getId().getValue());
+
+        oldEntity.setStatus(roomLayoutSeat.getStatus());
+        oldEntity.setSeatTypeId(roomLayoutSeat.getSeatTypeId());
+    }
+
+    @Override
     public Optional<RoomLayoutSeat> findById(RoomLayoutSeatId id) {
         return seatJpaRepository.findById(id.getValue())
                 .map(mapper::toDomain);

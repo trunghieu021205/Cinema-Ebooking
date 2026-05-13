@@ -7,6 +7,7 @@ import com.cinemaebooking.backend.room.domain.enums.RoomType;
 import com.cinemaebooking.backend.room_layout.domain.model.roomLayoutSeat.RoomLayoutSeat;
 import com.cinemaebooking.backend.room_layout.domain.valueObject.roomLayout.RoomLayoutId;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
@@ -23,9 +24,12 @@ public class RoomLayout extends BaseEntity<RoomLayoutId> {
 
     private Integer layoutVersion;
 
+    @Setter
     private RoomType roomType;
-
+    @Setter
     private LocalDate effectiveDate;
+
+    private boolean used;
 
     private Integer totalRows;
 
@@ -35,12 +39,14 @@ public class RoomLayout extends BaseEntity<RoomLayoutId> {
 
     private LocalDateTime createdAt;
 
+    public void markUsed() {  this.used=true; }
     private RoomLayout(RoomLayoutBuilder<?, ?> builder) {
         super(builder);
         this.roomId = builder.roomId;
         this.layoutVersion = builder.layoutVersion;
         this.roomType = builder.roomType;
         this.effectiveDate = builder.effectiveDate;
+        this.used = builder.used;
         this.totalRows = builder.totalRows;
         this.totalCols = builder.totalCols;
         this.createdAt = builder.createdAt;
@@ -71,34 +77,32 @@ public class RoomLayout extends BaseEntity<RoomLayoutId> {
         if (totalCols == null || totalCols <= 0) {
             throw CommonExceptions.invalidInput("totalCols", ErrorCategory.INVALID_VALUE, "totalCols must be > 0");
         }
-        if (seats == null || seats.isEmpty()) {
-            throw CommonExceptions.invalidInput("seats", ErrorCategory.REQUIRED, "seats cannot be empty");
-        }
-
-        // Kiểm tra số lượng ghế
-        int expectedSize = totalRows * totalCols;
-        if (seats.size() != expectedSize) {
-            throw CommonExceptions.invalidInput("seats", ErrorCategory.INVALID_VALUE,
-                    "Number of seats must equal totalRows * totalCols. Expected: " + expectedSize + ", but was: " + seats.size());
-        }
-
-        // Kiểm tra chỉ số hàng/cột và trùng lặp
-        Set<String> occupied = new HashSet<>();
-        for (RoomLayoutSeat seat : seats) {
-            if (seat.getRowIndex() == null || seat.getRowIndex() < 1 || seat.getRowIndex() > totalRows) {
-                throw CommonExceptions.invalidInput("seats", ErrorCategory.INVALID_VALUE,
-                        "Invalid row index: " + seat.getRowIndex());
+        if (seats != null) {
+            if (seats.isEmpty()) {
+                throw CommonExceptions.invalidInput("seats", ErrorCategory.REQUIRED, "seats cannot be empty");
             }
-            if (seat.getColIndex() == null || seat.getColIndex() < 1 || seat.getColIndex() > totalCols) {
+            int expectedSize = totalRows * totalCols;
+            if (seats.size() != expectedSize) {
                 throw CommonExceptions.invalidInput("seats", ErrorCategory.INVALID_VALUE,
-                        "Invalid col index: " + seat.getColIndex());
+                        "Number of seats must equal totalRows * totalCols. Expected: " + expectedSize + ", but was: " + seats.size());
             }
-            String key = seat.getRowIndex() + "," + seat.getColIndex();
-            if (occupied.contains(key)) {
-                throw CommonExceptions.invalidInput("seats", ErrorCategory.INVALID_VALUE,
-                        "Duplicate seat at row " + seat.getRowIndex() + ", col " + seat.getColIndex());
+            Set<String> occupied = new HashSet<>();
+            for (RoomLayoutSeat seat : seats) {
+                if (seat.getRowIndex() == null || seat.getRowIndex() < 1 || seat.getRowIndex() > totalRows) {
+                    throw CommonExceptions.invalidInput("seats", ErrorCategory.INVALID_VALUE,
+                            "Invalid row index: " + seat.getRowIndex());
+                }
+                if (seat.getColIndex() == null || seat.getColIndex() < 1 || seat.getColIndex() > totalCols) {
+                    throw CommonExceptions.invalidInput("seats", ErrorCategory.INVALID_VALUE,
+                            "Invalid col index: " + seat.getColIndex());
+                }
+                String key = seat.getRowIndex() + "," + seat.getColIndex();
+                if (occupied.contains(key)) {
+                    throw CommonExceptions.invalidInput("seats", ErrorCategory.INVALID_VALUE,
+                            "Duplicate seat at row " + seat.getRowIndex() + ", col " + seat.getColIndex());
+                }
+                occupied.add(key);
             }
-            occupied.add(key);
         }
     }
 }

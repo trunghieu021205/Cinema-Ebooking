@@ -7,6 +7,7 @@ import com.cinemaebooking.backend.loyalty.application.dto.earning_rule.CreateEar
 import com.cinemaebooking.backend.loyalty.application.dto.earning_rule.UpdateEarningRuleRequest;
 import com.cinemaebooking.backend.loyalty.application.port.EarningRuleRepository;
 import com.cinemaebooking.backend.loyalty.application.port.MembershipTierRepository;
+import com.cinemaebooking.backend.loyalty.domain.enums.EarningType;
 import com.cinemaebooking.backend.loyalty.domain.valueobject.EarningRuleId;
 import com.cinemaebooking.backend.loyalty.domain.valueobject.MembershipTierId;
 import lombok.RequiredArgsConstructor;
@@ -35,8 +36,8 @@ public class EarningRuleCommandValidator {
             throw EarningRuleExceptions.duplicateRule();
     }
 
-    private void validateBase(String type, BigDecimal multiplier, Long tierId) {
-        if (type == null || !Set.of("TICKET", "COMBO").contains(type))
+    private void validateBase(EarningType type, BigDecimal multiplier, Long tierId) {
+        if (type == null || !Set.of(EarningType.TICKET, EarningType.CONCESSION).contains(type))
             throw EarningRuleExceptions.invalidType(type);
         if (multiplier == null || multiplier.compareTo(BigDecimal.ZERO) <= 0)
             throw EarningRuleExceptions.invalidRate();

@@ -59,11 +59,12 @@ public class RoomCommandValidator {
 
         // ================== PHASE 1: FORMAT VALIDATION ==================
         ValidationEngine engine = ValidationEngine.of()
-                .validate(name, "name", ValidationFactory.room().nameRules())
-                .validate(roomType, "roomType", ValidationFactory.room().typeRules());
+                .validate(name, "name", ValidationFactory.room().nameRules());
+
 
         if (!isUpdate) {
             engine
+                    .validate(roomType, "roomType", ValidationFactory.room().typeRules())
                     .validate(numberOfRows, "numberOfRows", ValidationFactory.room().numberOfRowsRules())
                     .validate(numberOfCols, "numberOfCols", ValidationFactory.room().numberOfColsRules())
                     .validate(cinemaId, "cinemaId", ValidationFactory.room().cinemaIdRules());
@@ -120,7 +121,6 @@ public class RoomCommandValidator {
 
     private RoomType extractRoomType(Object request) {
         if (request instanceof CreateRoomRequest req) return req.getRoomType();
-        if (request instanceof UpdateRoomRequest req) return req.getRoomType();
         return null;
     }
 

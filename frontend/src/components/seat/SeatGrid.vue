@@ -5,7 +5,7 @@
         <ScreenBar v-if="config.screenPosition === 'top'" />
 
         <!-- Seat grid -->
-        <div class="overflow-x-auto w-fit">
+        <div class="overflow-x-auto w-fit" :class="{ 'pointer-events-none opacity-60': disabled }">
             <div ref="gridEl" class="flex flex-col py-6" :class="config.gap">
                 <div v-for="(row, rowIdx) in layout.rows" :key="rowIdx" class="flex items-center" :class="config.gap">
                     <!-- Row label LEFT -->
@@ -149,10 +149,14 @@ const props = withDefaults(
         config: SeatGridConfig
         selectedIds?: number[]
         bookedIds?: number[]
+        disabled?: boolean
+        pendingSeatIds?: number[]
     }>(),
     {
         selectedIds: () => [],
         bookedIds: () => [],
+        disabled: () => false,
+        pendingSeatIds: () => [],
     },
 )
 
@@ -168,7 +172,7 @@ function rowLabel(rowIdx: number): string {
 }
 
 function colNumber(colIdx: number): number {
-    return props.config.rtl ? props.layout.totalCols - colIdx : colIdx + 1
+    return props.config.rtl ? props.layout.totalCols - colIdx + 1 : colIdx
 }
 
 function typeConfig(typeId: number) {
@@ -187,14 +191,17 @@ function isInteractive(seat: SeatResponse): boolean {
 
 function onSeatClick(seat: SeatResponse, event: MouseEvent): void {
     if (!isInteractive(seat)) return
+    if (props.disabled) return
     emit('seat-click', seat, event)
 }
 
 function onCoupleClick(left: SeatResponse, right: SeatResponse, event: MouseEvent): void {
+    if (props.disabled) return
     emit('couple-click', left, right, event)
 }
 
 // ── Class builders ────────────────────────────────────────────────────────────
+const pendingSet = computed(() => new Set(props.pendingSeatIds))
 
 function seatClasses(seat: SeatResponse): string {
     const cfg = typeConfig(seat.seatTypeId)
@@ -202,34 +209,61 @@ function seatClasses(seat: SeatResponse): string {
     const selected = selectedSet.value.has(seat.id)
     const booked = bookedSet.value.has(seat.id)
 
+    const isPending = pendingSet.value.has(seat.id)
+
+    let baseClass = ''
+
     if (props.config.mode === 'admin') {
-        if (selected) return 'bg-blue-500 border-blue-600 text-white shadow-md ring-2 ring-blue-300'
-        if (inactive) return 'bg-slate-50 border-slate-200 text-slate-300 opacity-50'
-        return `${cfg.adminBg} ${cfg.adminBorder} ${cfg.adminText} hover:brightness-110`
+        if (selected) baseClass = 'bg-blue-500 border-blue-600 text-white shadow-md ring-2 ring-blue-300'
+        else if (inactive) baseClass = 'bg-slate-50 border-slate-200 text-slate-300 opacity-50'
+        else baseClass = `${cfg.adminBg} ${cfg.adminBorder} ${cfg.adminText} hover:brightness-110`
+    } else {
+        // web mode
+        if (inactive) baseClass = 'bg-white/5 border-white/10 text-white/20 opacity-40'
+        else if (booked) baseClass = 'bg-white/20 border-white/20 text-white/30'
+        else if (selected) baseClass = `${cfg.webSelectedBg} border-transparent ${cfg.webSelectedText}`
+        else baseClass = `bg-white/10 border-2 ${cfg.webBorder} text-white/80 hover:bg-white/20`
     }
 
-    // Web
-    if (inactive) return 'bg-white/5 border-white/10 text-white/20 opacity-40'
-    if (booked) return 'bg-white/20 border-white/20 text-white/30'
-    if (selected) return `${cfg.webSelectedBg} border-transparent ${cfg.webSelectedText}`
-    return `bg-white/10 border-2 ${cfg.webBorder} text-white/80 hover:bg-white/20`
+    // Thêm highlight pending (chỉ khi đang ở admin mode và ghế có pending change)
+    if (props.config.mode === 'admin' && isPending) {
+        // Thêm ring xanh nét đứt, giữ nguyên các class hiện tại
+        baseClass += ' ring-2 ring-blue-400 border-dashed'
+    }
+
+    return baseClass
 }
 
 function coupleClasses(left: SeatResponse, right: SeatResponse): string {
     const cfg = typeConfig(left.seatTypeId)
     const inactive = left.status === 'INACTIVE' || right.status === 'INACTIVE'
     const selected = selectedSet.value.has(left.id) || selectedSet.value.has(right.id)
+    const isPending = pendingSet.value.has(left.id) || pendingSet.value.has(right.id)
+
+    let baseClass = ''
 
     if (props.config.mode === 'admin') {
-        if (selected) return 'bg-blue-500 border-blue-600 text-white shadow-md ring-2 ring-blue-300'
-        if (inactive) return 'bg-slate-50 border-slate-200 text-slate-300 opacity-50'
-        return `${cfg.adminBg} ${cfg.adminBorder} ${cfg.adminText} hover:brightness-110`
+        if (selected) {
+            baseClass = 'bg-blue-500 border-blue-600 text-white shadow-md ring-2 ring-blue-300'
+        } else if (inactive) {
+            baseClass = 'bg-slate-50 border-slate-200 text-slate-300 opacity-50'
+        } else {
+            baseClass = `${cfg.adminBg} ${cfg.adminBorder} ${cfg.adminText} hover:brightness-110`
+        }
+    } else {
+        // web mode
+        if (inactive) baseClass = 'bg-white/5 border-white/10 text-white/20 opacity-40'
+        else if (booked) baseClass = 'bg-white/20 border-white/20 text-white/30'
+        else if (selected) baseClass = 'bg-amber-500 border-transparent text-white'
+        else baseClass = `bg-white/10 border-2 ${cfg.webBorder} text-white/80 hover:bg-white/20`
     }
 
-    // Web
-    if (inactive) return 'bg-white/5 border-white/10 text-white/20 opacity-40'
-    if (selected) return 'bg-amber-500 border-transparent text-white'
-    return `bg-white/10 border-2 ${cfg.webBorder} text-white/80 hover:bg-white/20`
+    if (props.config.mode === 'admin' && isPending) {
+        baseClass += ' ring-2 ring-blue-400 border-dashed'
+    }
+
+    return baseClass
+
 }
 
 // ── Row item builder ──────────────────────────────────────────────────────────
@@ -242,9 +276,8 @@ function getRowItems(row: SeatResponse[], rowIdx: number): RowItem[] {
         const next = row[c + 1]
         const isCouplePair =
             seat.seatTypeId === 3 &&
-            seat.colIndex % 2 === 0 &&
-            next?.seatTypeId === 3
-
+            seat.colIndex % 2 === 1
+            && next?.seatTypeId === 3
         if (isCouplePair) {
             items.push({ type: 'couple', key: `couple-${rowIdx}-${seat.colIndex}`, leftSeat: seat, rightSeat: next })
             c++ // bỏ qua ghế phải

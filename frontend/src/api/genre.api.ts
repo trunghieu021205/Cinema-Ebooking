@@ -1,10 +1,10 @@
 import apiClient from './axios'
 import type { GenreResponse, CreateGenreRequest, UpdateGenreRequest } from '@/types/genre'
-import type { Page } from '@/types/common.types'
+import type { NestedPage } from '@/types/common.types'
 export const genreApi = {
   // GET /api/v1/genres?page=0&size=8
   getList: (page = 0, size = 8) =>
-    apiClient.get<Page<GenreResponse>>('/genres', { params: { page, size, sort: 'id,desc' } }),
+    apiClient.get<NestedPage<GenreResponse>>('/genres', { params: { page, size, sort: 'id,desc' } }),
 
   // POST /api/v1/genres
   create: (body: CreateGenreRequest) =>

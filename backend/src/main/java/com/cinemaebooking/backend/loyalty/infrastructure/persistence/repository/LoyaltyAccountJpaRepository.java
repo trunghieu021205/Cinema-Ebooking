@@ -1,8 +1,8 @@
 package com.cinemaebooking.backend.loyalty.infrastructure.persistence.repository;
 
+import com.cinemaebooking.backend.infrastructure.persistence.repository.SoftDeleteJpaRepository;
 import com.cinemaebooking.backend.loyalty.infrastructure.persistence.entity.LoyaltyAccountJpaEntity;
 import com.cinemaebooking.backend.loyalty.domain.enums.LoyaltyAccountStatus;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -30,7 +30,7 @@ import java.util.Optional;
  * @since 2026
  */
 @Repository
-public interface LoyaltyAccountJpaRepository extends JpaRepository<LoyaltyAccountJpaEntity, Long> {
+public interface LoyaltyAccountJpaRepository extends SoftDeleteJpaRepository<LoyaltyAccountJpaEntity> {
 
     /**
      * Tìm LoyaltyAccount theo userId

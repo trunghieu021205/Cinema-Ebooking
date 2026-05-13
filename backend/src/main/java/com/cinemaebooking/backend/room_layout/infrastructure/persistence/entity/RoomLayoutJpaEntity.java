@@ -7,12 +7,14 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
 
 @Getter
 @Entity
+@Setter
 @Table(name = "room_layout")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SuperBuilder(toBuilder = true)
@@ -30,6 +32,9 @@ public class RoomLayoutJpaEntity extends BaseJpaEntity {
 
     @Column(name = "effective_date", nullable = false)
     private LocalDate effectiveDate;       // Ngày bắt đầu có hiệu lực
+
+    @Column(name = "used", nullable = false)
+    private boolean used = false;
 
     @Column(name = "total_rows")
     private Integer totalRows;

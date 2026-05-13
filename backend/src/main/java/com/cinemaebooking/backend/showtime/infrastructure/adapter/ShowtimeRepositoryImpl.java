@@ -93,7 +93,7 @@ public class ShowtimeRepositoryImpl implements ShowtimeRepository {
     }
 
     @Override
-    public boolean existsByRoomIdAndStatusIn(Long roomId, List<ShowtimeStatus> status){
+    public boolean existsByRoomIdAndStatusIn(Long roomId, List<ShowtimeStatus> status) {
         return jpaRepository.existsByRoomIdAndStatusIn(roomId, status);
     }
 
@@ -122,5 +122,10 @@ public class ShowtimeRepositoryImpl implements ShowtimeRepository {
     @Override
     public Optional<ShowtimeSnapshot> findSnapshotById(Long showtimeId) {
         return jpaRepository.findSnapshot(showtimeId);
+    }
+
+    @Override
+    public boolean existsByRoomLayoutId(Long roomLayoutId){
+        return jpaRepository.existsByRoomLayoutId(roomLayoutId);
     }
 }

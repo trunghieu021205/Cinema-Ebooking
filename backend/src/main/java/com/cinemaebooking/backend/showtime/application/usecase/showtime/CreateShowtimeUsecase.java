@@ -67,7 +67,7 @@ public class CreateShowtimeUsecase {
         showtime.validateForCreate();
 
         Showtime saved = showtimeRepository.create(showtime);
-
+        if (!layout.isUsed()) roomLayoutRepository.markAsUsed(layout.getId());
         // Lấy tất cả ghế của layout
         List<RoomLayoutSeat> layoutSeats = roomLayoutSeatRepository.findByRoomLayoutId(layout.getId().getValue());
 

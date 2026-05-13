@@ -24,6 +24,8 @@ public interface ShowtimeRepository {
 
     boolean existsById(ShowtimeId id);
 
+    boolean existsByRoomLayoutId(Long roomLayoutId);
+
     boolean existsByRoomIdAndStatusIn(Long RoomId, List<ShowtimeStatus> status);
 
     Page<Showtime> search(

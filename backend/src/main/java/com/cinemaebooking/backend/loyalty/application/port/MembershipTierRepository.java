@@ -17,6 +17,7 @@ public interface MembershipTierRepository {
     Page<MembershipTier> findAll(Pageable pageable);
     boolean existsById(MembershipTierId id);
     Optional<MembershipTier> findByName(String name);
+    boolean existsByName(String name);
     boolean existsByNameAndIdNot(String name, MembershipTierId id);
     boolean isUsedByAnyLoyaltyAccount(MembershipTierId id);
     List<MembershipTier> findAllByMinSpendingRequiredLessThanEqualOrderByTierLevelDesc(BigDecimal amount);

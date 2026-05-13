@@ -1,5 +1,6 @@
 package com.cinemaebooking.backend.room_layout.infrastructure.adapter;
 
+import com.cinemaebooking.backend.common.exception.domain.RoomLayoutExceptions;
 import com.cinemaebooking.backend.room_layout.application.port.roomLayout.RoomLayoutRepository;
 import com.cinemaebooking.backend.room_layout.domain.model.roomLayout.RoomLayout;
 import com.cinemaebooking.backend.room_layout.domain.valueObject.roomLayout.RoomLayoutId;
@@ -45,6 +46,15 @@ public class RoomLayoutRepositoryImpl implements RoomLayoutRepository {
         seatJpaRepository.saveAll(seatEntities);
 
         return layoutMapper.toDomainWithSeats(layoutEntity, seatEntities);
+    }
+
+    @Override
+    public void update(RoomLayout layout) {
+        var oldEntity = jpaRepository.findByIdOrThrow(layout.getId().getValue());
+
+        oldEntity.setRoomType(layout.getRoomType());
+        oldEntity.setEffectiveDate(layout.getEffectiveDate());
+
     }
 
     @Override
@@ -97,5 +107,19 @@ public class RoomLayoutRepositoryImpl implements RoomLayoutRepository {
                     List<RoomLayoutSeatJpaEntity> seats = seatJpaRepository.findByRoomLayoutId(entity.getId());
                     return layoutMapper.toDomainWithSeats(entity, seats);
                 });
+    }
+
+    @Override
+    public List<RoomLayout> findCurrentByRoomIdsAndDate(List<Long> roomIds,LocalDate date){
+        List<RoomLayoutJpaEntity> entities = jpaRepository.findCurrentByRoomIdsAndDate(roomIds, date);
+        return entities.stream()
+                .map(layoutMapper::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void markAsUsed(RoomLayoutId id){
+        int updated = jpaRepository.markAsUsed(id.getValue());
+        if (updated == 0) throw RoomLayoutExceptions.notFound(id);
     }
 }

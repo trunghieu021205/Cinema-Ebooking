@@ -64,4 +64,6 @@ public interface ShowtimeJpaRepository extends SoftDeleteJpaRepository<ShowtimeJ
         WHERE s.id = :showtimeId
     """)
     Optional<ShowtimeSnapshot> findSnapshot(@Param("showtimeId") Long showtimeId);
+
+    boolean existsByRoomLayoutId(Long roomLayoutId);
 }
