@@ -1,7 +1,10 @@
 package com.cinemaebooking.backend.showtime_seat.infrastructure.persistence.repository;
 
+import com.cinemaebooking.backend.showtime_seat.domain.enums.ShowtimeSeatStatus;
 import com.cinemaebooking.backend.showtime_seat.infrastructure.persistence.entity.ShowtimeSeatJpaEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -39,5 +42,10 @@ public interface ShowtimeSeatJpaRepository extends JpaRepository<ShowtimeSeatJpa
      * Lấy tất cả ghế thuộc một suất chiếu
      */
     List<ShowtimeSeatJpaEntity> findByShowtimeId(Long showtimeId);
+
+    @Modifying
+    @Query("UPDATE ShowtimeSeatJpaEntity s SET s.status = :status " +
+            "WHERE s.showtime.id = :showtimeId AND s.id IN :seatIds")
+    void updateStatusByShowtimeIdAndSeatIds(Long showtimeId, List<Long> seatIds, ShowtimeSeatStatus status);
 
 }

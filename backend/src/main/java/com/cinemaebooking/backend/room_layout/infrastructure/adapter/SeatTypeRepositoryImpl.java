@@ -12,7 +12,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -79,5 +81,14 @@ public class SeatTypeRepositoryImpl implements SeatTypeRepository {
     @Override
     public Optional<SeatType> findByNameIgnoreCase(String name) {
         return jpaRepository.findByNameIgnoreCase(name).map(mapper::toDomain);
+    }
+
+    @Override
+    public List<SeatType> findAllByIds(List<Long> ids) {
+        // Chuyển List<Long> từ Domain thành List<Long> cho JPA (thường là giống nhau)
+        // Sau đó gọi hàm có sẵn của Spring Data JPA
+        return jpaRepository.findAllById(ids).stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
     }
 }

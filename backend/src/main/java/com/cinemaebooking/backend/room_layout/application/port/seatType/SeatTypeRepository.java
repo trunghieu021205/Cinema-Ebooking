@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 public interface SeatTypeRepository {
@@ -29,4 +30,6 @@ public interface SeatTypeRepository {
     Optional<SeatType> findByNameIgnoreCase(String name);
 
     Optional<BigDecimal> findBasePriceById(SeatTypeId seatTypeId);
+
+    List<SeatType> findAllByIds(List<Long> ids);
 }

@@ -3,6 +3,7 @@ package com.cinemaebooking.backend.showtime.infrastructure.adapter;
 import com.cinemaebooking.backend.common.exception.domain.CommonExceptions;
 import com.cinemaebooking.backend.movie.infrastructure.persistence.repository.MovieJpaRepository;
 import com.cinemaebooking.backend.room.infrastructure.persistence.repository.RoomJpaRepository;
+import com.cinemaebooking.backend.showtime.application.dto.showtime.ShowtimeSnapshot;
 import com.cinemaebooking.backend.showtime.application.port.ShowtimeRepository;
 import com.cinemaebooking.backend.showtime.domain.enums.Language;
 import com.cinemaebooking.backend.showtime.domain.enums.ShowtimeStatus;
@@ -92,7 +93,7 @@ public class ShowtimeRepositoryImpl implements ShowtimeRepository {
     }
 
     @Override
-    public boolean existsByRoomIdAndStatusIn(Long roomId, List<ShowtimeStatus> status){
+    public boolean existsByRoomIdAndStatusIn(Long roomId, List<ShowtimeStatus> status) {
         return jpaRepository.existsByRoomIdAndStatusIn(roomId, status);
     }
 
@@ -116,6 +117,11 @@ public class ShowtimeRepositoryImpl implements ShowtimeRepository {
                 endTime,
                 exclude
         );
+    }
+
+    @Override
+    public Optional<ShowtimeSnapshot> findSnapshotById(Long showtimeId) {
+        return jpaRepository.findSnapshot(showtimeId);
     }
 
     @Override

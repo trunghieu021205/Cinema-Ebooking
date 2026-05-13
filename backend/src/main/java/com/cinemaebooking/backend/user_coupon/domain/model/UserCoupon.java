@@ -101,4 +101,23 @@ public class UserCoupon extends BaseEntity<UserCouponId> {
     public void markAsUsed() {
         use();
     }
+
+    /**
+     * Kiểm tra coupon có thể sử dụng được hay không.
+     */
+    public boolean isUsable() {
+        if (this.status != UserCouponStatus.AVAILABLE) {
+            return false;
+        }
+
+        if (this.usageRemain == null || this.usageRemain <= 0) {
+            return false;
+        }
+
+        if (this.expiredAt != null && this.expiredAt.isBefore(LocalDateTime.now())) {
+            return false;
+        }
+
+        return true;
+    }
 }

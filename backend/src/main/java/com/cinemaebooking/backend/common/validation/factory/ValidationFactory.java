@@ -29,4 +29,6 @@ public final class ValidationFactory {
     public static ComboValidationProfile combo() {return ComboValidationProfile.INSTANCE;}
     public static ShowtimeValidationProfile showtime(){ return ShowtimeValidationProfile.INSTANCE;}
     public static UserCouponValidationProfile userCoupon() {return UserCouponValidationProfile.INSTANCE;}
+    public static BookingValidationProfile booking(){ return BookingValidationProfile.INSTANCE;}
+    public static TicketValidationProfile ticket(){ return TicketValidationProfile.INSTANCE;}
 }
