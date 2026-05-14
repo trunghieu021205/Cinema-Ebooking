@@ -69,6 +69,18 @@ export interface ColumnDef<T = Record<string, unknown>> {
   displayFn?: (value: unknown, row: T) => string
 
   typeResolver?: (depValues: Record<string, unknown>) => FieldType
+
+  pastOnly?: boolean
+
+  futureOnly?: boolean
+
+  autoSelectToday?: boolean 
+  /**
+   * Số ngày cộng thêm vào hiện tại để làm mốc `minDate`.
+   * - Mặc định = 0 (hôm nay).
+   * - Ví dụ: 1 → ngày mai, -1 → hôm qua.
+   */
+  minDateOffset?: number
 }
 
 // ─── Row item ─────────────────────────────────────────────────────────────────

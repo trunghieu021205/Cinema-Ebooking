@@ -152,12 +152,25 @@
             <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">₫</span>
         </div>
 
-        <!-- Text / Number / Email / Date -->
+        <!-- DATE -->
+        <CalendarPicker v-else-if="effectiveType === 'date' && displayMode !== 'display'" mode="date"
+            :variant="variant ?? 'admin'" :modelValue="toDateObj(modelValue)" :hasError="!!error"
+            :minDate="effectiveMinDate" :autoSelectToday="autoSelectToday"
+            @update:modelValue="emit('update:modelValue', fromDateObj($event, false))"
+            @blur="emit('blur', column.key)" />
+
+        <!-- DATETIME -->
+        <CalendarPicker v-else-if="effectiveType === 'datetime' && displayMode !== 'display'" mode="datetime"
+            :variant="variant ?? 'admin'" :modelValue="toDateObj(modelValue)" :hasError="!!error"
+            :minDate="effectiveMinDate" :autoSelectToday="autoSelectToday"
+            @update:modelValue="emit('update:modelValue', fromDateObj($event, true))"
+            @blur="emit('blur', column.key)" />
+        <!-- Text / Number / Email (date và datetime đã handled ở trên) -->
         <input v-else-if="displayMode !== 'display'" :class="error
             ? 'border-red-300 bg-red-50/40 focus:border-red-400 focus:ring-red-100'
             : 'border-border-admin-subtle bg-white focus:border-accent focus:ring-slate-100'"
             class="w-full rounded-lg border px-3 py-2 text-sm text-slate-900 outline-none transition focus:ring-2"
-            :type="effectiveType === 'datetime' ? 'datetime-local' : effectiveType" :value="modelValue"
+            :type="effectiveType" :value="modelValue"
             @input="emit('update:modelValue', ($event.target as HTMLInputElement).value)"
             @blur="emit('blur', column.key)" @wheel="onNumberWheel" />
 
@@ -216,6 +229,9 @@ import type { ColumnDef, RelationOption } from '@/components/common/table/types/
 import { isReadonlyInEdit }
     from '@/components/common/table/utils/column'
 
+import CalendarPicker from '@/components/ui/calendar/CalenderPicker.vue'
+import { dateToISOString, parseISODate } from '@/utils/dateFormat'
+
 
 const props = defineProps<{
     column: ColumnDef
@@ -224,9 +240,29 @@ const props = defineProps<{
     mode?: 'edit' | 'display' | 'readonly'
 
     depValues?: Record<string, unknown>
+    variant?: 'web' | 'admin'
 }>()
 
 const displayMode = computed(() => props.mode ?? 'edit')
+
+const futureOnly = computed(() => props.column.futureOnly !== false)
+
+const autoSelectToday = computed(() => {
+    if (props.column.autoSelectToday !== undefined) {
+        return props.column.autoSelectToday
+    }
+    return futureOnly.value // giữ nguyên hành vi mặc định
+})
+
+const effectiveMinDate = computed<Date | null>(() => {
+    // Nếu cột không bật futureOnly → không giới hạn ngày
+    if (!futureOnly.value) return null
+
+    const now = new Date()
+    now.setDate(now.getDate() + (props.column.minDateOffset ?? 0))
+    now.setHours(0, 0, 0, 0) // chuẩn về đầu ngày
+    return now
+})
 
 const emit = defineEmits<{
     'update:modelValue': [value: unknown]
@@ -375,22 +411,14 @@ async function loadDependent(deps: Record<string, unknown>) {
 
 watch(
     () => props.depValues,
-    (newDeps) => {
-        if (
-            props.column.dependentLoader &&
-            !props.column.readonly &&
-            !isReadonlyInEdit(
-                props.column,
-                props.depValues ?? {},
-            ) &&
-            newDeps
-        ) {
-            loadDependent(newDeps)
+    (newDeps, oldDeps) => {
+        if (JSON.stringify(newDeps) === JSON.stringify(oldDeps)) return
+        if (props.column.dependentLoader && !props.column.readonly) {
+            loadDependent(newDeps || {})
         }
     },
-    { deep: true }
+    { deep: true, immediate: true }
 )
-
 // ─── Mount ────────────────────────────────────────────────────────────────────
 
 // FieldRenderer.vue – phần onMounted()
@@ -480,6 +508,19 @@ function formatDateTime(iso: string): string {
         })
     } catch { return iso }
 }
+
+// ─── Date input helpers ───────────────────────────────────────────────────────
+
+function toDateObj(val: unknown): Date | null {
+    if (!val) return null
+    return parseISODate(String(val))
+}
+
+function fromDateObj(d: Date | null, isDatetime: boolean): string {
+    if (!d) return ''
+    return dateToISOString(d, isDatetime)
+}
+
 // ─── Currency state ───────────────────────────────────────────────────────────
 const isCurrencyFocused = ref(false)
 

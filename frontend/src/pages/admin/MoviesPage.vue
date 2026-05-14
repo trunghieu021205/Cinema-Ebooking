@@ -100,7 +100,8 @@ const baseColumns: ColumnDef<MovieResponse>[] = [
         label: 'Ngày phát hành',
         type: 'date',
         required: true,
-        width: '120px'
+        width: '120px',
+        futureOnly: false
     },
     {
         key: 'status',
