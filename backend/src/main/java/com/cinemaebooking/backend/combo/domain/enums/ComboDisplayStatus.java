@@ -1,6 +1,7 @@
 package com.cinemaebooking.backend.combo.domain.enums;
 
-public enum ComboStatus {
+public enum ComboDisplayStatus {
     ACTIVE,
-    INACTIVE
+    INACTIVE,
+    OUT_OF_STOCK;
 }
