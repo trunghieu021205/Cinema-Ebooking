@@ -34,6 +34,7 @@ public class CreateComboUseCase {
                 .description(request.getDescription() != null ? request.getDescription().trim() : null)
                 .price(request.getPrice())
                 .originalPrice(request.getOriginalPrice())
+                .stock(request.getStock())
                 .imageUrl(request.getImageUrl() != null ? request.getImageUrl().trim() : null)
                 .status(ComboStatus.INACTIVE) // business rule: new combo always INACTIVE
                 .build();
