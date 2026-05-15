@@ -18,7 +18,17 @@ public class PaymentRepositoryImpl implements PaymentRepository {
 
     @Override
     public Payment save(Payment payment) {
-        PaymentJpaEntity entity = mapper.toEntity(payment);
+        PaymentJpaEntity entity;
+
+        if (payment.getId() == null) {
+            // INSERT
+            entity = mapper.toEntity(payment);
+        } else {
+            // UPDATE: fetch managed entity để giữ nguyên version
+            entity = jpa.findById(payment.getId().getValue())
+                    .orElseThrow(() -> PaymentExceptions.notFound("Payment not found: " + payment.getId().getValue()));
+        }
+
         return mapper.toDomain(jpa.save(entity));
     }
 
