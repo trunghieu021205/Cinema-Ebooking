@@ -28,6 +28,17 @@ public class LoyaltyAccount extends BaseEntity<LoyaltyAccountId> {
         this.totalSpending = this.totalSpending.add(amount);
         this.lastActivityDate = LocalDateTime.now();
     }
+    public void deductPoints(BigDecimal amount) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) return;
+        if (this.currentPoints.compareTo(amount) < 0) {
+            throw new RuntimeException("Insufficient loyalty points");
+        }
+        this.currentPoints = this.currentPoints.subtract(amount);
+        this.lastActivityDate = LocalDateTime.now();
+    }
+    public boolean hasEnoughPoints(BigDecimal requiredPoints) {
+        return this.currentPoints.compareTo(requiredPoints) >= 0;
+    }
     public void updateTier(MembershipTier newTier) { this.tier = newTier; }
     public void setStatus(LoyaltyAccountStatus status) { this.status = status; }
 }

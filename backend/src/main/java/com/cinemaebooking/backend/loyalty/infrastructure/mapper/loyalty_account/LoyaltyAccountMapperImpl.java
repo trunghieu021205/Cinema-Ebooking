@@ -45,4 +45,16 @@ public class LoyaltyAccountMapperImpl implements LoyaltyAccountMapper {
                 .status(entity.getStatus())
                 .build();
     }
+
+    @Override
+    public void updateEntity(LoyaltyAccountJpaEntity target, LoyaltyAccount source) {
+        target.setUserId(source.getUserId());
+        target.setLoyaltyNumber(source.getLoyaltyNumber());
+        target.setTotalSpending(source.getTotalSpending());
+        target.setLifetimePoints(source.getLifetimePoints());
+        target.setCurrentPoints(source.getCurrentPoints());
+        target.setLastActivityDate(source.getLastActivityDate());
+        target.setJoinedDate(source.getJoinedDate());
+        target.setStatus(source.getStatus());
+    }
 }
