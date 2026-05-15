@@ -4,6 +4,7 @@ import com.cinemaebooking.backend.booking.application.port.BookingRepository;
 import com.cinemaebooking.backend.booking.domain.model.Booking;
 import com.cinemaebooking.backend.booking.domain.valueObject.BookingId;
 import com.cinemaebooking.backend.common.exception.domain.BookingExceptions;
+import com.cinemaebooking.backend.loyalty.application.usecase.transactional.AddPointsAfterBookingUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ConfirmPaymentUseCase {
 
     private final BookingRepository bookingRepository;
+    private final AddPointsAfterBookingUseCase addPointsAfterBookingUseCase;
 
     @Transactional
     public void execute(Long bookingId) {
@@ -23,12 +25,14 @@ public class ConfirmPaymentUseCase {
             throw BookingExceptions.expired(BookingId.of(bookingId));
         }
 
-        // Đổi trạng thái sang CONFIRMED, cập nhật paidAt
         booking.markAsPaid();
 
-        // Sau khi markAsPaid, các module con (Ticket) sẽ được coi là "Valid" để check-in
         bookingRepository.save(booking);
 
-        // Gửi email/thông báo tại đây (Domain Event hoặc gọi NotificationService)
+        addPointsAfterBookingUseCase.execute(
+                booking.getUserId(),
+                booking.getTotalTicketPrice(),
+                booking.getTotalComboPrice()
+        );
     }
 }
