@@ -13,6 +13,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,28 +39,36 @@ public class Booking extends BaseEntity<BookingId> {
 
     private BigDecimal totalTicketPrice;
     private BigDecimal totalComboPrice;
-    private BigDecimal discountAmount;
+    private BigDecimal tierDiscountAmount;
+    private BigDecimal couponDiscountAmount;
     private BigDecimal finalAmount;
 
     private BookingStatus status;
     private final LocalDateTime expiredAt;
     private LocalDateTime paidAt;
+    private String membershipTierName;
+    private BigDecimal membershipDiscountPercent;
+
+    public void applyTierDiscount(BigDecimal discountPercent) {
+        this.membershipDiscountPercent = discountPercent;
+        if (discountPercent == null || discountPercent.compareTo(BigDecimal.ZERO) <= 0) {
+            this.tierDiscountAmount = BigDecimal.ZERO;
+            return;
+        }
+        BigDecimal subTotal = calculateSubtotal();
+        BigDecimal tierDiscount = subTotal.multiply(discountPercent).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+        this.tierDiscountAmount = tierDiscount.min(subTotal);
+    }
 
     public void applyCoupon(BookingCoupon couponData) {
         if (couponData == null) {
             this.coupon = null;
-            this.discountAmount = BigDecimal.ZERO;
+            this.couponDiscountAmount = BigDecimal.ZERO;
             return;
         }
 
         this.coupon = couponData;
-
-        // 2. Cập nhật số tiền giảm giá từ coupon
-        // Lưu ý: Logic này có thể phức tạp hơn nếu giảm theo %
-        this.discountAmount = couponData.getDiscountValue();
-
-        // 3. (Optional) Kiểm tra xem số tiền giảm có lớn hơn tổng đơn không
-        // Nếu giảm > tổng, thường ta sẽ chỉ giảm tối đa bằng tổng tiền ticket + combo
+        this.couponDiscountAmount = couponData.getDiscountValue();
     }
     /**
      * Logic tính toán lại tổng tiền của toàn bộ Booking
@@ -81,10 +90,11 @@ public class Booking extends BaseEntity<BookingId> {
     }
 
     public void calculateTotal() {
-        BigDecimal subTotal = calculateSubtotal(); // subtotal đã tính cả combo + ticket
-        this.discountAmount = (coupon != null) ? coupon.getDiscountValue() : BigDecimal.ZERO;
+        BigDecimal subTotal = calculateSubtotal();
+        BigDecimal totalDiscount = (couponDiscountAmount != null ? couponDiscountAmount : BigDecimal.ZERO)
+                .add(tierDiscountAmount != null ? tierDiscountAmount : BigDecimal.ZERO);
 
-        this.finalAmount = subTotal.subtract(this.discountAmount);
+        this.finalAmount = subTotal.subtract(totalDiscount);
 
         if (this.finalAmount.compareTo(BigDecimal.ZERO) < 0) {
             this.finalAmount = BigDecimal.ZERO;
