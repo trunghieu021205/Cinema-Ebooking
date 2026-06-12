@@ -6,7 +6,20 @@ import { showtimeApi } from '@/api/showtime.api'
 import type { MovieResponse } from '@/types/movie.types'
 import type { CinemaResponse } from '@/types/cinema'
 import type { ShowtimeResponse } from '@/types/showtime'
-import { dateToISOString, getDateKeyVN } from '@/utils/dateFormat'
+import { getDateKeyVN } from '@/utils/dateFormat'
+
+const getPreviousDateKey = (dateKey: string): string => {
+  const [year, month, day] = dateKey.split('-').map(Number)
+  const date = new Date(Date.UTC(year, month - 1, day))
+  date.setUTCDate(date.getUTCDate() - 1)
+  return date.toISOString().slice(0, 10)
+}
+
+const mergeShowtimesById = (lists: ShowtimeResponse[][]): ShowtimeResponse[] => {
+  const map = new Map<number, ShowtimeResponse>()
+  lists.flat().forEach(showtime => map.set(showtime.id, showtime))
+  return Array.from(map.values())
+}
 
 export function useQuickBooking() {
   const selectedMovie = ref<MovieResponse | null>(null)
@@ -123,39 +136,30 @@ export function useQuickBooking() {
     }
     }
 
-    async function loadShowtimesForAll(movieId: number, cinemaId: number, date: string) {
-    if (!movieId || !cinemaId || !date) return
-    loadingShowtimes.value = true
-    try {
-        const res = await showtimeApi.getPublicShowtimes({
-        movieId,
-        cinemaId,
-        date: date,      // YYYY-MM-DD
-        size: 200,
-        status: 'SCHEDULED',  // ← thêm filter
-        })
-        showtimesByAll.value = res.content
-    } catch (err) {
-        console.error('Failed to load showtimes for all filters', err)
-        showtimesByAll.value = []
-    } finally {
-        loadingShowtimes.value = false
-    }
-    }
-
   async function loadShowtimesForAll(movieId: number, cinemaId: number, date: string) {
     if (!movieId || !cinemaId || !date) return
     loadingShowtimes.value = true
     try {
-      // Send date as YYYY-MM-DD (local) – backend should interpret correctly
-      const res = await showtimeApi.getPublicShowtimes({
+      const params = {
         movieId,
         cinemaId,
-        date: date, // date is already YYYY-MM-DD from getDateKeyVN
+        date,
         size: 200,
-        status: 'SCHEDULED',  // ← thêm filter
-      })
-      showtimesByAll.value = res.content
+        status: 'SCHEDULED',
+      }
+
+      const [selectedDateRes, previousDateRes] = await Promise.all([
+        showtimeApi.getPublicShowtimes(params),
+        showtimeApi.getPublicShowtimes({
+          ...params,
+          date: getPreviousDateKey(date),
+        }),
+      ])
+
+      showtimesByAll.value = mergeShowtimesById([
+        selectedDateRes.content,
+        previousDateRes.content,
+      ]).filter(st => getDateKeyVN(st.startTime) === date)
     } catch (err) {
       console.error('Failed to load showtimes for all filters', err)
       showtimesByAll.value = []

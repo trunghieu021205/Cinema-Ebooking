@@ -8,7 +8,7 @@
 
         <!-- Thông tin suất chiếu -->
         <div v-if="showtimes.length" class="flex flex-col gap-2 flex-1 min-w-0">
-            <!-- Địa điểm (thành phố) -->
+            <!-- Địa điểm -->
             <div class="flex items-center gap-2 text-caption text-text-secondary">
                 <BaseIcon :icon="MapPin" :size="16" />
                 <span>{{ cinema?.city || 'Đang cập nhật' }}</span>
@@ -19,45 +19,18 @@
                 <span>{{ cinema?.name || 'Đang cập nhật' }}</span>
             </div>
 
-            <!-- Định dạng (2D, 3D,...) -->
-            <div class="flex items-center gap-2 text-caption text-text-secondary">
-                <BaseIcon :icon="Film" :size="16" />
-                <span>{{ formatName }}</span>
-            </div>
-
-            <!-- Ngôn ngữ thanh thoại -->
-            <div class="flex items-center gap-2 text-caption text-text-secondary">
-                <BaseIcon :icon="Mic" :size="16" />
-                <span>Ngôn ngữ: {{ audioLanguageLabel }}</span>
-            </div>
-
-            <!-- Phụ đề -->
-            <div class="flex items-center gap-2 text-caption text-text-secondary">
-                <BaseIcon :icon="Captions" :size="16" />
-                <span>Phụ đề: {{ subtitleLanguageLabel }}</span>
-            </div>
-
-            <!-- Các giờ chiếu (dạng pill) -->
+            <!-- Các giờ chiếu (ShowtimePill — format hiển thị trực tiếp trên pill) -->
             <div class="flex items-start gap-4 mt-1">
                 <BaseIcon :icon="Clock" :size="16" class="text-text-secondary mt-2 shrink-0" />
                 <div class="flex flex-wrap gap-4">
-                    <button v-for="st in showtimes" :key="st.id" class="
-                        px-3.5 py-1.5 rounded-full text-caption font-medium
-                        border border-accent/30 bg-accent/5 text-accent
-                        hover:bg-accent hover:text-text-on-accent hover:border-accent
-                        active:scale-95
-                        transition-all duration-200
-                        cursor-pointer
-                        focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent
-                        shadow-sm hover:shadow-md
-                    " @click="handleBook(st.id)">
-                        {{ formatTime(st.startTime) }} - {{ formatTime(st.endTime) }}
-                    </button>
+                    <ShowtimePill v-for="st in showtimes" :key="st.id" :showtime-id="st.id"
+                        :format-name="getFormatById(st.formatId)?.name ?? '2D'" :start-time="st.startTime"
+                        :end-time="st.endTime" @book="handleBook" />
                 </div>
             </div>
         </div>
 
-        <!-- Fallback khi không có suất chiếu nào -->
+        <!-- Fallback -->
         <div v-else class="flex-1 text-center text-text-secondary italic py-4">
             Không có suất chiếu
         </div>
@@ -69,36 +42,20 @@ import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import BaseIcon from '@/components/ui/icon/BaseIcon.vue'
 import MovieCard from '@/components/movie/MovieCard.vue'
-import { MapPin, Clock, Film, Mic, Captions } from 'lucide-vue-next'
-import type { ShowtimeResponse } from '@/types/showtime'
+import ShowtimePill from '@/components/showtime/ShowtimePill.vue'
+import { MapPin, Clock } from 'lucide-vue-next'
+import type { ShowtimeResponse, ShowtimeFormatResponse } from '@/types/showtime'
 import type { MovieResponse } from '@/types/movie'
 import type { CinemaResponse } from '@/types/cinema'
-import type { ShowtimeFormatResponse } from '@/types/showtime'
-import { formatTimeVN } from '@/utils/dateFormat'
-import { getLanguageLabel } from '@/constants/languages'
 
 const props = defineProps<{
     showtimes: ShowtimeResponse[]
     movie: MovieResponse | undefined
     cinema: CinemaResponse | undefined
-    format: ShowtimeFormatResponse | undefined
+    getFormatById: (id: number) => ShowtimeFormatResponse | undefined
 }>()
 
 const router = useRouter()
-
-const formatName = computed(() => props.format?.name || '2D')
-const firstShowtime = computed(() => props.showtimes[0])
-
-const audioLanguageLabel = computed(() =>
-    firstShowtime.value ? getLanguageLabel(firstShowtime.value.audioLanguage) : '--'
-)
-const subtitleLanguageLabel = computed(() =>
-    firstShowtime.value ? getLanguageLabel(firstShowtime.value.subtitleLanguage) : '--'
-)
-
-const formatTime = (startTime: string | Date) => {
-    return formatTimeVN(startTime)
-}
 
 const handleBook = (showtimeId: number) => {
     router.push(`/bookings?showtimeId=${showtimeId}`)

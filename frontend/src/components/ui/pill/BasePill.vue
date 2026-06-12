@@ -68,7 +68,7 @@ const pillClasses = computed(() => [
         ]
         : props.variant === 'outline'
             ? [
-                'border-border-default bg-transparent text-default',
+                'border-border-default bg-transparent text-text-primary',
                 'hover:border-accent hover:text-accent hover:bg-accent/5',
                 'active:scale-95 active:bg-accent/10'
             ]

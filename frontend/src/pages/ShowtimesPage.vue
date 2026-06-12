@@ -24,7 +24,7 @@
           </h2>
           <ShowtimeCard v-for="(g, idx) in group.groups" :key="idx" :showtimes="g.showtimes"
             :movie="getMovieById(g.showtimes[0].movieId)" :cinema="getCinemaById(g.showtimes[0].cinemaId)"
-            :format="getFormatById(g.showtimes[0].formatId)" @book="handleBook" />
+            :get-format-by-id="getFormatById" @book="handleBook" />
         </div>
       </template>
     </div>
@@ -32,19 +32,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import ShowtimeFilters from '@/components/showtime/ShowtimeFilters.vue'
 import ShowtimeCard from '@/components/showtime/ShowtimeCard.vue'
 import Skeleton from '@/components/ui/skeleton/Skeleton.vue'
 import { useShowtimes } from '@/composables/useShowtimes'
 import { useAuthStore } from '@/stores/auth.store'
-import { showtimeApi } from '@/api/showtime.api'
 import { showtimeListSkeleton } from '@/skeletons/showtime.skeleton'
-import type { ShowtimeFormatResponse } from '@/types/showtime'
 import type { CreateBookingRequest } from '@/types/booking.types'
 import type { ShowtimeResponse } from '@/types/showtime'
 import { formatDateHeaderVN, getDateKeyVN } from '@/utils/dateFormat'
+import { watch } from 'vue'
 
 const {
   showtimes,
@@ -56,17 +55,16 @@ const {
   selectedDate,
   getCinemaById,
   getMovieById,
+  getFormatById,
 } = useShowtimes()
 
 const authStore = useAuthStore()
 const router = useRouter()
-const formats = ref<ShowtimeFormatResponse[]>([])
-
 const route = useRoute()
 
 let updatingFromUrl = false
 
-// 1. Khi URL query thay đổi → cập nhật selectedDate (nếu khác)
+// 1. Khi URL query thay đổi → cập nhật selectedDate
 watch(
   () => route.query.date,
   (newDate) => {
@@ -78,14 +76,14 @@ watch(
         selectedDate.value = dateValue
       }
     } else if (!dateValue && selectedDate.value !== '') {
-      selectedDate.value = ''  // xóa bộ lọc ngày
+      selectedDate.value = ''
     }
     updatingFromUrl = false
   },
-  { immediate: true } // chạy ngay khi mount
+  { immediate: true }
 )
 
-// 2. Khi selectedDate thay đổi (do user chọn trên filter) → cập nhật URL
+// 2. Khi selectedDate thay đổi → cập nhật URL
 watch(
   () => selectedDate.value,
   (newDate) => {
@@ -95,7 +93,6 @@ watch(
     if (newDate && newDate.trim() !== '') {
       router.replace({ query: { ...currentQuery, date: newDate } })
     } else {
-      // Xóa query date nếu không có giá trị
       const { date, ...restQuery } = currentQuery
       router.replace({ query: restQuery })
     }
@@ -118,16 +115,13 @@ const groupedShowtimes = computed(() => {
       return
     }
 
-    // So sánh theo múi giờ VN
     if (startDateVN < today) return
 
-    const dateKey = getDateKeyVN(startInstant)   // ← Dùng hàm này
+    const dateKey = getDateKeyVN(startInstant)
+
     const groupKey = [
       showtime.movieId,
       showtime.cinemaId,
-      showtime.formatId,
-      showtime.audioLanguage,
-      showtime.subtitleLanguage,
     ].join('|')
 
     if (!dateMap.has(dateKey)) dateMap.set(dateKey, new Map())
@@ -150,17 +144,6 @@ const groupedShowtimes = computed(() => {
 
 const formatDateHeader = (dateStr: string) => formatDateHeaderVN(dateStr)
 
-const fetchFormats = async () => {
-  try {
-    const res = await showtimeApi.getFormats?.()
-    if (res) formats.value = res.data
-  } catch (error) {
-    console.error('Failed to fetch formats', error)
-  }
-}
-
-const getFormatById = (id: number) => formats.value.find(f => f.id === id)
-
 const handleBook = (showtimeId: number) => {
   if (!authStore.user) {
     alert('Vui lòng đăng nhập để đặt vé')
@@ -176,8 +159,4 @@ const handleBook = (showtimeId: number) => {
   sessionStorage.setItem('tempBooking', JSON.stringify(bookingRequest))
   router.push({ name: 'booking-seats', params: { showtimeId } })
 }
-
-onMounted(() => {
-  fetchFormats()
-})
 </script>

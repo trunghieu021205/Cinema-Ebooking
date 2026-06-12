@@ -17,7 +17,7 @@
                         <BaseIcon :icon="ChevronLeft" :size="18" />
                     </button>
 
-                    <!-- 7 date chips – responsive columns -->
+                    <!-- 5 date chips – responsive columns -->
                     <div class="grid grid-cols-3 gap-1 flex-1 md:grid-cols-4 xl:grid-cols-5">
                         <button v-for="d in dateOptions" :key="d.date" @click="selectDate(d.date)" :class="[
                             'py-2 px-0.5 rounded-lg text-xs font-medium transition-all outline outline-transparent text-center',
@@ -133,15 +133,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import BaseDropdown from '@/components/ui/dropdown/BaseDropdown.vue'
 import { useShowtimes } from '@/composables/useShowtimes'
-import { formatTimeVN, getDateKeyVN } from '@/utils/dateFormat'
+import { getDateKeyVN } from '@/utils/dateFormat'
 import type { ShowtimeResponse } from '@/types/showtime'
 import BaseIcon from '@/components/ui/icon/BaseIcon.vue'
 import { ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Clock } from 'lucide-vue-next'
-import BaseButton from '@/components/ui/button/BaseButton.vue'
 import ShowtimePill from '@/components/showtime/ShowtimePill.vue'
 import type { MovieStatus } from '@/types/movie'
 import ComingSoonPanel from '@/components/movie/ComingSoonPanel.vue'
@@ -163,24 +162,16 @@ const {
     selectedCinemaId,
     selectedDate,
     getCinemaById,
+    getFormatById,
+    fetchShowtimes,
 } = useShowtimes(props.movieId, { autoFetch: false })
-
-onMounted(() => {
-    if (!selectedDate.value) {
-        const today = new Date()
-        selectedDate.value = getDateKeyVN(today.toISOString())
-    }
-})
 
 const MAX_DAYS = 30
 const WEEK_SIZE = 5
-
-const weekOffset = ref(0) // 0 = tuần hiện tại, 1 = tuần sau, ...
+const weekOffset = ref(0)
 const today = new Date()
 
-const maxWeekOffset = computed(() =>
-    Math.floor((MAX_DAYS - 1) / WEEK_SIZE) // = 4
-)
+const maxWeekOffset = computed(() => Math.floor((MAX_DAYS - 1) / WEEK_SIZE))
 
 const dateOptions = computed(() => {
     const start = weekOffset.value * WEEK_SIZE
@@ -202,7 +193,6 @@ const dateOptions = computed(() => {
     })
 })
 
-// Tự động nhảy tuần nếu ngày được chọn không thuộc tuần hiện tại
 const selectDate = (date: string) => {
     selectedDate.value = date
 }
@@ -225,8 +215,7 @@ const cinemaItems = computed(() => {
 
 const selectedCinemaName = computed(() => {
     if (selectedCinemaId.value == null) return null
-    const cinema = filteredCinemas.value.find(c => c.id === selectedCinemaId.value)
-    return cinema?.name ?? null
+    return filteredCinemas.value.find(c => c.id === selectedCinemaId.value)?.name ?? null
 })
 
 const groupedShowtimes = computed(() => {
@@ -237,24 +226,18 @@ const groupedShowtimes = computed(() => {
     }>()
 
     showtimes.value.forEach(st => {
-        // Lấy cinemaId một cách an toàn: ưu tiên nested object, sau đó đến trường cinemaId phẳng
-        const cinemaId = st.cinema?.id ?? (st as any).cinemaId
-        if (!cinemaId) return // bỏ qua nếu không xác định được rạp
+        const cinemaId = (st as any).cinemaId
+        if (!cinemaId) return
 
-        // Lấy tên rạp: ưu tiên nested object, không có thì dùng getCinemaById từ composable
-        const cinemaName =
-            st.cinema?.name ?? getCinemaById(cinemaId)?.name ?? `Rạp #${cinemaId}`
+        const cinemaName = getCinemaById(cinemaId)?.name ?? `Rạp #${cinemaId}`
 
         if (!groups.has(cinemaId)) {
-            groups.set(cinemaId, {
-                cinemaId,
-                cinemaName,
-                showtimes: [],
-            })
+            groups.set(cinemaId, { cinemaId, cinemaName, showtimes: [] })
         }
         groups.get(cinemaId)!.showtimes.push({
             ...st,
-            formatName: st.format?.name ?? '2D',
+            // ✅ Dùng getFormatById từ composable (FORMATS hardcode) thay vì st.format?.name
+            formatName: getFormatById(st.formatId)?.name ?? '2D',
         })
     })
 
@@ -266,11 +249,22 @@ const groupedShowtimes = computed(() => {
     }))
 })
 
-const formatTime = (instant: string) => formatTimeVN(instant)
-
 const handleBook = (showtimeId: number) => {
     router.push(`/bookings?showtimeId=${showtimeId}`)
 }
+
+// ✅ autoFetch: false → watch thủ công ở đây để trigger fetch khi filter thay đổi
+watch([selectedDate, selectedCinemaId], () => {
+    if (selectedDate.value) {
+        fetchShowtimes()
+    }
+})
+
+// ✅ Fetch master data (cinemas) + fetch showtime ngày hôm nay khi mount
+onMounted(async () => {
+    selectedDate.value = getDateKeyVN(new Date().toISOString())
+    await fetchShowtimes()
+})
 </script>
 
 <style scoped>

@@ -1,4 +1,4 @@
-import { computed, watch } from 'vue'
+import { computed, watch, watchEffect } from 'vue'
 import { useShowtimes } from '@/composables/useShowtimes'
 import { getDateKeyVN } from '@/utils/dateFormat'
 
@@ -11,15 +11,14 @@ export function useShowtimeSwitcher(booking: any) {
         selectedCinemaId,
         selectedDate,
         fetchShowtimes: fetchOtherShowtimes
-    } = useShowtimes(undefined, { autoFetch: false })
+    } = useShowtimes(undefined, { autoFetch: false, includeActive: true })
 
     const allShowtimes = computed(() => {
         const current = currentShowtime.value
-        if (!current) return otherShowtimesRaw.value
+        if (!current) return []
 
-        // ✅ Chỉ lấy các suất chiếu của cùng phim
         const sameMovieShowtimes = otherShowtimesRaw.value.filter(
-            st => st.movieId === current.movieId
+            st => st.movieId === current.movieId && st.cinemaId === current.cinemaId
         )
 
         const hasCurrent = sameMovieShowtimes.some(st => st.id === current.id)
@@ -32,17 +31,22 @@ export function useShowtimeSwitcher(booking: any) {
         )
     })
 
-    watch([() => booking.selectedShowtime.value, () => booking.selectedCinema.value], async ([st, cinema]) => {
-        if (st && cinema) {
-            selectedCinemaId.value = cinema.id
-            selectedDate.value = getDateKeyVN(st.startTime)
-            await fetchOtherShowtimes()
-        } else {
-            selectedCinemaId.value = null
-            selectedDate.value = ''
-            otherShowtimesRaw.value = []  // ⚠️ xem ghi chú bên dưới
-        }
-    }, { immediate: true })
+    // Dùng watchEffect thay vì watch với immediate
+    // watchEffect tự track dependency và chạy lại khi bất kỳ dep nào thay đổi
+    watchEffect(async () => {
+        const st = booking.selectedShowtime.value
+        const cinema = booking.selectedCinema.value
+
+        // Guard: chỉ fetch khi cả 2 đều có data
+        if (!st || !cinema) return
+
+        selectedCinemaId.value = cinema.id
+        selectedDate.value = getDateKeyVN(st.startTime)
+
+        // autoFetch: false → watch trong composable không fire
+        // gọi thủ công sau khi state đã được set đồng bộ
+        await fetchOtherShowtimes()
+    })
 
     const changeShowtime = (newShowtime: any) => {
         if (!newShowtime) return
